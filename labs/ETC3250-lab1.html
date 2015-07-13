@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ETC3250 Lab Week 1</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="generator" content="pandoc" />
+
+
+
+  <meta name="date" content="2015-07-27" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <link rel="stylesheet" media="all" href="ETC3250-lab1_files/ioslides-13.5.1/fonts/fonts.css">
+
+  <link rel="stylesheet" media="all" href="ETC3250-lab1_files/ioslides-13.5.1/theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="ETC3250-lab1_files/ioslides-13.5.1/theme/css/phone.css">
+
+  <base target="_blank">
+
+  <script type="text/javascript">
+    var SLIDE_CONFIG = {
+      // Slide settings
+      settings: {
+                title: 'ETC3250 Lab Week 1',
+                        useBuilds: true,
+        usePrettify: true,
+        enableSlideAreas: true,
+        enableTouch: true,
+              },
+
+      // Author information
+      presenters: [
+            {
+        name:  'Souhaib Ben Taieb, Di Cook, Rob Hyndman' ,
+        company: '',
+        gplus: '',
+        twitter: '',
+        www: '',
+        github: ''
+      },
+            ]
+    };
+  </script>
+
+  <style type="text/css">
+
+    b, strong {
+      font-weight: bold;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    slides > slide {
+      -webkit-transition: all 0.4s ease-in-out;
+      -moz-transition: all 0.4s ease-in-out;
+      -o-transition: all 0.4s ease-in-out;
+      transition: all 0.4s ease-in-out;
+    }
+
+    .auto-fadein {
+      -webkit-transition: opacity 0.6s ease-in;
+      -webkit-transition-delay: 0.4s;
+      -moz-transition: opacity 0.6s ease-in 0.4s;
+      -o-transition: opacity 0.6s ease-in 0.4s;
+      transition: opacity 0.6s ease-in 0.4s;
+      opacity: 0;
+    }
+
+  </style>
+
+  <link rel="stylesheet" href="styles.css" type="text/css" />
+
+
+</head>
+
+<body style="opacity: 0">
+
+<slides class="layout-widescreen">
+
+  <slide class="title-slide segue nobackground">
+        <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 data-config-title><!-- populated from slide_config.json --></h1>
+      <h2 data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p data-config-presenter><!-- populated from slide_config.json --></p>
+            <p style="margin-top: 6px; margin-left: -2px;">July 27, 2015</p>
+          </hgroup>
+  </slide>
+
+<slide class=''><hgroup><h2>INTRODUCTION TO R</h2></hgroup><article  id="introduction-to-r">
+
+<p>The versions of the software that we will use are:</p>
+
+<ul>
+<li>RStudio 0.99.465 – © 2009-2015 RStudio, Inc.</li>
+<li>R 3.2.1 (2015-06-18) &#8211; &quot;World-Famous Astronaut&quot;</li>
+</ul>
+
+<p>Resource: Garret Grolemund&#39;s book &quot;Hands-On Programming with R&quot;</p>
+
+</article></slide><slide class=''><hgroup><h2>WHY R?</h2></hgroup><article  id="why-r">
+
+<p>R is a language for data analysis, encouraging:</p>
+
+<ul>
+<li>Reproducibility</li>
+<li>Automation</li>
+<li>Communication</li>
+</ul>
+
+<p>Learning a new language can be frustrating. It is worth it!</p>
+
+</article></slide><slide class=''><hgroup><h2>KDNuggets 2015 survey, top 10 tools</h2></hgroup><article  id="kdnuggets-2015-survey-top-10-tools">
+
+<div class="columns-2">
+<img src='KDNuggets-survey-2015.png' title=''/>
+
+R is at the top this year, with a steep increase, beating out RapidMiner for the first time. (Note: RapidMiner is a wrapper to R, and Weka.)</div>
+
+</article></slide><slide class=''><hgroup><h2>CREATE A PROJECT</h2></hgroup><article  id="create-a-project">
+
+<div class="columns-2">
+<ul>
+<li>Project directories keep your work organized.</li>
+<li>Create a project for this course, call it ETC3250. (You can use another name, if you prefer.) This will keep your data, your code, your results all located in one place.</li>
+<li>Each time you start RStudio for this class, be sure to open this project.</li>
+</ul>
+
+<img src='RStudio.png' title=''/></div>
+
+</article></slide><slide class=''><hgroup><h2>Using the RStudio Interface</h2></hgroup><article  id="using-the-rstudio-interface">
+
+<p>The RStudio GUI makes working with R easier.</p>
+
+<ul>
+<li>Coding pane, helps edit code</li>
+<li>Workspace pane, what data sets have you got loaded</li>
+<li>Files/Help/Plot pane, place to go to look for information on packages, functions</li>
+<li>Using Rmarkdown you can have a live log, documenting your analysis as you do the analysis.</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Using the RStudio Interface</h2></hgroup><article  id="using-the-rstudio-interface-1">
+
+<img src='rstudio-GUI.png' title=''/>
+
+</article></slide><slide class=''><hgroup><h2>Your turn</h2></hgroup><article  id="your-turn">
+
+<ul>
+<li>Download the &quot;ETC3250-lab1-report.Rmd&quot; file</li>
+<li>Open in the R Studio</li>
+<li>Knit as html, and knit as Word</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Navigation</h2></hgroup><article  id="navigation">
+
+<div class="columns-2">
+<p>Sometimes you may get unexpected error messages like:</p>
+
+<p><code>Error in file(file, &quot;rt&quot;) : cannot open the connection</code></p>
+
+<p>which indicates that R might disagree with you on where think you are working. These commands can help locate what R thinks, and change it, <code>getwd()</code> and <code>setwd(&quot;labs&quot;)</code></p>
+
+<p>Also, note that the name of the current project can be seen at the top right of the RStudio window.</p>
+
+<img src='rstudio-project.png' title=''/></div>
+
+</article></slide><slide class=''><hgroup><h2>Packages</h2></hgroup><article  id="packages">
+
+<p>One of the main strengths of R is the package system. These go beyond the base R tools, and provide access to methodology from many fields of study. These packages are contributed by people across the globe, usually experts in their field. Because there are so many, you will likely only need a handful for your own analyses. Learn how to install these, and load them as you need.</p>
+
+</article></slide><slide class=''><hgroup><h2>Your turn</h2></hgroup><article  id="your-turn-1">
+
+<ul>
+<li>How do you load a package?</li>
+<li>How do you install a package?</li>
+<li>What is the difference?</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Packages</h2></hgroup><article  id="packages-1">
+
+<pre class = 'prettyprint lang-r'># library() makes a package available for use
+
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# If you&#39;re missing any of these packages you can
+# install with
+# install.packages(c(&quot;ggplot2&quot;, &quot;tidyr&quot;, &quot;dplyr&quot;))
+
+# You only need to inst# all once per computer.
+# You need to library() every time you start R.</pre>
+
+</article></slide><slide class=''><hgroup><h2>Lets get started</h2></hgroup><article  id="lets-get-started">
+
+<ul>
+<li>Loading data</li>
+<li>R as a calculator</li>
+<li>Types of R objects</li>
+<li>Creating R functions</li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Read in some data</h2></hgroup><article  id="read-in-some-data">
+
+<pre class = 'prettyprint lang-r'>pisa &lt;- read.csv(&quot;PISA-oz.csv&quot;, stringsAsFactors=FALSE)
+dim(pisa)</pre>
+
+<pre >## [1] 14481    80</pre>
+
+<pre class = 'prettyprint lang-r'>colnames(pisa)</pre>
+
+<pre >##  [1] &quot;name&quot;     &quot;SCHOOLID&quot; &quot;ST03Q01&quot;  &quot;ST03Q02&quot;  &quot;ST04Q01&quot;  &quot;ST08Q01&quot; 
+##  [7] &quot;ST09Q01&quot;  &quot;ST115Q01&quot; &quot;ST11Q01&quot;  &quot;ST11Q02&quot;  &quot;ST11Q03&quot;  &quot;ST11Q04&quot; 
+## [13] &quot;ST11Q05&quot;  &quot;ST11Q06&quot;  &quot;ST13Q01&quot;  &quot;ST17Q01&quot;  &quot;ST27Q01&quot;  &quot;ST27Q02&quot; 
+## [19] &quot;ST27Q03&quot;  &quot;ST27Q04&quot;  &quot;ST27Q05&quot;  &quot;ST28Q01&quot;  &quot;ST85Q01&quot;  &quot;ST85Q02&quot; 
+## [25] &quot;IC05Q01&quot;  &quot;IC06Q01&quot;  &quot;IC07Q01&quot;  &quot;IC08Q03&quot;  &quot;IC08Q04&quot;  &quot;IC08Q05&quot; 
+## [31] &quot;PV1MATH&quot;  &quot;PV2MATH&quot;  &quot;PV3MATH&quot;  &quot;PV4MATH&quot;  &quot;PV5MATH&quot;  &quot;PV1MACC&quot; 
+## [37] &quot;PV2MACC&quot;  &quot;PV3MACC&quot;  &quot;PV4MACC&quot;  &quot;PV5MACC&quot;  &quot;PV1MACQ&quot;  &quot;PV2MACQ&quot; 
+## [43] &quot;PV3MACQ&quot;  &quot;PV4MACQ&quot;  &quot;PV5MACQ&quot;  &quot;PV1MACS&quot;  &quot;PV2MACS&quot;  &quot;PV3MACS&quot; 
+## [49] &quot;PV4MACS&quot;  &quot;PV5MACS&quot;  &quot;PV1MACU&quot;  &quot;PV2MACU&quot;  &quot;PV3MACU&quot;  &quot;PV4MACU&quot; 
+## [55] &quot;PV5MACU&quot;  &quot;PV1MAPE&quot;  &quot;PV2MAPE&quot;  &quot;PV3MAPE&quot;  &quot;PV4MAPE&quot;  &quot;PV5MAPE&quot; 
+## [61] &quot;PV1MAPF&quot;  &quot;PV2MAPF&quot;  &quot;PV3MAPF&quot;  &quot;PV4MAPF&quot;  &quot;PV5MAPF&quot;  &quot;PV1MAPI&quot; 
+## [67] &quot;PV2MAPI&quot;  &quot;PV3MAPI&quot;  &quot;PV4MAPI&quot;  &quot;PV5MAPI&quot;  &quot;PV1READ&quot;  &quot;PV2READ&quot; 
+## [73] &quot;PV3READ&quot;  &quot;PV4READ&quot;  &quot;PV5READ&quot;  &quot;PV1SCIE&quot;  &quot;PV2SCIE&quot;  &quot;PV3SCIE&quot; 
+## [79] &quot;PV4SCIE&quot;  &quot;PV5SCIE&quot;</pre>
+
+</article></slide><slide class=''><hgroup><h2>Your turn</h2></hgroup><article  id="your-turn-2">
+
+<p>What does the <code>stringsAsFactors</code> do?</p>
+
+<p>How can you see what&#39;s in this data frame?</p>
+
+</article></slide><slide class=''><hgroup><h2>Data</h2></hgroup><article  id="data">
+
+<div class="columns-2">
+<p>Using code:</p>
+
+<p><code>View(pisa)</code></p>
+
+<p><code>str(pisa)</code></p>
+
+<p><code>head(pisa)</code></p>
+
+<img src='rstudio-data.png' title=''/></div>
+
+</article></slide><slide class=''><hgroup><h2>Your turn</h2></hgroup><article  id="your-turn-3">
+
+<p>What do chr, int, num and POSIXct stand for?</p>
+
+</article></slide><slide class=''><hgroup><h2>Types of variables</h2></hgroup><article  id="types-of-variables">
+
+<table class = 'rmdtable'>
+<col width="22%" />
+<col width="22%" />
+<tr class="header">
+<th align="left">Abbreviation</th>
+<th align="left">Meaning</th>
+</tr>
+<tr class="odd">
+<td align="left"><p>int</p></td>
+<td align="left"><p>Integer</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p>num</p></td>
+<td align="left"><p>Numeric</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p>chr</p></td>
+<td align="left"><p>Character</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p>POSIXct (don&#39;t ask)</p></td>
+<td align="left"><p>Date/time</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p>Factor use sparingly</p></td>
+<td align="left"><p>Categorical</p></td>
+</tr>
+</table>
+
+</article></slide><slide class=''><hgroup><h2>Your turn</h2></hgroup><article  id="your-turn-4">
+
+<p>Which columns of pisa are numeric?</p>
+
+<p>Which columns are character?</p>
+
+<p>How many different schools were sampled?</p>
+
+</article></slide><slide class=''><hgroup><h2>Summaries</h2></hgroup><article  id="summaries">
+
+<pre class = 'prettyprint lang-r'>summary(pisa$PV2MATH)</pre>
+
+<pre >##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   107.0   425.5   491.7   493.3   561.2   853.2</pre>
+
+<pre class = 'prettyprint lang-r'>length(unique(pisa$SCHOOLID))</pre>
+
+<pre >## [1] 775</pre>
+
+</article></slide><slide class=''><hgroup><h2>R as a calculator</h2></hgroup><article  id="r-as-a-calculator">
+
+<pre class = 'prettyprint lang-r'>1+1
+2*5
+12/4
+20-3
+100:110 # All integers from 100 to 110</pre>
+
+<pre >## [1] 2
+## [1] 10
+## [1] 3
+## [1] 17
+##  [1] 100 101 102 103 104 105 106 107 108 109 110</pre>
+
+<p>If you type a command that R doesn&#39;t recognize you will get an error, eg.</p>
+
+<p><code>&gt; 5 % 3</code></p>
+
+<p><code>Error: unexpected input in &quot;5 % 3&quot;</code></p>
+
+</article></slide><slide class=''><hgroup><h2>Objects</h2></hgroup><article  id="objects">
+
+<p>R objects store data. The assignment operator, <code>&lt;-</code> is used to name the object. It is also possible to use <code>=</code> to mean the same thing.</p>
+
+<pre class = 'prettyprint lang-r'>mynumbers &lt;- 5:12
+mynumbers
+mynumbers + 2</pre>
+
+<pre >## [1]  5  6  7  8  9 10 11 12
+## [1]  7  8  9 10 11 12 13 14</pre>
+
+<p>Names can be almost anything, except for special characters <code>^, !, $, @, +, -, /, *</code>. It is good practice to name your objects with some meaning for what they contain, be reasonably short (less typiing). They should from common R functions, for example, don&#39;t use <code>data</code> because it is also used to load stored data from packages, or <code>c</code> because this is an R function that allows you to collect a bunch of objects together. You won&#39;t get errors by using these names but you may get confused when you come back and look at your code later.</p>
+
+</article></slide><slide class=''><hgroup><h2>Types of objects</h2></hgroup><article  id="types-of-objects">
+
+<p>Objects can be of different types. The object <code>mynumbers</code> is a vector of numbers. Numbers can be various types also: integer or double.</p>
+
+<pre class = 'prettyprint lang-r'>typeof(mynumbers)
+is.numeric(mynumbers)
+is.vector(mynumbers)
+length(mynumbers)</pre>
+
+<pre >## [1] &quot;integer&quot;
+## [1] TRUE
+## [1] TRUE
+## [1] 8</pre>
+
+</article></slide><slide class=''><hgroup><h2>Types of objects</h2></hgroup><article  id="types-of-objects-1">
+
+<p>Other common types of objects for data analysis are characters, logicals, factors, dates. Factors store categorical data. Dates have a special format that enables it to be treated similarly to how we use dates in real life.</p>
+
+<pre class = 'prettyprint lang-r'>mytext &lt;- c(&quot;hello&quot;, &quot;class&quot;)
+length(mytext)
+mylogic &lt;- c(TRUE, FALSE, TRUE, TRUE)
+gender &lt;- factor(c(&quot;male&quot;, &quot;female&quot;, &quot;female&quot;, &quot;female&quot;, &quot;male&quot;))
+levels(gender)
+summary(gender)</pre>
+
+<pre >## [1] 2
+## [1] &quot;female&quot; &quot;male&quot;  
+## female   male 
+##      3      2</pre>
+
+</article></slide><slide class=''><hgroup><h2>Working with temporal data</h2></hgroup><article  id="working-with-temporal-data">
+
+<p>There are basic routines for handling dates specially, but the best package for operating on temporal data is lubridate, we&#39;ll talking about this later.</p>
+
+<pre class = 'prettyprint lang-r'>now &lt;- Sys.time()
+now
+typeof(now)
+class(now)
+today &lt;- as.Date(&quot;08/26/2014&quot;, format=&quot;%m/%d/%Y&quot;)
+today</pre>
+
+<pre >## [1] &quot;2015-07-13 12:30:49 CDT&quot;
+## [1] &quot;double&quot;
+## [1] &quot;POSIXct&quot; &quot;POSIXt&quot; 
+## [1] &quot;2014-08-26&quot;</pre>
+
+</article></slide><slide class=''><hgroup><h2>Functions</h2></hgroup><article  id="functions">
+
+<p>One of the powerful aspects of R is to build on the reproducibility. If you are going to do the same analysis over and over again, compile these operations into a function that you can then apply to different data sets.</p>
+
+<pre class = 'prettyprint lang-r'>mymode &lt;- function(x) {
+  ux &lt;- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+mymode(c(rep(&quot;A&quot;, 5), rep(&quot;B&quot;, 3)))</pre>
+
+<pre >## [1] &quot;A&quot;</pre>
+
+</article></slide><slide class=''><hgroup><h2>Function structure</h2></hgroup><article  id="function-structure">
+
+<p><code>mymode &lt;- function(x, labelit=&quot;m&quot;) ....</code></p>
+
+<ul>
+<li><p><code>x</code> is an input to the function that is essential to provide each time.</p></li>
+<li><p><code>label</code> is an optional addition that mostly will be the default value, but the user could change it to something else, simply by changing it in the function on the fly.</p></li>
+</ul>
+
+<pre class = 'prettyprint lang-r'>mymode(x=c(rep(&quot;A&quot;, 5), rep(&quot;B&quot;, 3)))
+mymode(x=c(rep(&quot;A&quot;, 5), rep(&quot;B&quot;, 3)), labelit=&quot;mode&quot;)</pre>
+
+<pre >##   m 
+## &quot;A&quot; 
+## mode 
+##  &quot;A&quot;</pre></article></slide>
+
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<script src="ETC3250-lab1_files/ioslides-13.5.1/js/modernizr.custom.45394.js"></script>
+<script src="ETC3250-lab1_files/ioslides-13.5.1/js/prettify/prettify.js"></script>
+<script src="ETC3250-lab1_files/ioslides-13.5.1/js/prettify/lang-r.js"></script>
+<script src="ETC3250-lab1_files/ioslides-13.5.1/js/prettify/lang-yaml.js"></script>
+<script src="ETC3250-lab1_files/ioslides-13.5.1/js/hammer.js"></script>
+<script src="ETC3250-lab1_files/ioslides-13.5.1/js/slide-controller.js"></script>
+<script src="ETC3250-lab1_files/ioslides-13.5.1/js/slide-deck.js"></script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "ETC3250-lab1_files/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+<!-- map slide visiblity events into shiny -->
+<script>
+  (function() {
+    if (window.jQuery) {
+       window.jQuery(document).on('slideleave', function(e) {
+         window.jQuery(e.target).trigger('hidden');
+      });
+       window.jQuery(document).on('slideenter', function(e) {
+         window.jQuery(e.target).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>

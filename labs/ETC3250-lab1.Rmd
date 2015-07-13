@@ -1,0 +1,289 @@
+---
+title: "ETC3250 Lab Week 1"
+author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
+date: "July 27, 2015"
+output:
+  ioslides_presentation:
+    css: styles.css
+    mathjax: local
+    self_contained: no
+    widescreen: yes
+  beamer_presentation: default
+  slidy_presentation: default
+---
+
+## INTRODUCTION TO R
+
+The versions of the software that we will use are:
+
+- RStudio 0.99.465 – © 2009-2015 RStudio, Inc.
+- R 3.2.1 (2015-06-18) -- "World-Famous Astronaut"
+
+Resource: Garret Grolemund's book "Hands-On Programming with R"
+
+## WHY R? 
+
+R is a language for data analysis, encouraging:
+
+- Reproducibility 
+- Automation
+- Communication 
+
+Learning a new language can be frustrating. It is worth it!
+
+## KDNuggets 2015 survey, top 10 tools 
+
+<div class="columns-2">
+
+!["survey"](KDNuggets-survey-2015.png)
+
+R is at the top this year, with a steep increase, beating out RapidMiner for the first time. (Note: RapidMiner is a wrapper to R, and Weka.)
+</div>
+
+## CREATE A PROJECT
+
+<div class="columns-2">
+- Project directories keep your work organized. 
+- Create a project for this course, call it ETC3250. (You can use another name, if you prefer.) This will keep your data, your code, your results all located in one place. 
+- Each time you start RStudio for this class, be sure to open this project.
+
+!["Project"](RStudio.png)
+</div>
+
+## Using the RStudio Interface
+
+The RStudio GUI makes working with R easier. 
+
+- Coding pane, helps edit code
+- Workspace pane, what data sets have you got loaded
+- Files/Help/Plot pane, place to go to look for information on packages, functions
+- Using Rmarkdown you can have a live log, documenting your analysis as you do the analysis.
+
+## Using the RStudio Interface
+
+!["RStudio Interface"](rstudio-GUI.png)
+
+## Your turn
+
+- Download the "ETC3250-lab1-report.Rmd" file 
+- Open in the R Studio 
+- Knit as html, and knit as Word
+
+## Navigation
+
+<div class="columns-2">
+
+Sometimes you may get unexpected error messages like:
+
+``` Error in file(file, "rt") : cannot open the connection```
+
+which indicates that R might disagree with you on where think you are working. These commands can help locate what R thinks, and change it, ```getwd()``` and ``` setwd("labs")```
+
+Also, note that the name of the current project can be seen at the top right of the RStudio window.
+
+!["RStudio project"](rstudio-project.png)
+
+</div>
+
+## Packages
+
+One of the main strengths of R is the package system. These go beyond the base R tools, and provide access to methodology from many fields of study. These packages are contributed by people across the globe, usually experts in their field. Because there are so many, you will likely only need a handful for your own analyses. Learn how to install these, and load them as you need.
+
+## Your turn
+
+- How do you load a package?
+- How do you install a package?
+- What is the difference?
+
+## Packages
+
+```{r, message=FALSE, warning=FALSE, error=FALSE}
+# library() makes a package available for use
+
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# If you're missing any of these packages you can
+# install with
+# install.packages(c("ggplot2", "tidyr", "dplyr"))
+
+# You only need to inst# all once per computer.
+# You need to library() every time you start R.
+```
+
+## Lets get started
+
+- Loading data
+- R as a calculator
+- Types of R objects
+- Creating R functions
+
+## Read in some data
+
+```{r, warning=FALSE, message=FALSE, error=FALSE}
+pisa <- read.csv("PISA-oz.csv", stringsAsFactors=FALSE)
+dim(pisa)
+colnames(pisa)
+```
+
+## Your turn
+
+What does the ```stringsAsFactors``` do?
+
+How can you see what's in this data frame?
+
+## Data
+
+<div class="columns-2">
+Using code:
+
+```View(pisa)```
+
+```str(pisa)```
+
+```head(pisa)```
+
+!["RStudio data"](rstudio-data.png)
+
+</div>
+
+## Your turn
+
+What do chr, int, num and POSIXct stand for?
+
+## Types of variables
+
++---------------+---------------+
+| Abbreviation  | Meaning       | 
++===============+===============+
+| int           | Integer       | 
+|               |               | 
++---------------+---------------+
+| num           | Numeric       | 
+|               |               | 
++---------------+---------------+
+| chr           | Character     | 
+|               |               | 
++---------------+---------------+
+| POSIXct       | Date/time     | 
+|   (don't ask) |               | 
++---------------+---------------+
+| Factor        | Categorical   | 
+| use sparingly |               | 
++---------------+---------------+
+
+## Your turn
+
+Which columns of pisa are numeric?
+
+Which columns are character?
+
+How many different schools were sampled?
+
+## Summaries
+
+```{r warning=FALSE, message=FALSE, error=FALSE}
+summary(pisa$PV2MATH)
+length(unique(pisa$SCHOOLID))
+```
+
+## R as a calculator
+
+```{r, results='hold'}
+1+1
+2*5
+12/4
+20-3
+100:110 # All integers from 100 to 110
+```
+
+If you type a command that R doesn't recognize you will get an error, eg. 
+
+`> 5 % 3`
+
+`Error: unexpected input in "5 % 3"`
+
+## Objects
+
+R objects store data. The assignment operator, `<-` is used to name the object. It is also possible to use `=` to mean the same thing. 
+
+```{r, results='hold'}
+mynumbers <- 5:12
+mynumbers
+mynumbers + 2
+```
+
+Names can be almost anything, except for special characters `^, !, $, @, +, -, /, *`. It is good practice to name your objects with some meaning for what they contain, be reasonably short (less typiing). They should from common R functions, for example, don't use `data` because it is also used to load stored data from packages, or `c` because this is an R function that allows you to collect a bunch of objects together. You won't get errors by using these names but you may get confused when you come back and look at your code later. 
+
+## Types of objects
+
+Objects can be of different types. The object `mynumbers` is a vector of numbers. Numbers can be various types also: integer or double.
+
+```{r, results='hold'}
+typeof(mynumbers)
+is.numeric(mynumbers)
+is.vector(mynumbers)
+length(mynumbers)
+```
+
+## Types of objects
+
+Other common types of objects for data analysis are characters, logicals, factors, dates. Factors store categorical data. Dates have a special format that enables it to be treated similarly to how we use dates in real life.
+
+```{r, results='hold'}
+mytext <- c("hello", "class")
+length(mytext)
+mylogic <- c(TRUE, FALSE, TRUE, TRUE)
+gender <- factor(c("male", "female", "female", "female", "male"))
+levels(gender)
+summary(gender)
+```
+
+## Working with temporal data
+
+There are basic routines for handling dates specially, but the best package for operating on temporal data is lubridate, we'll talking about this later. 
+
+```{r results='hold'}
+now <- Sys.time()
+now
+typeof(now)
+class(now)
+today <- as.Date("08/26/2014", format="%m/%d/%Y")
+today
+```
+
+## Functions
+
+One of the powerful aspects of R is to build on the reproducibility. If you are going to do the same analysis over and over again, compile these operations into a function that you can then apply to different data sets. 
+
+```{r, results='hold'}
+mymode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+mymode(c(rep("A", 5), rep("B", 3)))
+```
+
+## Function structure
+
+```{r, echo=FALSE}
+mymode <- function(x, labelit="m") {
+  ux <- unique(x)
+  ux <- ux[which.max(tabulate(match(x, ux)))]
+  names(ux) <- labelit
+  ux
+}
+```
+
+```mymode <- function(x, labelit="m") ....```
+
+- `x` is an input to the function that is essential to provide each time.
+
+- `label` is an optional addition that mostly will be the default value, but the user could change it to something else, simply by changing it in the function on the fly.
+
+```{r, results='hold'}
+mymode(x=c(rep("A", 5), rep("B", 3)))
+mymode(x=c(rep("A", 5), rep("B", 3)), labelit="mode")
+```
+

@@ -31,7 +31,6 @@
         usePrettify: true,
         enableSlideAreas: true,
         enableTouch: true,
-                favIcon: '1-intro_files/logo.png',
               },
 
       // Author information
@@ -74,21 +73,6 @@
       opacity: 0;
     }
 
-    slides > slide:not(.nobackground):before {
-      font-size: 12pt;
-      content: "";
-      position: absolute;
-      bottom: 20px;
-      left: 60px;
-      background: url(1-intro_files/logo.png) no-repeat 0 50%;
-      -webkit-background-size: 30px 30px;
-      -moz-background-size: 30px 30px;
-      -o-background-size: 30px 30px;
-      background-size: 30px 30px;
-      padding-left: 40px;
-      height: 30px;
-      line-height: 1.9;
-    }
   </style>
 
   <link rel="stylesheet" href="styles.css" type="text/css" />
@@ -101,7 +85,6 @@
 <slides class="layout-widescreen">
 
   <slide class="title-slide segue nobackground">
-        <aside class="gdbar"><img src="1-intro_files/logo.png"></aside>
         <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
     <hgroup class="auto-fadein">
       <h1 data-config-title><!-- populated from slide_config.json --></h1>
@@ -145,33 +128,33 @@ dim(xc)</pre>
 
 <pre class = 'prettyprint lang-r'>head(xc)</pre>
 
-<pre >##     Date   AUD    EUR   CAN   CNY
-## 1 Feb-15 1.283 0.8807 1.252 6.144
-## 2 Jan-15 1.236 0.8575 1.204 6.131
-## 3 Dec-14 1.213 0.8116 1.154 6.129
-## 4 Nov-14 1.154 0.8014 1.131 6.139
-## 5 Oct-14 1.141 0.7891 1.122 6.138
-## 6 Sep-14 1.103 0.7745 1.100 6.150</pre>
+<pre >##     Date    AUD    EUR    CAN    CNY
+## 1 Feb-15 1.2828 0.8807 1.2520 6.1438
+## 2 Jan-15 1.2359 0.8575 1.2037 6.1307
+## 3 Dec-14 1.2127 0.8116 1.1536 6.1294
+## 4 Nov-14 1.1538 0.8014 1.1314 6.1393
+## 5 Oct-14 1.1412 0.7891 1.1217 6.1381
+## 6 Sep-14 1.1026 0.7745 1.0996 6.1498</pre>
 
 </article></slide><slide class=''><hgroup><h2>Pulling data together 1b</h2></hgroup><article  id="pulling-data-together-1b">
 
 <pre class = 'prettyprint lang-r'>xc$Date &lt;- as.Date(paste(&quot;1&quot;,xc$Date,sep=&quot;-&quot;), &quot;%d-%b-%y&quot;)
 summary(xc)</pre>
 
-<pre >##       Date                 AUD             EUR             CAN       
-##  Min.   :1999-04-01   Min.   :0.928   Min.   :0.634   Min.   :0.956  
-##  1st Qu.:2003-03-16   1st Qu.:1.085   1st Qu.:0.740   1st Qu.:1.036  
-##  Median :2007-03-01   Median :1.296   Median :0.783   Median :1.154  
-##  Mean   :2007-03-02   Mean   :1.335   Mean   :0.836   Mean   :1.219  
-##  3rd Qu.:2011-02-15   3rd Qu.:1.528   3rd Qu.:0.924   3rd Qu.:1.448  
-##  Max.   :2015-02-01   Max.   :1.990   Max.   :1.171   Max.   :1.600  
-##       CNY      
-##  Min.   :6.10  
-##  1st Qu.:6.56  
-##  Median :7.73  
-##  Mean   :7.41  
-##  3rd Qu.:8.27  
-##  Max.   :8.28</pre>
+<pre >##       Date                 AUD              EUR              CAN        
+##  Min.   :1999-04-01   Min.   :0.9283   Min.   :0.6336   Min.   :0.9561  
+##  1st Qu.:2003-03-16   1st Qu.:1.0854   1st Qu.:0.7400   1st Qu.:1.0358  
+##  Median :2007-03-01   Median :1.2955   Median :0.7834   Median :1.1536  
+##  Mean   :2007-03-02   Mean   :1.3346   Mean   :0.8359   Mean   :1.2186  
+##  3rd Qu.:2011-02-15   3rd Qu.:1.5280   3rd Qu.:0.9240   3rd Qu.:1.4482  
+##  Max.   :2015-02-01   Max.   :1.9896   Max.   :1.1710   Max.   :1.6004  
+##       CNY       
+##  Min.   :6.098  
+##  1st Qu.:6.562  
+##  Median :7.729  
+##  Mean   :7.410  
+##  3rd Qu.:8.267  
+##  Max.   :8.280</pre>
 
 </article></slide><slide class=''><hgroup><h2>Pulling data together 2a</h2></hgroup><article  id="pulling-data-together-2a">
 
@@ -229,26 +212,26 @@ dim(xc.gdp)</pre>
 
 <pre class = 'prettyprint lang-r'>head(xc.gdp)</pre>
 
-<pre >##         Date   AUD    EUR   CAN   CNY GDP.per.capita
-## 1 2015-02-01 1.283 0.8807 1.252 6.144             NA
-## 2 2015-01-01 1.236 0.8575 1.204 6.131             NA
-## 3 2014-12-01 1.213 0.8116 1.154 6.129          15744
-## 4 2014-11-01 1.154 0.8014 1.131 6.139             NA
-## 5 2014-10-01 1.141 0.7891 1.122 6.138             NA
-## 6 2014-09-01 1.103 0.7745 1.100 6.150          15553</pre>
+<pre >##         Date    AUD    EUR    CAN    CNY GDP.per.capita
+## 1 2015-02-01 1.2828 0.8807 1.2520 6.1438             NA
+## 2 2015-01-01 1.2359 0.8575 1.2037 6.1307             NA
+## 3 2014-12-01 1.2127 0.8116 1.1536 6.1294          15744
+## 4 2014-11-01 1.1538 0.8014 1.1314 6.1393             NA
+## 5 2014-10-01 1.1412 0.7891 1.1217 6.1381             NA
+## 6 2014-09-01 1.1026 0.7745 1.0996 6.1498          15553</pre>
 
 </article></slide><slide class=''><hgroup><h2>Plotting data 1</h2></hgroup><article  id="plotting-data-1">
 
 <pre class = 'prettyprint lang-r'>library(ggplot2)
 qplot(Date, AUD, data=xc.gdp, geom=&quot;line&quot;)</pre>
 
-<p><img src="1-intro_files/figure-html/plotAUD.png" title="plot of chunk plotAUD" alt="plot of chunk plotAUD" width="720" /></p>
+<p><img src="1-intro_files/figure-html/plotAUD-1.png" title="" alt="" width="720" /></p>
 
 </article></slide><slide class=''><hgroup><h2>Plotting data 1</h2></hgroup><article  id="plotting-data-1-1">
 
 <pre class = 'prettyprint lang-r'>qplot(AUD, GDP.per.capita, data=xc.gdp) + theme(aspect.ratio=1)</pre>
 
-<p><img src="1-intro_files/figure-html/plotGDP.png" title="plot of chunk plotGDP" alt="plot of chunk plotGDP" width="720" /></p>
+<p><img src="1-intro_files/figure-html/plotGDP-1.png" title="" alt="" width="720" /></p>
 
 </article></slide><slide class=''><hgroup><h2>Equations</h2></hgroup><article  id="equations">
 
