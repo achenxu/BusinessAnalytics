@@ -75,7 +75,7 @@ This is a repository to organize the teaching material for a new course at Monas
   - Lab 11:
   - Lecture 22: Shrinkage
 
-* Week 12. (Oct 17) Clustering. Ch10. (Souhaib & Di)
+* Week 12. (Oct 19) Clustering. Ch10. (Souhaib & Di)
   - Lecture 23: k-means
   - Lab 12:
   - Lecture 24: hierarchical clustering
