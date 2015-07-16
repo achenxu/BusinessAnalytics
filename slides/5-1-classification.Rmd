@@ -1,0 +1,21 @@
+---
+title: 'ETC3250 Business Analytics: Classification'
+author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
+date: "March 16, 2015"
+output:
+  ioslides_presentation:
+    css: styles.css
+    mathjax: local
+    self_contained: no
+    widescreen: yes
+  beamer_presentation: default
+---
+
+## What is classification?
+
+- Supervised classification includes multivariate techniques finding a rule for separating observations/cases into known classes, and using this rule to classify new observations.
+- The process starts with a training sample, that is the full data set with known classes. Typically the variables that will be used to generate the classification rule are easy/cheap to measure, but the class is more difficult to measure. It is important to be able to classify new observations using variables that are easy to measure.
+
+## Supervised vs Unsupervised
+
+Unsupervised classification, also called cluster analysis, differs from supervised in that the classes are not known ahead of time, and need to be discovered first and labelled. 

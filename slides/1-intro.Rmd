@@ -11,12 +11,14 @@ output:
   beamer_presentation: default
 ---
 
-<!--( Clean up adding figures
-\centering
-![Mining temporal data](../figures/minMASEsep.png)
-\raggedright
-\clearpage
-)--> 
+## Instructors
+
+![Souhaib](../figures/souhaib.jpg)
+![Di](../figures/di.jpg) 
+![Rob](../figures/rob.jpg)
+
+Souhaib Ben Taieb,     Di Cook,      Rob Hyndman  
+
 
 ## What is business analytics?
 
