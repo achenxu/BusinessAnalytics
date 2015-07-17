@@ -19,3 +19,25 @@ output:
 ## Supervised vs Unsupervised
 
 Unsupervised classification, also called cluster analysis, differs from supervised in that the classes are not known ahead of time, and need to be discovered first and labelled. 
+
+## The simplest method 
+
+- Calculate the mean of each class
+- Calculate the distance between the new observation and each of the means
+- Predict the new observation into the class of the closest mean
+
+This is called *linear discriminant analysis* or *Fisher's linear discriminant*.
+
+## Linear discriminant analysis
+
+```{r crabs, echo=FALSE, warning=FALSE, error=FALSE}
+library(ggplot2)
+library(tourr)
+data(flea)
+qplot(tars1, data=subset(flea, species != "Concinna "), geom="histogram", fill=species)
+```
+
+## Notes to self
+
+- Give terminology
+- Add creative commons license
