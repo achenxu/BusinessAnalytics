@@ -30,12 +30,25 @@ This is called *linear discriminant analysis* or *Fisher's linear discriminant*.
 
 ## Linear discriminant analysis
 
-```{r crabs, echo=FALSE, warning=FALSE, error=FALSE}
+<div class="columns-2">
+
+```{r crabs, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
 library(ggplot2)
 library(tourr)
 data(flea)
-qplot(tars1, data=subset(flea, species != "Concinna "), geom="histogram", fill=species)
+library(dplyr)
+fl.m <- summarise(group_by(flea, species), tars1=mean(tars1))
+qplot(tars1, data=subset(flea, species != "Concinna "), geom="histogram",
+      fill=species, binwidth=10, alpha=I(0.5)) + 
+  geom_vline(data=subset(fl.m, species !="Concinna "), 
+             aes(xintercept=tars1, color=species), size=1) + 
+  geom_vline(xintercept=169.6, color="black")
 ```
+
+- Example data: Species of beetles. Subset of two species. One of the six variables shown, where there is a difference between the two classes. 
+
+- Everything to the right of the black line is classified to red (Heikert.) and to the left is blue (Heptapot.)
+</div>
 
 ## Notes to self
 
