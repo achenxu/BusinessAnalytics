@@ -20,6 +20,44 @@ output:
 
 Unsupervised classification, also called cluster analysis, differs from supervised in that the classes are not known ahead of time, and need to be discovered first and labelled. 
 
+```{r fleaplots, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=4, fig.width=4}
+library(ggplot2)
+library(tourr)
+library(dplyr)
+
+data(flea)
+qplot(tars1, aede1, data=flea, color=species) + 
+  theme(aspect.ratio=1, legend.position="none")
+qplot(tars1, aede1, data=flea) + theme(aspect.ratio=1)
+```
+
+## YOUR TURN
+
+<div class="columns-2">
+
+- Example data: Fatty acid composition of Italian olive oils. 
+
+- Three growing regions: labelled 1, 2, 3
+
+- Eight fatty acids, % in the sample x 100. 
+
+- Two variables plotted (shown on next slide). How would you divide the data, so that if you received a new assayed sample you would be able to confidently predict which region produced the oil? 
+
+![Olive map](../figures/Italian-olive-oils-map.png)
+
+</div>
+
+## Olive oils
+
+```{r olives, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+data(olive)
+olive$region <- factor(olive$region, labels=c("South", "Sardinia", "North"))
+ol.m <- summarise(group_by(olive, region), eicosenoic=mean(eicosenoic),
+                  linoleic=mean(linoleic))
+qplot(eicosenoic, linoleic, data=olive, color=region, alpha=I(0.5)) +
+  theme(legend.position="bottom", aspect.ratio=1)
+```
+
 ## The simplest method 
 
 - Calculate the mean of each class
@@ -28,27 +66,33 @@ Unsupervised classification, also called cluster analysis, differs from supervis
 
 This is called *linear discriminant analysis* or *Fisher's linear discriminant*.
 
-## Linear discriminant analysis
+## Olive oils - LDA Rule 
 
-<div class="columns-2">
-
-```{r crabs, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
-library(ggplot2)
-library(tourr)
-data(flea)
-library(dplyr)
-fl.m <- summarise(group_by(flea, species), tars1=mean(tars1))
-qplot(tars1, data=subset(flea, species != "Concinna "), geom="histogram",
-      fill=species, binwidth=10, alpha=I(0.5)) + 
-  geom_vline(data=subset(fl.m, species !="Concinna "), 
-             aes(xintercept=tars1, color=species), size=1) + 
-  geom_vline(xintercept=169.6, color="black")
+```{r olives.lda, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+olive.p <- data.frame(expand.grid(eicosenoic = seq(0, 60, 1), linoleic = seq(440, 1500, 10)))
+library(MASS)
+olive.lda <- lda(region~eicosenoic+linoleic, data=olive, 
+                 prior=c(0.34, 0.33, 0.33))
+olive.p$region <- predict(olive.lda, olive.p)$class
+qplot(eicosenoic, linoleic, data=olive.p, color=region, alpha=I(0.2)) +
+  geom_point(data=olive, aes(shape=region)) + 
+  geom_point(data=ol.m, shape=3, size=5, color="black") +
+  theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
 ```
 
-- Example data: Species of beetles. Subset of two species. One of the six variables shown, where there is a difference between the two classes. 
+## YOUR TURN
 
-- Everything to the right of the black line is classified to red (Heikert.) and to the left is blue (Heptapot.)
-</div>
+- How close does the LDA boundaries match what you designed?
+- What is different? 
+- Why does it differ?
+
+## LDA Rule for TWO groups, one variable
+
+For a new observation, $x_0$, assign it to group 2 if 
+
+$x_0 - \frac{\bar{x}_1 + \bar{x}_2}{2} \geq 0$
+
+otherwise assign it to group 1. (Assuming that group 1 has the smaller mean.)
 
 ## Notes to self
 
