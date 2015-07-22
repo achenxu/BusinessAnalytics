@@ -1,7 +1,7 @@
 ---
 title: 'ETC3250 Business Analytics: Classification'
 author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
-date: "March 16, 2015"
+date: "August 31, 2015"
 output:
   ioslides_presentation:
     css: styles.css
