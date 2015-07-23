@@ -2,7 +2,7 @@
 par(mar=c(4,9,2,1))
 
 # Reading the data
-bds <- read.csv("../data/bds.csv")
+bds <- read.csv("bds.csv")
 
 # Numerical summaries of all variables
 summary(bds)
