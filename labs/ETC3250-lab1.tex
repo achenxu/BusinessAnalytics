@@ -1,0 +1,319 @@
+\documentclass[11pt]{article}
+\usepackage{kpfonts,titling,hyperref,url,microtype}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,text={17cm,25.2cm},centering]{geometry}
+
+\setlength{\parskip}{1.2ex}
+\setlength{\parindent}{0em}
+\clubpenalty = 10000
+\widowpenalty = 10000
+%%% Change title format
+\pretitle{\vspace*{-2cm}\LARGE\bfseries\sffamily}
+\posttitle{\vspace*{0.2cm}\par}
+\preauthor{\large\sffamily}
+\postauthor{\hfill}
+\predate{\sffamily}
+\postdate{\break\vspace*{-0.9cm}\par\rule{\textwidth}{1pt}\par}
+
+\title{ETC3250: Lab 1}
+\author{Business Analytics}
+\date{28 July 2015}
+\begin{document}
+
+\maketitle
+
+The aim of this first lab session is to make sure everyone is familiar with R and RStudio.
+
+
+\begin{enumerate}
+\item Try using RStudio as a calculator. Click on the console tab and figure out what each of the following is doing.
+\begin{verbatim}
+(100+2)/3
+5*10^2 
+1/0
+0/0
+(0i-9)^(1/2)
+sqrt(2 * max(-10, 0.2, 4.5)) 
+x <- sqrt(2 * max(-10, 0.2, 4.5)) + 100
+x
+log(100)
+log(100, base=10) 
+\end{verbatim}
+Typing the name of any object will cause it be printed to the console.
+
+\item Check that these are equivalent
+\begin{verbatim}
+y = 4
+y <- 4
+4 -> y
+\end{verbatim}
+
+\item R is great for matrix calculations:
+\begin{verbatim}
+X <- matrix(c(3,4,5,2), nrow=2, ncol=2)
+t(X)
+Xinv <- solve(X)
+X %*% Xinv
+
+A <- matrix(rnorm(200), nrow=5, ncol=40)
+B <- A %*% t(A)
+dim(B)
+diag(B)
+eigen(B)
+svd(A)$d^2
+eigen(B)$values
+\end{verbatim}
+Why are the last two lines the same? [Don't worry if you don't know!]
+
+\item Find the help page for the \verb|mean| command, either from the help menu, or by typing one of these:
+\begin{verbatim}
+help(mean)
+?mean 
+\end{verbatim}
+
+\item Find the example in the help page for the \verb|mean| command.
+\begin{verbatim}
+x <- c(0:10, 50) 
+xm <- mean(x)
+c(xm, mean(x, trim = 0.10))
+\end{verbatim}
+Most help pages have examples at the bottom.
+
+What does the last line do?
+
+
+\item Produce some graphs:
+\begin{verbatim}
+hist(x)
+hist(x, nclass=10)
+boxplot(x)
+\end{verbatim}
+
+\item Rather than type all your commands in the console panel, it is convenient to open an R script file and type them there. Then highlight and click ``Run''. That way you have a record of what you have done, and can go back and make changes as required.
+
+Set up a new R script file called ``Lab 1''.
+
+You can add comments to your R file by beginning the line with \verb|#|.
+
+\item \verb|rnorm| generates random numbers from a standard normal distribution. 
+Produce a histogram of 200 random numbers from N(0,1)
+\begin{verbatim}
+# 200 random numbers from N(0,1)
+hist(rnorm(200)) 
+boxplot(rnorm(200))
+\end{verbatim}
+Modify these commands so that the boxplot uses the same numbers as the histogram.
+
+\item  Let's look at some data sets from the ISLR package. First we need to make sure it is installed.
+\begin{verbatim}
+library(ISLR)
+\end{verbatim}
+If that returns an error, then click on the ``Packages'' tab, click ``Install'' and proceed to install the ISLR package. It will download from the ``CRAN'' repository.
+
+A package only needs to be installed once, but you have to load it via the \verb|library| command in each session.
+
+Once the package is installed, try again with 
+\begin{verbatim}
+library(ISLR)
+\end{verbatim}
+
+\item Then look at the \verb|OJ| data set:
+\begin{verbatim}
+help(OJ)
+head(OJ)
+View(OJ)
+summary(OJ)
+OJ[,"PriceCH"]
+\end{verbatim}
+
+Can you figure out what the square brackets mean in the output from the last command?
+
+\item Next we will do some graphs of the data
+\begin{verbatim}
+boxplot(OJ[,c("SalePriceCH","SalePriceMM")])
+plot(PriceDiff ~ Purchase, data=OJ)
+plot(SalePriceCH ~ PriceCH, data=OJ)
+plot(jitter(SalePriceCH) ~ jitter(PriceCH), data=OJ)
+abline(0,1)
+plot(jitter(SalePriceCH) ~ jitter(WeekofPurchase), data=OJ)
+\end{verbatim}
+Make sure you understand what is being plotted in each case, and what the graphs are telling you about the data.
+
+\item Some tables:
+\begin{verbatim}
+table(OJ$StoreID)
+table(OJ$Purchase, OJ$SpecialCH)
+\end{verbatim}
+What do these tables tell you?
+
+\item There are often several ways of doing the same thing:
+\begin{verbatim}
+plot(PriceDiff ~ Purchase, data=OJ)
+plot(OJ$PriceDiff ~ OJ$Purchase)
+plot(OJ[,"PriceDiff"] ~ OJ[,"Purchase"])
+plot(OJ[,"Purchase"], OJ[,"PriceDiff"])
+\end{verbatim}
+Are there any differences between these plots?
+
+\item The summary command can be applied to almost anything to get a summary of the object. Try it on some other data sets in the \verb|ISLR| package.
+
+\item Now we will read some data from a file. Download the PISA data set from \url{dicook.github.io/BusinessAnalyticsCourse/} and save it locally. You can read it into R using
+\begin{verbatim}
+pisa <- read.csv("PISA-oz.csv", stringsAsFactors=FALSE)
+\end{verbatim}
+You will need to set your working directory to wherever you saved the file, or this will produce an error.  Either use \verb|setwd| or the menu ``Session'' / ``Choose Working Directory''.
+
+What does the \verb|stringsAsFactors| do?
+
+The PISA data set contains results from Australia for the ``Programme for International Student Assessment'' in 2012. The survey tests the skills and knowledge of 15-year-old students.
+
+\item Check the data:
+\begin{verbatim}
+dim(pisa)
+colnames(pisa)
+View(pisa)
+str(pisa)
+head(pisa)
+\end{verbatim}
+
+\item Which columns of pisa are numeric?
+
+Which columns are character?
+
+\item How many different schools were sampled (according to the variable \verb|SCHOOLID|)?
+
+There are several ways of answering this question. First use the \verb|table| command. Then try using a combination of \verb|length| and \verb|unique|.
+
+
+\item Look at the distribution of birth months amongst the Australian students:
+\begin{verbatim}
+barplot(table(pisa$ST03Q01), names=month.abb)
+\end{verbatim}
+Can you explain the variation? Why are February and May the smallest?
+
+\item Perhaps we should adjust for month length:
+\begin{verbatim}
+monthdays <- c(31,28,31,30,31,30,31,31,30,31,30,31)
+barplot(table(pisa$ST03Q01)/monthdays, names=month.abb)
+\end{verbatim}
+\item Check if the differences are statistically significant after adjusting for month length:
+\begin{verbatim}
+chisq.test(table(pisa$ST03Q01), p=monthdays/365)
+\end{verbatim}
+Why is it so?
+
+\item What if we split by sex and turn into percentages:
+\begin{verbatim}
+male <- table(subset(pisa, ST04Q01=="Male")$ST03Q01)/monthdays
+male <- male / sum(male) * 100
+female <- table(subset(pisa, ST04Q01!="Male")$ST03Q01)/monthdays
+female <- female / sum(female) * 100
+barplot(rbind(male,female), names=month.abb, beside=TRUE, col=c("blue","red"))
+abline(h=100/12)
+\end{verbatim}
+Only males in the survey were less likely to be born in May. Why?
+
+\item It is easy to create your own data:
+
+\begin{verbatim}
+mynumbers <- 5:12
+\end{verbatim}
+
+Names can be almost anything, except for special characters \verb|^, !, $, @, +, -, /, *|. It is good practice to name your objects with some meaning for what they contain, be reasonably short (less typing). They should not be the same as common R functions; for example, don't use \verb|data| because it is also used to load stored data from packages, or \verb|c| because this is an R function that allows you to collect a bunch of objects together. You won't get errors by using these names but you may get confused when you come back and look at your code later. 
+
+
+\item Objects can be of different types. The object `mynumbers` is a vector of numbers. Numbers can be various types also: integer or double.
+\begin{verbatim}
+typeof(mynumbers)
+is.numeric(mynumbers)
+is.vector(mynumbers)
+length(mynumbers)
+\end{verbatim}
+
+\item 
+Other common types of objects for data analysis are characters, logicals, factors, dates. Factors store categorical data. Dates have a special format that enables it to be treated similarly to how we use dates in real life.
+\begin{verbatim}
+mytext <- c("hello", "class")
+length(mytext)
+mylogic <- c(TRUE, FALSE, TRUE, TRUE)
+gender <- factor(c("male", "female", "female", "female", "male"))
+levels(gender)
+summary(gender)
+\end{verbatim}
+
+\item 
+One of the powerful aspects of R is to build on the reproducibility. If you are going to do the same analysis over and over again, compile these operations into a function that you can then apply to different data sets. 
+
+\begin{verbatim}
+y <- c(1,2,3,4,5,6)
+
+average = function(x)
+{
+  return(sum(x)/length(x))
+}
+
+ybar <- average(y)
+\end{verbatim}
+Try your function on other data.
+
+
+\item Now write a function to compute the mode of some data:
+
+\begin{verbatim}
+mymode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+mymode(c(rep("A", 5), rep("B", 3)))
+\end{verbatim}
+
+\item Modify your function to have an optional label:
+\begin{verbatim}
+mymode <- function(x, labelit="m") {
+  ux <- unique(x)
+  ux <- ux[which.max(tabulate(match(x, ux)))]
+  names(ux) <- labelit
+  ux
+}
+\end{verbatim}
+
+\begin{itemize}
+\item \verb|x| is an input to the function that is essential to provide each time.
+\item \verb|label| is an optional addition that takes default value \verb|"m"|, but the user could change it to something else, simply by changing it in the function on the fly.
+\end{itemize}
+\begin{verbatim}
+mymode(x=c(rep("A", 5), rep("B", 3)))
+mymode(x=c(rep("A", 5), rep("B", 3)), labelit="mode")
+\end{verbatim}
+
+\item Write an R function \verb|statsplot| to compute the mean, min, max, and the quartiles, from a vector of data. The function should also produce a histogram of the data, with these statistics marked on the plot above the horizontal axis.
+It should begin like this:
+\begin{verbatim}
+statsplot <- function(y)
+{
+  meany <- mean(y)
+  
+\end{verbatim}
+You will need to search the R help facilities to find functions to compute each of the statistics. For the plot, the \verb|points| function may be useful.
+
+
+\item If you feel like you need more practice in using RStudio, there are lots of free online tutorials. Some good ones (in order of difficulty) are listed below.
+\begin{itemize}
+\item \url{http://tryr.codeschool.com/}
+\item \url{www.datacamp.com/courses/introduction-to-r} 
+\item \url{www.cyclismo.org/tutorial/R/}
+\item \url{https://www.coursera.org/course/rprog}
+\end{itemize}
+
+\end{enumerate}
+
+
+\end{document}
+
+
+
+
+
+
+\end{document}
