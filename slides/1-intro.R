@@ -1,22 +1,34 @@
 library(ISLR)
+library(ggplot2)
 
 summary(Wage)
 
 str(Wage)
 
-plot(Wage)
+qplot(age, wage, data=Wage)
 
-plot(wage ~ age, data=Wage)
-scatter.smooth(Wage$age, Wage$wage, pch=19, col='gray', cex=0.5)
+qplot(age, wage, data=Wage) + geom_smooth()
 
-plot(wage ~ year, data=Wage)
-boxplot(wage ~ year, data=Wage)
+qplot(year, wage, data=Wage)
 
-plot(wage ~ education, data=Wage)
+Wage$Year <- as.factor(Wage$year)
+qplot(Year, wage, data=Wage, geom="boxplot")
+#Add some nice colors
+qplot(Year, wage, data=Wage, geom="boxplot", fill=Year) + guides(fill=FALSE)
 
-plot(wage ~ jobclass, data=Wage)
+qplot(age, wage, data=Wage, col=Year)
+
+qplot(race, wage, data=Wage, geom="boxplot")
+
+qplot(education, wage, data=Wage, geom="boxplot")
+
+qplot(education, wage, data=Wage, geom="boxplot", fill=Year)
+
+qplot(jobclass, wage, data=Wage, geom="boxplot")
+qplot(Year, wage, data=Wage, geom="boxplot", fill=jobclass)
 
 fit <- lm(wage ~ year + age + education + race + jobclass, data=Wage)
+
 summary(fit)
 
 
