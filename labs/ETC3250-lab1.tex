@@ -132,7 +132,6 @@ Can you figure out what the square brackets mean in the output from the last com
 
 \item Next we will do some graphs of the data
 \begin{verbatim}
-library(ISLR)
 saleprice <- data.frame(SalePrice=c(OJ$SalePriceMM,OJ$SalePriceCH),
                 type=c(rep("MM",nrow(OJ)),rep("CH",nrow(OJ))))
 qplot(type, SalePrice, data=saleprice, geom="boxplot")
@@ -300,13 +299,13 @@ stats <- function(y)
 \end{verbatim}
 You will need to search the R help facilities to find functions to compute each of the statistics. The function should return the statistics as a single vector in numerical order with appropriate names for the elements. Your function should be robust to missing values (i.e., the statistics should be computed on the non-missing values).
 
-\item If you feel like you need more practice in using RStudio, there are lots of free online tutorials. Some good ones (in order of difficulty) are listed below.
-\begin{itemize}
-\item \url{http://tryr.codeschool.com/}
-\item \url{www.datacamp.com/courses/introduction-to-r} 
-\item \url{www.cyclismo.org/tutorial/R/}
-\item \url{https://www.coursera.org/course/rprog}
-\end{itemize}
+% \item If you feel like you need more practice in using RStudio, there are lots of free online tutorials. Some good ones (in order of difficulty) are listed below.
+% \begin{itemize}
+% \item \url{http://tryr.codeschool.com/}
+% \item \url{www.datacamp.com/courses/introduction-to-r} 
+% \item \url{www.cyclismo.org/tutorial/R/}
+% \item \url{https://www.coursera.org/course/rprog}
+% \end{itemize}
 
 \end{enumerate}
 
