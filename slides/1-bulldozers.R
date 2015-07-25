@@ -1,5 +1,5 @@
-# Adjust graphics to allow horizontal barcharts and boxplots
-par(mar=c(4,9,2,1))
+library(ggplot2)
+library(gridExtra)
 
 # Reading the data
 bds <- read.csv("../data/bds.csv")
@@ -15,39 +15,41 @@ head(bds)
 tail(bds)
 
 # Simple plots of each variable
-hist(bds[,"SalePrice"], breaks="FD")
+qplot(SalePrice, data=bds, binwidth=1)
+# Take logs of SalePrice to reduce skewness
+qplot(log(SalePrice), data=bds, binwidth=.04)
 
-hist(bds[,"YearMade"], breaks="FD")
+qplot(YearMade, data=bds, binwidth=1)
 
-hist(bds[,"MachineHours"], breaks="FD")
-j <- (bds[,"MachineHours"] > 0)
-hist(log(bds[j,"MachineHours"]), breaks="FD")
+qplot(MachineHours, data=bds, binwidth=10)
+qplot(log(MachineHours), data=subset(bds, MachineHours>0), binwidth=.2)
 
-hist(bds[,"SaleDate"])
+qplot(SaleDate, data=bds, binwidth=1)
 
-plot(~ProductGroup, horiz=TRUE, las=1, data=bds)
+qplot(ProductGroup, data=bds)
 
-plot(~Enclosure, horiz=TRUE, las=1, data=bds)
+qplot(ProductGroup, data=bds) + coord_flip()
+
+qplot(Enclosure, data=bds) + coord_flip()
 
 # Plots of Sale price against each variable
 
-plot(SalePrice ~ YearMade, data=bds, pch=".")
+qplot(YearMade, SalePrice, data=bds)
 #Add jittering
-plot(SalePrice ~ jitter(YearMade), data=bds, pch=".")
+qplot(YearMade, SalePrice, data=bds, position="jitter")
+#Add transparency
+ggplot(bds, aes(YearMade, SalePrice)) + geom_point(alpha=1/100)
+#Plot hexbins
+ggplot(bds, aes(YearMade, SalePrice)) + stat_binhex(bins=90)
 
-plot(SalePrice ~ MachineHours, data=bds, pch=".")
-plot(SalePrice ~ log(MachineHours), data=bds[j,], pch=".")
+qplot(MachineHours, SalePrice, data=bds)
+qplot(log(MachineHours), SalePrice, data=subset(bds, MachineHours>0))
 
-plot(SalePrice ~ jitter(SaleDate), data=bds, pch=".")
+qplot(SaleDate, SalePrice, data=bds, position="jitter")
 
-plot(SalePrice ~ ProductGroup, data=bds,
-     horizontal=TRUE, las=1, xlab="")
+qplot(ProductGroup, SalePrice, data=bds, geom="boxplot") + coord_flip()
 
-plot(SalePrice ~ Enclosure, data=bds,
-     horizontal=TRUE, las=1, xlab="")
-
-# Take logs of SalePrice to reduce skewness
-hist(log(bds[,"SalePrice"]))
+qplot(Enclosure, SalePrice, data=bds, geom="boxplot") + coord_flip()
 
 # Split bds1 data set int training and test sets
 nTest <- 50000
@@ -64,16 +66,17 @@ fit = lm(log(SalePrice) ~ log(MachineHours+1) +
 
 summary(fit)
 
-res <- residuals(fit)
-hist(res)
+train$res <- residuals(fit)
+qplot(train$res, binwidth=.1)
 
-par(mfrow=c(2,3))
-plot(res ~ log(MachineHours+1), pch=".", data=train)
-plot(res ~ YearMade, pch=".", data=train)
-plot(res ~ SaleDate, pch=".", data=train)
-plot(res ~ ProductGroup, pch=".", data=train)
-plot(res ~ Enclosure, pch=".", data=train)
-plot(res ~ fitted(fit), pch=".", data=train)
+p1 <- qplot(log(MachineHours+1), res, data=train)
+p2 <- qplot(YearMade, res, data=train)
+p3 <- qplot(SaleDate, res, data=train)
+p4 <- qplot(ProductGroup, res, data=train, geom='boxplot')
+p5 <- qplot(Enclosure, res, data=train, geom="boxplot")
+p6 <- qplot(fitted(fit), res, data=train)
+
+marrangeGrob(list(p1,p2,p3,p4,p5,p6), ncol=3, nrow=2, top="Residual plots")
 
 
 # Prediction
@@ -81,11 +84,10 @@ fcast <- exp(predict(fit, newdata = test))
 errors <- fcast-test[,"SalePrice"]
 e <- log(fcast)-log(test[,"SalePrice"])
 
-plot(log(fcast),e,pch=".")
-abline(h=0)
+qplot(log(fcast), e)
 
-plot(test[,"SalePrice"],fcast,pch=".")
-abline(0,1)
+qplot(SalePrice, fcast, data=test) + geom_abline(intercept=0, slope=1, col='blue')
+
 
 # Check for overfitting
 # Training data:
