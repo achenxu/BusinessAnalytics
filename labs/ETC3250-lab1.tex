@@ -1,5 +1,5 @@
 \documentclass[11pt]{article}
-\usepackage{kpfonts,titling,hyperref,url,microtype}
+\usepackage{titling,hyperref,url,microtype}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[a4paper,text={17cm,25.2cm},centering]{geometry}
@@ -23,11 +23,11 @@
 
 \maketitle
 
-The aim of this first lab session is to make sure everyone is familiar with R and RStudio.
+The aim of this first lab session is to make sure everyone is familiar with using R through the RStudio interface.
 
 
 \begin{enumerate}
-\item Try using RStudio as a calculator. Click on the console tab and figure out what each of the following is doing.
+\item R is a language for data analysis, which is why it is the top software for data science today. However at its basic level, R can be used as a (scientific) calculator. Click on the console tab and figure out what each of the following is doing.
 \begin{verbatim}
 (100+2)/3
 5*10^2 
@@ -83,13 +83,19 @@ Most help pages have examples at the bottom.
 What does the last line do?
 
 
-\item Produce some graphs:
+\item Visualizing your data is one of the essential elements of data analysis. We are going to primarily use the \verb|ggplot2| package for making data plots. The reason is that it provides elegant graphics in a concise conceptual framework. We will learn more about this later in the semester, but let's get started using th quick plot function \verb|qplot|:
+
 \begin{verbatim}
 library(ggplot2)
-qplot(x)
-qplot(x, binwidth=5)
-qplot(factor(0), x, geom='boxplot', xlab="")
+df <- data.frame(x=x, y=c(rep("yes", 7), rep("no", 5)))
+df
+qplot(x, data=df)
+qplot(x, data=df, binwidth=5)
+qplot(y, x, data=df,  geom="boxplot", xlab="")
+qplot(factor(0), x, data=df,  geom="boxplot", xlab="")
 \end{verbatim}
+
+Different R functions can require different data input types. Many of the original functions operate on matrices, but more recently written functions require data frames as input. The package \verb|ggplot2| likes to have data frames. 
 
 \item Rather than type all your commands in the console panel, it is convenient to open an R script file and type them there. Then highlight and click ``Run''. That way you have a record of what you have done, and can go back and make changes as required.
 
@@ -97,20 +103,23 @@ Set up a new R script file called ``Lab 1''.
 
 You can add comments to your R file by beginning the line with \verb|#|.
 
-\item \verb|rnorm| generates random numbers from a standard normal distribution. 
+\item The function \verb|rnorm| generates random numbers from a standard normal distribution. 
 Produce a histogram of 200 random numbers from N(0,1)
 \begin{verbatim}
 # 200 random numbers from N(0,1)
 qplot(rnorm(200)) 
-qplot(factor(0), rnorm(200), geom='boxplot', xlab="")
+qplot(factor(0), rnorm(200), geom="boxplot", xlab="")
 \end{verbatim}
-Modify these commands so that the boxplot uses the same numbers as the histogram.
+
+Modify these commands so that the boxplot uses the same numbers as the histogram. (Hint: save the output of \verb|rnorm| for re-use.) Notice in these commands that the \verb|qplot| will also take the output of \verb|rnorm| directly, which is a numeric vector.
 
 \item  Let's look at some data sets from the ISLR package. First we need to make sure it is installed.
 \begin{verbatim}
 library(ISLR)
 \end{verbatim}
 If that returns an error, then click on the ``Packages'' tab, click ``Install'' and proceed to install the ISLR package. It will download from the ``CRAN'' repository.
+
+Alternatively, you can use \verb|install.packages("ISLR")| at the command line.
 
 A package only needs to be installed once, but you have to load it via the \verb|library| command in each session.
 
@@ -130,7 +139,7 @@ OJ[,"PriceCH"]
 
 Can you figure out what the square brackets mean in the output from the last command?
 
-\item Next we will do some graphs of the data
+\item Now lets make some plots of the data
 \begin{verbatim}
 saleprice <- data.frame(SalePrice=c(OJ$SalePriceMM,OJ$SalePriceCH),
                 type=c(rep("MM",nrow(OJ)),rep("CH",nrow(OJ))))
@@ -144,7 +153,7 @@ qplot(WeekofPurchase, SalePriceCH, data=OJ, position="jitter")
 \end{verbatim}
 Make sure you understand what is being plotted in each case, and what the graphs are telling you about the data.
 
-\item Some tables:
+\item Tabulating variables:
 \begin{verbatim}
 table(OJ$StoreID)
 table(OJ$Purchase, OJ$SpecialCH)
@@ -152,13 +161,21 @@ table(OJ$Purchase, OJ$SpecialCH)
 What do these tables tell you?
 
 
-\item The summary command can be applied to almost anything to get a summary of the object. Try it on some other data sets in the \verb|ISLR| package.
+\item The \verb|summary| command can be applied to almost anything to get a summary of the object. Try it on some other data sets in the \verb|ISLR| package. Note that the \verb|summary| is just what R thinks should be the summary, and it may not always be the best summary. If someone asks you to "summarise" this data, you may need to think about what is important and use different functions that are appropriate for the situation.
 
 \item Now we will read some data from a file. Download the PISA data set from \url{dicook.github.io/BusinessAnalyticsCourse/} and save it locally. You can read it into R using
 \begin{verbatim}
 pisa <- read.csv("PISA-oz.csv", stringsAsFactors=FALSE)
 \end{verbatim}
-You will need to set your working directory to wherever you saved the file, or this will produce an error.  Either use \verb|setwd| or the menu ``Session'' / ``Choose Working Directory''.
+
+You will need to set your working directory to wherever you saved the file, or save the data into your current working directory, else you will produce an error.  Either use \verb|setwd| or the menu ``Session'' / ``Choose Working Directory''. To find out where R is currently working use \verb|getwd()|.
+
+Or you can also directly read the data from the web using
+
+\begin{verbatim}
+pisa <- read.csv("http://dicook.github.io/BusinessAnalyticsCourse/labs/PISA-oz.csv", stringsAsFactors=FALSE)
+\end{verbatim}
+
 
 What does the \verb|stringsAsFactors| do?
 
