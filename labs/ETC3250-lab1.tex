@@ -1,6 +1,5 @@
 \documentclass[11pt]{article}
-\usepackage{titling,hyperref,url,microtype}
-\usepackage[T1]{fontenc}
+\usepackage{titling,hyperref,url,mathpazo}
 \usepackage[utf8]{inputenc}
 \usepackage[a4paper,text={17cm,25.2cm},centering]{geometry}
 
@@ -83,7 +82,7 @@ Most help pages have examples at the bottom.
 What does the last line do?
 
 
-\item Visualizing your data is one of the essential elements of data analysis. We are going to primarily use the \verb|ggplot2| package for making data plots. The reason is that it provides elegant graphics in a concise conceptual framework. We will learn more about this later in the semester, but let's get started using th quick plot function \verb|qplot|:
+\item Visualizing your data is one of the essential elements of data analysis. We are going to primarily use the \verb|ggplot2| package for making data plots. The reason is that it provides elegant graphics in a concise conceptual framework. We will learn more about this later in the semester, but let's get started using the quick plot function \verb|qplot|:
 
 \begin{verbatim}
 library(ggplot2)
@@ -161,7 +160,7 @@ table(OJ$Purchase, OJ$SpecialCH)
 What do these tables tell you?
 
 
-\item The \verb|summary| command can be applied to almost anything to get a summary of the object. Try it on some other data sets in the \verb|ISLR| package. Note that the \verb|summary| is just what R thinks should be the summary, and it may not always be the best summary. If someone asks you to "summarise" this data, you may need to think about what is important and use different functions that are appropriate for the situation.
+\item The \verb|summary| command can be applied to almost anything to get a summary of the object. Try it on some other data sets in the \verb|ISLR| package. Note that the \verb|summary| is just what R thinks should be the summary, and it may not always be the best summary. If someone asks you to ``summarise'' this data set, you may need to think about what is important and use different functions that are appropriate for the situation.
 
 \item Now we will read some data from a file. Download the PISA data set from \url{dicook.github.io/BusinessAnalyticsCourse/} and save it locally. You can read it into R using
 \begin{verbatim}
@@ -179,7 +178,7 @@ pisa <- read.csv("http://dicook.github.io/BusinessAnalyticsCourse/labs/PISA-oz.c
 
 What does the \verb|stringsAsFactors| do?
 
-The PISA data set contains results from Australia for the ``Programme for International Student Assessment'' in 2012. The survey tests the skills and knowledge of 15-year-old students.
+The PISA data set contains results from Australia for the ``Programme for International Student Assessment'' in 2012. The survey tests the skills and knowledge of 15-year-old students. Data were collected on approximately 14,500 Australian students between late July and early September 2012.
 
 \item Check the data:
 \begin{verbatim}
@@ -232,7 +231,7 @@ qplot(month, birthdays, data=sextot, geom="bar", fill=sex,
       stat='identity', position=position_dodge(), ylab="Birthdays per day") +
   geom_abline(intercept=100/12, slope=0, lty=2)
 \end{verbatim}
-Only males in the survey were less likely to be born in May. Why?
+The largest deviation from what you would expect is for males born in May. Why?
 
 \item It is easy to create your own data:
 
