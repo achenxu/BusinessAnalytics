@@ -97,7 +97,7 @@
 \begin{frame}{Example 2: Classification}
 
 \begin{block}{Identification of high gold potentials}
-\textbf{Problem}: Identify high gold potentials at deep layers from soil properties measurements at multiple locations. 
+\textbf{Problem}: Identify high gold potentials at deep layers from surface soil properties measurements at multiple locations. 
 \end{block}
 
 \centerline{\includegraphics[scale=0.4]{../figures/layers.png}}
@@ -109,19 +109,18 @@
 {\scriptsize
 \begin{verbatim}
 Longitude Latitude   Ag   As   Ce   Co    Sr Ta Tb Te  Th    Mo   Au
-   43.1723  22.3255 5.00  2.0 3.67 1.39  0.46  1  4  1 5.5   8.8  2.35
-   43.1732  22.3255 0.63 15.5 1.33 3.94 12.95  1  1  2 1.5 160.0  4.29
-   43.1742  22.3255 3.81  2.5 0.67 1.44  2.73  1  1  1 0.5   2.0  21.94
+   43.1723  22.3255 5.00  2.0 3.67 1.39  0.46  1  4  1 5.5   8.8  L
+   43.1732  22.3255 0.63 15.5 1.33 3.94 12.95  1  1  2 1.5 160.0  H
+   43.1742  22.3255 3.81  2.5 0.67 1.44  2.73  1  1  1 0.5   2.0  M
 \end{verbatim}
 }
+%\centerline{$\rightarrow$ Low (L), medium (M) or high (H) }
+\centerline{$\rightarrow$ L = Low, M = Medium and H = High}
 
-ADD Gold/No gold \\
-ADD Low, Medium and High gold
 
 \begin{enumerate}
 \item How to apply multi-class classification with binary classifiers?
 \item Can you give an example of unbalanced classification problem?
-\item Does predicting log price make sense?
 \end{enumerate}
 
 \end{frame}
