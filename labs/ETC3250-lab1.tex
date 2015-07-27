@@ -169,12 +169,12 @@ pisa <- read.csv("PISA-oz.csv", stringsAsFactors=FALSE)
 
 You will need to set your working directory to wherever you saved the file, or save the data into your current working directory, else you will produce an error.  Either use \verb|setwd| or the menu ``Session'' / ``Choose Working Directory''. To find out where R is currently working use \verb|getwd()|.
 
-Or you can also directly read the data from the web using
+Or you can also directly read the data from the web using the web address of the data as the filename. 
+Or alternatively, you can get R to open a file browser and navigate yourself  to the location of the data file:
 
 \begin{verbatim}
-pisa <- read.csv("http://dicook.github.io/BusinessAnalyticsCourse/labs/PISA-oz.csv", stringsAsFactors=FALSE)
+pisa <- read.csv(file.choose(), stringsAsFactors=FALSE)
 \end{verbatim}
-
 
 What does the \verb|stringsAsFactors| do?
 
@@ -229,7 +229,7 @@ sextot <- data.frame(birthdays=c(male,female),
             month=factor(rep(month.abb,2),levels=month.abb,ordered=TRUE))
 qplot(month, birthdays, data=sextot, geom="bar", fill=sex, 
       stat='identity', position=position_dodge(), ylab="Birthdays per day") +
-  geom_abline(intercept=100/12, slope=0, lty=2)
+  geom_hline(yintercept=100/12, slope=0, lty=2)
 \end{verbatim}
 The largest deviation from what you would expect is for males born in May. Why?
 
