@@ -210,7 +210,7 @@ monthdays <- c(31,28,31,30,31,30,31,31,30,31,30,31)
 monthtot <- table(pisa$ST03Q01)
 qplot(factor(1:12, ordered=TRUE, labels=month.abb), 
       c(monthtot)/monthdays, xlab="Month", ylab="Birthdays per day",
-      geom='bar', stat='identity')
+      geom="bar", stat="identity")
 \end{verbatim}
 \item Check if the differences are statistically significant after adjusting for month length:
 \begin{verbatim}
@@ -228,7 +228,7 @@ sextot <- data.frame(birthdays=c(male,female),
             sex=c(rep("Male",12),rep("Female",12)),
             month=factor(rep(month.abb,2),levels=month.abb,ordered=TRUE))
 qplot(month, birthdays, data=sextot, geom="bar", fill=sex, 
-      stat='identity', position=position_dodge(), ylab="Birthdays per day") +
+      stat="identity", position=position_dodge(), ylab="Birthdays per day") +
   geom_hline(yintercept=100/12, slope=0, lty=2)
 \end{verbatim}
 The largest deviation from what you would expect is for males born in May. Why?
