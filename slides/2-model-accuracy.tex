@@ -20,6 +20,8 @@
 \usepackage[australian]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{media9}
+\usetikzlibrary{arrows}
+\definecolor{mygreen}{rgb}{0,0.6,0}
 
 \usepackage{verbatim}
 
@@ -349,7 +351,24 @@ $K=3$.
 
 
 \begin{frame}{A fundamental picture}
-\fullwidth{bias-var-tradeoff}
+\fullwidth{bias-var-tradeoff.png}
+
+\only<2->{\begin{textblock}{2}(5.5,6.1)
+\begin{tikzpicture}
+\node (0) at (0,0) {\textcolor{purple}{\textbf{Best trade}}};
+\path[->,draw=purple,solid,line width=2pt,fill=purple] (0,0.4) -- (0,1.8);
+\end{tikzpicture}
+\end{textblock}}
+
+\only<3>{\begin{textblock}{2}(2,5.5)
+\begin{tikzpicture}
+\node (0) at (-3.5,0.4) {\textcolor{mygreen}{Underfitting}};
+\node (0) at (3.5,0.4) {\textcolor{mygreen}{Overfitting}};
+\path[->,draw=mygreen,solid,line width=2pt,fill=mygreen] (-0.5,0) -- (-3,0);
+\path[->,draw=mygreen,solid,line width=2pt,fill=mygreen] (0.5,0) -- (3,0);
+\end{tikzpicture}
+\end{textblock}}
+
 \end{frame}
 
 
