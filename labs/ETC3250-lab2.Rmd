@@ -28,7 +28,7 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 
 Equations can be included using LaTeX commands like this:
 $$s^2 = \frac{1}{n-1}\sum_{i=1}^n (x_i-\bar{x})^2.$$
-Or inline mathematical symbols such as $\alpha$ and $\infty$. You can learn more about simple LaTeX commands at 
+Or inline mathematical symbols such as $\alpha$ and $\infty$. You can learn more about simple LaTeX commands at at [StackExchange](http://meta.math.stackexchange.com/questions/5020/mathjax-basic-tutorial-and-quick-reference)
 
 Try knitting this file as html, and then knit as Word
 
