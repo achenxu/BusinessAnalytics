@@ -1,0 +1,100 @@
+\documentclass[11pt]{article}
+\usepackage{mathpazo,titling,graphicx,hyperref,amsmath,bm,url,todonotes,microtype,setspace,eukdate}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,text={17cm,26cm},centering]{geometry}
+
+\usepackage[citestyle=authoryear,bibstyle=authoryear,maxnames=3,maxbibnames=99,natbib=true,firstinits=true,uniquename=init,dashed=false,doi=false,isbn=false,backend=biber]{biblatex}
+\DeclareFieldFormat{url}{\url{#1}}
+\DeclareFieldFormat[article]{pages}{#1}
+\DeclareFieldFormat[inproceedings]{pages}{\lowercase{pp.}#1}
+\DeclareFieldFormat[incollection]{pages}{\lowercase{pp.}#1}
+\DeclareFieldFormat[article]{volume}{\mkbibbold{#1}}
+\DeclareFieldFormat[article]{number}{\mkbibparens{#1}}
+\DeclareFieldFormat[article]{title}{\MakeCapital{#1}}
+\DeclareFieldFormat[article]{url}{}
+\DeclareFieldFormat[inproceedings]{title}{#1}
+\DeclareFieldFormat{shorthandwidth}{#1}
+\DeclareFieldFormat{extrayear}{}
+% No dot before number of articles
+\usepackage{xpatch}
+\xpatchbibmacro{volume+number+eid}{\setunit*{\adddot}}{}{}{}
+% Remove In: for an article.
+\renewbibmacro{in:}{%
+  \ifentrytype{article}{}{%
+  \printtext{\bibstring{in}\intitlepunct}}}
+\bibliography{Proof-LOOCV}
+
+\usepackage[compact,small]{titlesec}
+%%% Change section headers
+\titleformat*{\section}{\sffamily\Large\bfseries}
+\titleformat*{\subsection}{\sffamily\large\bfseries}
+%\titlespacing{\section}{0pt}{3ex}{1ex}
+%\titlespacing{\subsection}{0pt}{2ex}{1ex}
+%\titlespacing{\subsubsection}{0pt}{1ex}{0ex}
+%\titlelabel{\thetitle~}
+\setlength{\parskip}{1.2ex}
+\setlength{\parindent}{0em}
+\clubpenalty = 10000
+\widowpenalty = 10000
+%%% Change title format
+\pretitle{\vspace*{-2cm}\LARGE\bf\sffamily}
+\posttitle{\vspace*{0.2cm}\par}
+\preauthor{\large\sffamily}
+\postauthor{\hfill}
+\predate{\sffamily}
+\postdate{\break\vspace*{-0.9cm}\par\rule{\textwidth}{1pt}\par}
+
+
+\newtheorem{lemma}{Lemma}
+
+\begin{document}
+
+\title{Calculating CV without fitting lots of models}
+\author{Rob J Hyndman}
+\maketitle\thispagestyle{empty}
+
+The leave-one-out cross-validation statistic is given by
+\[\text{CV} = \frac{1}{N} \sum_{i=1}^N e_{[i]}^2,\]
+where $e_{[i]} = y_i - \hat{y}_{[i]}$, $y_1,\dots,y_N$ are the observations, and  $\hat{y}_{[i]}$ is the predicted value obtained when the model is estimated with the $i$th case deleted. %This is also sometimes known as the PRESS (Prediction Residual Sum of Squares) statistic.
+It turns out that for linear models, we do not actually have to estimate the model $N$ times, once for each omitted case. Instead, CV can be computed after estimating the model once on the complete data set.
+
+Suppose we have a linear regression $\bm{Y} = \bm{X}\bm{\beta} + \bm{e}$. Then $\hat{\bm{\beta}} = (\bm{X}'\bm{X})^{-1}\bm{X}'\bm{Y}$ and $\bm{H} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'$ is the ``hat-matrix''. It has this name because it is used to compute $\bm{\hat{Y}} = \bm{X}\hat{\bm{\beta}} = \bm{H}\bm{Y}$. If the diagonal values of $\bm{H}$ are denoted by $h_{1},\dots,h_{N}$, then the leave-one-out cross-validation statistic can be
+computed using
+\[ \text{CV} = \frac{1}{N}\sum_{i=1}^N [e_{i}/(1-h_{i})]^2,\]
+where $e_i = y_i - \hat{y}_i $ and $\hat{y}_i$ is the predicted value obtained when the model is estimated with all data included. This is a remarkable result, and is given without proof in Section 5/5 of my forecasting textbook.
+What follows is the simplest proof I know \citep[adapted from][]{Seber2003-fm}.
+
+\subsection*{Proof}
+
+Let $\bm{X}_{[i]}$ and $\bm{Y}_{[i]}$ be similar to $\bm{X}$ and $\bm{Y}$ but with the $i$th row deleted in each case. Let $\bm{x}'_i$ be the $i$th row of $\bm{X}$ and let
+\[
+\hat{\bm{\beta}}_{[i]} = (\bm{X}_{[i]}'\bm{X}_{[i]})^{-1}\bm{X}_{[i]}' \bm{Y}_{[i]}
+\]
+be the estimate of $\bm{\beta}$ without the $i$th case. Then $e_{[i]} = y_i - \bm{x}_i'\hat{\bm{\beta}}_{[i]}$.
+
+Now $\bm{X}_{[i]}'\bm{X}_{[i]} = (\bm{X}'\bm{X} - \bm{x}_i\bm{x}_i')$ and $\bm{x}_i(\bm{X}'\bm{X})^{-1}\bm{x}_i = h_i$. So by the Sherman--Morrison--Woodbury formula,
+\[
+(\bm{X}_{[i]}'\bm{X}_{[i]})^{-1} = (\bm{X}'\bm{X})^{-1} + \frac{(\bm{X}'\bm{X})^{-1}\bm{x}_i\bm{x}_i'(\bm{X}'\bm{X})^{-1}}{1-h_i}.
+\]
+Also note that $\bm{X}_{[i]}' \bm{Y}_{[i]} = \bm{X}'\bm{Y} - \bm{x}y_i$.
+Therefore
+\begin{align*}
+\bm{\hat{\beta}}_{[i]} 
+%&= (\bm{X}_{[i]}'\bm{X}_{[i]})^{-1} (\bm{X}'\bm{Y} - \bm{x}_i y_i)\\
+&=  \left[ (\bm{X}'\bm{X})^{-1}  + \frac{ (\bm{X}'\bm{X})^{-1}\bm{x}_i\bm{x}_i'(\bm{X}'\bm{X})^{-1} }{1-h_i} \right] (\bm{X}'\bm{Y} - \bm{x}_i y_i)\\
+&=  \hat{\bm{\beta}} - \left[ \frac{ (\bm{X}'\bm{X})^{-1}\bm{x}_i}{1-h_i}\right] \left[y_i(1-h_i) -  \bm{x}_i' \hat{\bm{\beta}} +h_i y_i \right]\\
+&=  \hat{\bm{\beta}} - (\bm{X}'\bm{X})^{-1}\bm{x}_i e_i / (1-h_i)
+\end{align*}
+
+Thus
+\begin{align*}
+e_{[i]} &= y_i - \bm{x}_i'\hat{\bm{\beta}}_{[i]} \\
+& = y_i - \bm{x}_i' \left[ \hat{\bm{\beta}} - (\bm{X}'\bm{X})^{-1}\bm{x}_ie_i/(1-h_i)\right] \\
+&= e_i + h_i e_i/(1-h_i) \\
+&= e_i/(1-h_i),
+\end{align*}
+and the result follows.
+
+\printbibliography
+
+\end{document}
