@@ -16,7 +16,10 @@
 \def\ben{\begin{enumerate}[<+-| alert@+>]}
 \def\een{\end{enumerate}}
 
-\graphicspath{{figs/}}
+\def\E{\text{E}}
+\def\V{\text{Var}}
+
+\graphicspath{{../figures/}{../figures/book_figures/Chapter3/}{../figures/book_figures/Chapter7/}}
 
 \title[2. Statistical learning]{Business Analytics}
 \author{2. Statistical learning}
@@ -40,24 +43,45 @@
 
 \begin{frame}{Revision: Multiple regression}
 
-\begin{block}{}\vspace*{-0.75cm}
-$$Y_i = \beta_0 + \beta_1 X_{1,i} + \beta_2 X_{2,i} + \cdots + \beta_kX_{k,i} + e_i.$$
+\begin{block}{}\vspace*{-0.2cm}
+$$Y_i = \beta_0 + \beta_1 X_{1,i} + \beta_2 X_{2,i} + \cdots + \beta_pX_{p,i} + e_i.$$
 \end{block}
 \biz
 \item Each $X_{j,i}$ is numerical and is called a ``predictor''.
 
-\item The coefficients $\beta_1,\dots,\beta_k$ measure the effect of each
+\item The coefficients $\beta_1,\dots,\beta_p$ measure the effect of each
 predictor after taking account of the effect of all other predictors
 in the model.
 
-\item That is, the coefficients measure the \textbf{marginal effects}.
+\item Recall: dummy variables, OLS, $R^2$, se of coefficients, residual standard error, F statistic.
+
+\item Predictors may be transforms of other predictors. e.g., $X_2=X_1^2$.
+
+\item The model describes a line, plane or hyperplane in the predictors.
 
 \eiz
 
 \end{frame}
 
+\begin{frame}{Revision: Multiple regression}
+\only<1>{\fullheight{3-1}}
+\only<2>{\fullheight{3-5}}
+\end{frame}
 
 
+\begin{frame}{Important questions}\large 
+\begin{enumerate}
+\item Is at least one of the predictors useful in predicting the response?
+
+\item Do all the predictors help to explain $Y$, or is only a subset of the predictors useful?
+
+\item How well does the model fit the data?
+
+\item Given a set of predictor values, what response value should we predict and how accurate is our prediction?
+
+\end{enumerate}
+
+\end{frame}
 
 \begin{frame}{Credit scores}
 
@@ -91,8 +115,8 @@ Banks score loan customers based on a lot of personal information. A sample of 5
 \end{frame}
 
 \begin{frame}{Credit scores}
-\only<1>{\placefig{4.4}{1.4}{height=8.6cm,trim=20 0 0 25,clip=TRUE}{scores1}}
-\only<2>{\placefig{4.4}{1.4}{height=8.6cm,trim=20 0 0 25,clip=TRUE}{scores2}
+\only<1>{\placefig{4.4}{1.2}{height=8.cm,trim=0 0 0 0,clip=TRUE}{scores1}}
+\only<2>{\placefig{4.4}{1.2}{height=8.cm,trim=0 0 0 0,clip=TRUE}{scores2}
 \begin{textblock}{4}(0,1.5)\small
 \biz
 \item Taking logarithms reduces the skewness in the predictor variables.
@@ -121,12 +145,11 @@ e     &=  \text{error}.
 
 \end{frame}
 
-
 \begin{frame}[fragile]{Credit scores}\footnotesize
-
-\structure{Computer output from fitting model}
-
 \begin{verbatim}
+lm(formula = score ~ log.savings + log.income + log.address + 
+    log.employed, data = creditlog)
+
 Coefficients:
              Estimate Std. Error t value Pr(>|t|)
 (Intercept)    -0.219      5.231   -0.04   0.9667
@@ -136,73 +159,60 @@ log.address     2.667      0.434    6.14  1.7e-09
 log.employed    1.314      0.409    3.21   0.0014
 
 Residual standard error: 10.2 on 495 degrees of freedom
-Multiple R-squared: 0.47,       Adjusted R-squared: 0.466
-F-statistic:  110 on 4 and 495 DF,  p-value: <2e-16
+Multiple R-squared: 0.47, Adjusted R-squared: 0.466 
+F-statistic:  110 on 4 and 495 DF,  p-value: <2e-16 
+
+    CV  AIC AICc  BIC   AdjR2
+ 104.7 2326 2326 2351 0.46582
 \end{verbatim}
-\end{frame}
-
-\begin{frame}{Credit scores}
-\fullheight{scores3}
-\only<2->{\begin{textblock}{3}(2,2){\color{red}
-Correlation:\vspace*{-0.5cm} \begin{align*}r &= 0.6856\\
-r^2 &= 0.4701\end{align*}}\end{textblock}}
-\only<3->{\begin{textblock}{5.5}(7,6.7){\color{blue}\footnotesize
-About half the variation in scores can be predicted using this model.}
-\end{textblock}}
+\vspace*{10cm}
 \end{frame}
 
 
-\begin{frame}{Credit scores}\vspace*{-0.2cm}
-\structure{Residual (or error)}
+\begin{frame}{\large Interpreting regression coefficients}
 
-\begin{tabular}{lccl}
-$e_i =$ & $Y_i$ & \hspace*{-0.8cm}$-$ & $\hat Y_i$ \\
-& $\uparrow$ & & $\uparrow$ \\
-& \hspace*{-0.8cm}(observed) & & \hspace*{-0.4cm}(estimated using regression model)
-\end{tabular}
-
-\pause
-
-\centerline{\includegraphics[height=6cm]{scores6}}
+\begin{itemize}
+\item The ideal scenario is when the predictors are uncorrelated.
+\begin{itemize}
+\item Each coefficient can be interpreted and tested separately.
+\end{itemize}
+\item Correlations amongst predictors cause problems.
+\begin{itemize}
+\item The variance of all coefficients tends to increase, sometimes dramatically.
+\item Interpretations become hazardous -- when $X_j$ changes, everything else changes.
+\item Predictions still work provided new $X$ values are within the range of training $X$ values.
+\end{itemize}
+\item Claims of causality should be avoided for observational data.
+\end{itemize}
 
 \end{frame}
 
-\begin{frame}{Credit scores}
-\only<1>{\fullheight{scores4}}
-\only<2>{\fullheight{scores5}}
+\begin{frame}{Interactions}
+\begin{itemize}
+\item An interaction occurs when the one variable changes the effect of a second variable. (e.g., spending on radio advertising increases the effectiveness of TV advertising).
+
+\item To model an interaction, include the product $X_1X_2$ in the model in addition to $X_1$ and $X_2$.
+
+\item \structure{Hierarchy principle}: If we include an interaction in a model, we should also include the main effects, even if the p-values associated
+with their coefficients are not significant. (This is because the interactions are almost impossible to interpret without the main effects.)
+\end{itemize}
+
 \end{frame}
 
 
-\begin{frame}{Residual plots}
 
-Useful for spotting outliers and whether the straight line was
-appropriate.
+
+\begin{frame}{Residual patterns}
 
 \biz
-\item Scatterplot of residuals $e_i$ against the predictor
-$X_i$.
+\item If a plot of the residuals vs any predictor in the model shows a pattern, then the relationship is nonlinear.
 
-\item Scatterplot residuals against the fitted values $\hat Y_i$
+\item If a plot of the residuals vs any predictor \textbf{not} in the model shows a pattern, then the predictor should be added to the model.
 
-\item Expect to see scatterplots resembling a horizontal band with
-no values too far from the band and no patterns such as curvature or
-increasing spread.
+\item If a plot of the residuals vs fitted values shows a pattern, then there is heteroscedasticity in the errors. (Could try a transformation.)
+
 \eiz
-
 \end{frame}
-
-\begin{frame}{Residual plots}\small\vspace*{-0.4cm}
-
-\centerline{\includegraphics[width=8cm]{pulpres}}
-
-{Residual plot from the Pulp regression.  Here the residuals show a
-V-shaped pattern. This indicates the straight line relationship was
-not appropriate for these \rlap{data.}}
-
-\end{frame}
-
-
-
 
 
 
@@ -210,17 +220,17 @@ not appropriate for these \rlap{data.}}
 
 \begin{frame}{Matrix formulation}
 
-\begin{block}{}\vspace*{-0.75cm}
-$$Y_i = \beta_0 + \beta_1 X_{1,i} + \beta_2 X_{2,i} + \cdots + \beta_kX_{k,i} + e_i.$$
+\begin{block}{}\vspace*{-0.3cm}
+$$Y_i = \beta_0 + \beta_1 X_{1,i} + \beta_2 X_{2,i} + \cdots + \beta_pX_{p,i} + e_i.$$
 \end{block}\pause
 
-Let $\bm{Y} = (Y_1,\dots,Y_n)'$, $\bm{e} = (e_1,\dots,e_n)'$, $\bm{\beta} = (\beta_1,\dots,\beta_k)'$ and
+Let $\bm{Y} = (Y_1,\dots,Y_n)'$, $\bm{e} = (e_1,\dots,e_n)'$, $\bm{\beta} = (\beta_0,\dots,\beta_p)'$ and
 \[
 \bm{X} = \begin{bmatrix}
-  1 & X_{1,1} & X_{2,1} & \dots & X_{k,1}\\
-  1 & X_{1,2} & X_{2,2} & \dots & X_{k,2}\\
+  1 & X_{1,1} & X_{2,1} & \dots & X_{p,1}\\
+  1 & X_{1,2} & X_{2,2} & \dots & X_{p,2}\\
 \vdots & \vdots & \vdots & & \vdots\\
-  1 & X_{1,n} & X_{2,n} & \dots & X_{k,n}
+  1 & X_{1,n} & X_{2,n} & \dots & X_{p,n}
   \end{bmatrix}.
 \]\pause
 
@@ -272,37 +282,20 @@ which is maximized when $(\bm{Y}-\bm{X}\bm{\beta})'(\bm{Y}-\bm{X}\bm{\beta})$ is
 \end{frame}
 
 
-\begin{frame}{Multivariate statistics}
+\begin{frame}{Multiple regression predictions}
 
-Let $\bm{Y}$ be a random vector with mean $\bm{\mu}$ and covariance matrix $\bm{V}$.
-
-Let $\bm{A}$ and $\bm{B}$ be constant matrices.
-
-\pause
-
-\begin{block}{Moments of linear functions}
-\biz
-\item $\E(\bm{A}+\bm{B}\bm{Y}) = \bm{A}+\bm{B}\bm{\mu}$
-\item $\V(\bm{A}+\bm{B}\bm{Y}) = \bm{B}\bm{V}\bm{B}'$
-\eiz
-\end{block}
-
-\end{frame}
-
-\begin{frame}{Multiple regression forecasts}
-
-\begin{block}{Optimal forecasts}\vspace*{-0.7cm}
+\begin{block}{Optimal predictions}\vspace*{-0.2cm}
 \[
 \hat{Y}^* =
 \text{E}(Y^* | \bm{Y},\bm{X},\bm{X}^*) =
 \bm{X}^*\hat{\bm{\beta}} = \bm{X}^*(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{Y}
 \]
 \end{block}
-where $\bm{X}^*$ is a row vector containing the values of the regressors for the forecasts (in the same format as $\bm{X}$).\vspace*{0.cm}
+where $\bm{X}^*$ is a row vector containing the values of the regressors for the predictions (in the same format as $\bm{X}$).\vspace*{0.cm}
 
 \pause
 
-\begin{block}{Forecast variance}\vspace*{-0.7cm}
+\begin{block}{Prediction variance}\vspace*{-0.2cm}
 \[
 \text{Var}(Y^* | \bm{Y},\bm{X},\bm{X}^*) = \sigma^2 \left[1 + \bm{X}^* (\bm{X}'\bm{X})^{-1} (\bm{X}^*)'\right]
 \]
@@ -318,37 +311,102 @@ $.
 
 \end{frame}
 
-\begin{frame}{Multiple regression forecasts}
 
 
-\begin{block}{Fitted values}\vspace*{-0.7cm}
-\[
-\hat{\bm{Y}} =
-\text{E}(\bm{Y}|\bm{X}) =
-\bm{X}\hat{\bm{\beta}} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{Y} = \bm{H}\bm{Y}
-\]
-\end{block}
-where $\bm{H} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'$ is the ``hat matrix''.\pause
 
-\structure{Leave-one-out residuals}
-
-Let $h_1,\dots,h_n$ be the diagonal values of $\bm{H}$, then the cross-validation statistic is
-\begin{block}{}
-\centerline{$\displaystyle
-\text{CV} = \frac1n\sum_{i=1}^n[e_i/(1-h_i)]^2,$}
-\end{block}
-where $e_i$ is the residual obtained from fitting the model to all $n$ observations.
+\section{Splines}
 
 
+
+
+\begin{frame}{Splines}
+\only<1>{\fullheight{draftspline}}
+\only<2>{\fullwidth{spline}}
+\only<3>{\fullwidth{spline2}}
+\end{frame}
+ 
+\begin{frame}{Splines}\parskip=1.6ex
+
+Knots: $\kappa_1,\dots,\kappa_K$.
+
+\pause
+
+A spline is a continuous function $f(x)$ consisting of polynomials between each
+consecutive pair of `knots' $x=\kappa_j$ and $x=\kappa_{j+1}$.
+
+\pause
+
+\begin{itemize}
+\item Parameters constrained so that $f(x)$ is continuous.
+
+\item Further constraints imposed to give continuous derivatives.
+\end{itemize}
 \end{frame}
 
 
+\begin{frame}
+\fullheight{7-3}
+
+\end{frame}
+
+\begin{frame}{Truncated power basis}
+\biz
+%\item
+%Let $\kappa_1<\kappa_2<\cdots<\kappa_k$ be knots in interval $(a,b)$.
+
+\item Predictors: $x$, \dots, $x^p$, $(x-\kappa_{1})_+^p$, \dots, $(x-\kappa_{K})_+^p$\pause
+
+\item Then the regression is piecewise order-$p$ polynomials.
+\item $p-1$ continuous derivatives.
+\item Usually choose $p=1$ or $p=3$.
+
+\item $p+K+1$ degrees of freedom
+\eiz
+\end{frame}
+
+
+\begin{frame}[fragile]{Natural splines}
+
+\begin{itemize}
+\item 
+Splines based on truncated power bases have high variance at the outer range of the predictors.
+\item Natural splines are similar, but have additional \alert{boundary constraints}: the function is linear at the boundaries. This reduces the variance.
+
+\item Degrees of freedom $\verb|df|=K+1$\\ (i.e., there are $K=\verb|df|-1$ interior knots.)
+
+\item Create predictors using \verb|ns| function in R (automatically chooses knots given \verb|df|).
+
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Natural splines}
+\only<1>{\fullheight{7-4}}
+
+\only<2>{\fullheight{7-7}}
+\end{frame}
+
+\begin{frame}{Nonlinear choices}
+\begin{enumerate}
+\item Polynomials (beware)
+\item Truncated power basis splines
+\item Natural splines
+\item B-splines
+\item Smoothing splines
+\item Kernel regression
+\item Local regression
+\item kNN
+\end{enumerate}
+\end{frame}
 
 \section{Choosing regression variables}
 
 \begin{frame}{Choosing regression models}
 \biz
 \item When there are many predictors, how should we choose which ones to use?
+
+\item How do we choose the df for a spline?
 
 \item We need a way of comparing two competing models
 
@@ -398,23 +456,7 @@ where $k=$ no.\ predictors.\pause
 Minimizing $\hat{\sigma}^2$ works quite well for choosing predictors (but better methods to follow).
 
 \end{frame}
-\begin{frame}{Comparing regression models}
 
-Computer output for regression will always give the $R^2$ value. This is a
-useful summary of the model.
-\biz%\parskip=2ex
-\item It is equal to the square of the correlation between $Y$ and $\hat Y$.
-
-\item It is often called the ``coefficient of determination''.
-
-\item It can also be calculated as follows:
-$$R^2 = \frac{\sum(\hat{Y}_i - \bar{Y})^2}{\sum(Y_i-\bar{Y})^2}
-$$
-
-\item It is
-the proportion of variance accounted for (explained) by the predictors.
-\eiz
-\end{frame}
 
 \begin{frame}{Comparing regression models}
 
@@ -442,6 +484,20 @@ To overcome   this problem, we can use \rlap{\emph{adjusted $R^2$}:}
 \end{frame}
 
 
+\begin{frame}{Test sets}
+\placefig{0.5}{1.5}{width=12cm}{cv1}
+
+\only<2>{\begin{textblock}{12}(0.5,2.9)
+\structure{Leave one-out cross-validation (LOOCV)}
+\end{textblock}}
+\only<2>{\placefig{0.5}{3.5}{width=12cm}{cvloout}}
+
+\only<3>{\begin{textblock}{12}(0.5,2.9)
+\structure{5-fold cross-validation}
+\end{textblock}}
+\only<3>{\placefig{0.5}{3.5}{width=12cm}{cv2}}
+\end{frame}
+
 \begin{frame}{Cross-validation}
 
 Leave-one-out cross-validation for regression can be carried out using the following steps.
@@ -451,6 +507,30 @@ Leave-one-out cross-validation for regression can be carried out using the follo
 \item Compute the MSE from $\{e_1^*,\dots,e_n^*\}$. We shall call this the CV.
 \een\pause
 The best model is the one with the smallest value of CV.
+\end{frame}
+
+\begin{frame}{Multiple regression prediction}
+
+
+\begin{block}{Fitted values}\vspace*{-0.2cm}
+\[
+\hat{\bm{Y}} =
+\text{E}(\bm{Y}|\bm{X}) =
+\bm{X}\hat{\bm{\beta}} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{Y} = \bm{H}\bm{Y}
+\]
+\end{block}
+where $\bm{H} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'$ is the ``hat matrix''.\pause
+
+\structure{Leave-one-out residuals}
+
+Let $h_1,\dots,h_n$ be the diagonal values of $\bm{H}$, then the cross-validation statistic is
+\begin{block}{}
+\centerline{$\displaystyle
+\text{CV} = \frac1n\sum_{i=1}^n[e_i/(1-h_i)]^2,$}
+\end{block}
+where $e_i$ is the residual obtained from fitting the model to all $n$ observations.
+
+
 \end{frame}
 
 \begin{frame}{Akaike's Information Criterion}
@@ -485,7 +565,7 @@ For small values of $n$, the AIC tends to select too many predictors, and so a b
 As with the AIC, the AIC$_{\text{C}}$ should be minimized.
 \end{frame}
 
-\begin{frame}{Schwartz Bayesian Information Criterion}
+\begin{frame}{\normalsize Schwartz Bayesian Information Criterion}
 
 \begin{block}{}
 \[
@@ -535,7 +615,7 @@ For example, 44 predictors leads to 18 trillion possible models!
 
 \begin{frame}{Choosing regression variables}\footnotesize\vspace*{-0.2cm}
 {\tabcolsep=0.1cm
-\hspace*{-0.7cm}\begin{tabular}{ccccccccc}
+\hspace*{-0.3cm}\begin{tabular}{ccccccccc}
   \hline
  Savings & Income & Address & Employed & CV & AIC & AICc & BIC & $\bar{R}^2$ \\
   \hline
@@ -574,7 +654,7 @@ For example, 44 predictors leads to 18 trillion possible models!
 
 \item AIC also slightly biased towards larger models (but only when $n$ is small).
 
-\item Empirical studies in forecasting show AIC is better than BIC for forecast accuracy.
+\item Empirical studies AIC is better than BIC for prediction accuracy.
 \eiz
 \end{frame}
 
@@ -610,139 +690,5 @@ value to select between them.
 
 \end{frame}
 
-\begin{frame}[fragile]{R example}\footnotesize
-\begin{verbatim}
-lm(formula = score ~ log.savings, data = creditlog)
-
-Coefficients:
-            Estimate Std. Error t value Pr(>|t|)    
-(Intercept)  29.3227     0.6448   45.48   <2e-16 ***
-log.savings  11.2702     0.6348   17.75   <2e-16 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 
-
-Residual standard error: 10.89 on 498 degrees of freedom
-Multiple R-squared: 0.3876, Adjusted R-squared: 0.3864 
-F-statistic: 315.2 on 1 and 498 DF,  p-value: < 2.2e-16 
-
-   CV  AIC AICc  BIC   AdjR2
-119.5 2392 2392 2405 0.38639
-\end{verbatim}
-\vspace*{10cm}
-
-\end{frame}
-
-\begin{frame}[fragile]{R example}\footnotesize
-\begin{verbatim}
-lm(formula = score ~ log.savings + log.employed, data = creditlog)
-
-Coefficients:
-             Estimate Std. Error t value Pr(>|t|)
-(Intercept)    24.343      1.257   19.37  < 2e-16
-log.savings    11.287      0.622   18.13  < 2e-16
-log.employed    1.927      0.420    4.58  5.8e-06
-
-Residual standard error: 10.7 on 497 degrees of freedom
-Multiple R-squared: 0.412,  Adjusted R-squared: 0.41 
-F-statistic:  174 on 2 and 497 DF,  p-value: <2e-16 
-
-   CV  AIC AICc  BIC   AdjR2
-115.1 2373 2373 2390 0.41010
-\end{verbatim}
-\vspace*{10cm}
-
-\end{frame}
-
-\begin{frame}[fragile]{R example}\footnotesize
-\begin{verbatim}
-lm(formula = score ~ log.savings + log.address + log.employed, 
-    data = creditlog)
-
-Coefficients:
-             Estimate Std. Error t value Pr(>|t|)
-(Intercept)    20.039      1.407   14.24  < 2e-16
-log.savings    10.934      0.604   18.10  < 2e-16
-log.address     2.668      0.441    6.05  2.9e-09
-log.employed    1.406      0.415    3.39  0.00076
-
-Residual standard error: 10.3 on 496 degrees of freedom
-Multiple R-squared: 0.453,  Adjusted R-squared: 0.45 
-F-statistic:  137 on 3 and 496 DF,  p-value: <2e-16 
-
-   CV  AIC AICc  BIC   AdjR2
-107.7 2340 2340 2361 0.44952
-\end{verbatim}
-\vspace*{10cm}
-
-\end{frame}
-
-\begin{frame}[fragile]{R example}\footnotesize
-\begin{verbatim}
-lm(formula = score ~ log.savings + log.income + log.address + 
-    log.employed, data = creditlog)
-
-Coefficients:
-             Estimate Std. Error t value Pr(>|t|)
-(Intercept)    -0.219      5.231   -0.04   0.9667
-log.savings    10.353      0.612   16.90  < 2e-16
-log.income      5.052      1.258    4.02  6.8e-05
-log.address     2.667      0.434    6.14  1.7e-09
-log.employed    1.314      0.409    3.21   0.0014
-
-Residual standard error: 10.2 on 495 degrees of freedom
-Multiple R-squared: 0.47, Adjusted R-squared: 0.466 
-F-statistic:  110 on 4 and 495 DF,  p-value: <2e-16 
-
-    CV  AIC AICc  BIC   AdjR2
- 104.7 2326 2326 2351 0.46582
-\end{verbatim}
-\vspace*{10cm}
-\end{frame}
-
-
-\section{Residual diagnostics}
-
-
-
-\begin{frame}{Residual patterns}
-
-\biz
-\item If a plot of the residuals vs any predictor in the model shows a pattern, then the relationship is nonlinear.
-
-\item If a plot of the residuals vs any predictor \textbf{not} in the model shows a pattern, then the predictor should be added to the model.
-
-\item If a plot of the residuals vs fitted values shows a pattern, then there is heteroscedasticity in the errors. (Could try a transformation.)
-
-\eiz
-\end{frame}
-
-
-
-
-
-
-\begin{frame}{Multicollinearity}
-In regression analysis, multicollinearity occurs when:
-\biz
-\item  Two  predictors are highly  correlated (i.e., the correlation between them is close to \rlap{$\pm1$).}
-\item A linear combination of some of the predictors is highly correlated  with another predictor.
-\item  A linear combination of one subset of predictors is highly correlated with a linear combination of another
-  subset of predictors. 
-\eiz
-\end{frame}
-
-\begin{frame}{Multicollinearity}
-If multicollinearity exists\dots
-\biz%\parskip=1ex
-\item the numerical estimates of coefficients may be wrong (worse in Excel than in a statistics package)
-\item don't rely on the $p$-values to determine significance.
-\item there is no problem with model \rlap{\textit{predictions}}\\ 
-      provided the regressors used for forecasting are within the range used for fitting.
-\item omitting variables can help.
-\item combining variables can help.
-\eiz
-
-
-\end{frame}
 
 \end{document}
