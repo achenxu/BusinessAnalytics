@@ -21,9 +21,9 @@
 
 \graphicspath{{../figures/}{../figures/book_figures/Chapter3/}{../figures/book_figures/Chapter7/}}
 
-\title[2. Statistical learning]{Business Analytics}
-\author{2. Statistical learning}
-
+\title[3. Regression]{Business Analytics}
+\author{3. Regression}
+\date{10 August 2015}
 
 \DefineShortVerb{\"}
 \def\FancyVerbFormatCom{\color[rgb]{0.6,0,1}\relax}
@@ -53,11 +53,11 @@ $$Y_i = \beta_0 + \beta_1 X_{1,i} + \beta_2 X_{2,i} + \cdots + \beta_pX_{p,i} + 
 predictor after taking account of the effect of all other predictors
 in the model.
 
-\item Recall: dummy variables, OLS, $R^2$, se of coefficients, residual standard error, F statistic.
 
 \item Predictors may be transforms of other predictors. e.g., $X_2=X_1^2$.
 
 \item The model describes a line, plane or hyperplane in the predictors.
+
 
 \eiz
 
@@ -68,6 +68,16 @@ in the model.
 \only<2>{\fullheight{3-5}}
 \end{frame}
 
+\begin{frame}{Revision: Multiple regression}\large
+\begin{itemize}[<+-| alert@+>]
+\item Dummy variables
+\item OLS
+\item $R^2$
+\item se of coefficients
+\item residual standard error
+\item F statistic
+\end{itemize}
+\end{frame}
 
 \begin{frame}{Important questions}\large 
 \begin{enumerate}
@@ -85,7 +95,7 @@ in the model.
 
 \begin{frame}{Credit scores}
 
-Banks score loan customers based on a lot of personal information. A sample of 500 customers from an Australian bank provided the following information.
+Banks score loan customers based on a lot of personal information. A sample of 500 customers from an Australian bank provided the following information.\vspace*{.2cm}
 
 \hspace*{-0.3cm}{\footnotesize
 \begin{tabular}{rrrrr}
@@ -354,7 +364,7 @@ consecutive pair of `knots' $x=\kappa_j$ and $x=\kappa_{j+1}$.
 %\item
 %Let $\kappa_1<\kappa_2<\cdots<\kappa_k$ be knots in interval $(a,b)$.
 
-\item Predictors: $x$, \dots, $x^p$, $(x-\kappa_{1})_+^p$, \dots, $(x-\kappa_{K})_+^p$\pause
+\item Predictors: $x$, \dots, $x^p$, $(x-\kappa_{1})_+^p$, \dots, $(x-\kappa_{K})_+^p$
 
 \item Then the regression is piecewise order-$p$ polynomials.
 \item $p-1$ continuous derivatives.
@@ -407,297 +417,6 @@ Splines based on truncated power bases have high variance at the outer range of 
 \end{enumerate}
 \end{frame}
 
-
-
-\section{Choosing regression variables}
-
-\begin{frame}{Choosing regression models}
-\biz
-\item When there are many predictors, how should we choose which ones to use?
-
-\item How do we choose the df for a spline?
-
-\item We need a way of comparing two competing models
-
-\item If there are a limited number of predictors, we can study all possible models.
-
-\item Otherwise we need a search strategy to explore some potential models.
-\eiz
-
-\end{frame}
-
-
-\begin{frame}{Choosing regression variables}
-
-
-\structure{What not to do!}
-\biz
-\item Plot $Y$ against a particular predictor ($X_j$)
-       and if it shows no noticeable relationship,  drop it.
-
-%\item Look  at  correlations among the predictors
-%       (all of the potential candidates)  and every time a large
-%       correlation is encountered,  remove one of  the  two
-%       variables from further consideration.
-
-\item Do a multiple linear regression on all the predictors
-      and
-      disregard all variables whose  $p$ values are greater than 0.05.
-
-\item Maximize $R^2$
-
-\item Minimize SSE.
-\eiz
-\end{frame}%
-
-\begin{frame}{Comparing regression models}
-\structure{Sum of squared errors}
-\[\text{SSE} = \sum_{i=1}^n e_i^2 \]
-Minimizing SSE will always choose the model with the most predictors.
-
-\pause
-\structure{Estimated residual variance}
-\[
-\hat{\sigma}^2 = \frac{\text{SSE}}{n-k-1}
-\]
-where $k=$ no.\ predictors.\pause
-
-Minimizing $\hat{\sigma}^2$ works quite well for choosing predictors (but better methods to follow).
-
-\end{frame}
-
-
-\begin{frame}{Comparing regression models}
-
-However \dots
-\biz
-\item $R^2$  does not allow for ``degrees of \rlap{freedom''.}
-
-\item Adding \textit{any} variable tends to increase the value of $R^2$, even if that variable is
-\rlap{irrelevant.}
-\eiz\pause
-
-To overcome   this problem, we can use \rlap{\emph{adjusted $R^2$}:}
-\begin{block}{}
-\[
-\bar{R}^2 = 1-(1-R^2)\frac{n-1}{n-k-1}
-\]
-\end{block}
-\pause
-
-\centerline{\textcolor[rgb]{0.8,0.00,0.00}{\textbf{Maximizing $\bar{R}^2$ is equivalent to minimizing $\hat\sigma^2$.}}}
-
-%$\bar{R}^2$    is  referred  to  as
-%``adjusted $R^2$'' or ``$R$-bar-squared,''    or sometimes as  ``$R^2$,
-%corrected for degrees of freedom.''
-\end{frame}
-
-
-\begin{frame}{Test sets}
-\placefig{0.5}{1.5}{width=12cm}{cv1}
-
-\only<2>{\begin{textblock}{12}(0.5,2.9)
-\structure{Leave one-out cross-validation (LOOCV)}
-\end{textblock}}
-\only<2>{\placefig{0.5}{3.5}{width=12cm}{cvloout}}
-
-\only<3>{\begin{textblock}{12}(0.5,2.9)
-\structure{5-fold cross-validation}
-\end{textblock}}
-\only<3>{\placefig{0.5}{3.5}{width=12cm}{cv2}}
-\end{frame}
-
-\begin{frame}{Cross-validation}
-
-Leave-one-out cross-validation for regression can be carried out using the following steps.
-\ben
-\item Remove observation $i$ from the data set, and fit the model using the remaining data. Then compute the error ($e_i^*=y_i-\hat{y}_i$) for the omitted observation.
-\item Repeat step 1 for $i=1,\dots,n$.
-\item Compute the MSE from $\{e_1^*,\dots,e_n^*\}$. We shall call this the CV.
-\een\pause
-The best model is the one with the smallest value of CV.
-\end{frame}
-
-\begin{frame}{Multiple regression prediction}
-
-
-\begin{block}{Fitted values}\vspace*{-0.2cm}
-\[
-\hat{\bm{Y}} =
-\text{E}(\bm{Y}|\bm{X}) =
-\bm{X}\hat{\bm{\beta}} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'\bm{Y} = \bm{H}\bm{Y}
-\]
-\end{block}
-where $\bm{H} = \bm{X}(\bm{X}'\bm{X})^{-1}\bm{X}'$ is the ``hat matrix''.\pause
-
-\structure{Leave-one-out residuals}
-
-Let $h_1,\dots,h_n$ be the diagonal values of $\bm{H}$, then the cross-validation statistic is
-\begin{block}{}
-\centerline{$\displaystyle
-\text{CV} = \frac1n\sum_{i=1}^n[e_i/(1-h_i)]^2,$}
-\end{block}
-where $e_i$ is the residual obtained from fitting the model to all $n$ observations.
-
-
-\end{frame}
-
-\begin{frame}{Akaike's Information Criterion}
-
-\begin{block}{}
-\[
-\text{AIC} = -2\log(L) + 2(k+1)
-\]
-\end{block}
-where $L$ is the likelihood and $k$ is the number of predictors in the model.\pause
-
-\biz
-\item This is a \emph{penalized likelihood} approach.
-
-\item \emph{Minimizing} the AIC gives the best model for prediction.
-
-\item AIC penalizes terms more heavily than $\bar{R}^2$.
-
-\item Minimizing the AIC is asymptotically equivalent to minimizing MSE via leave-one-out cross-validation.
-\eiz
-
-\end{frame}
-
-\begin{frame}{Corrected AIC}
-
-For small values of $n$, the AIC tends to select too many predictors, and so a bias-corrected version of the AIC has been developed.
-\begin{block}{}
-\[
-\text{AIC}_{\text{C}} = \text{AIC} + \frac{2(k+2)(k+3)}{n-k-1}
-\]
-\end{block}
-As with the AIC, the AIC$_{\text{C}}$ should be minimized.
-\end{frame}
-
-\begin{frame}{\normalsize Schwartz Bayesian Information Criterion}
-
-\begin{block}{}
-\[
-\text{BIC} = -2\log(L) + (k+1)\log(n)
-\]
-\end{block}
-where $L$ is the likelihood and $k$ is the number of predictors in the model.\pause
-
-\biz
-\item \emph{Minimizing} the BIC gives the best model for prediction.
-
-\item BIC penalizes terms more heavily than \rlap{AIC}
-
-\item Also called SBIC and SC.
-
-\item Minimizing BIC is asymptotically equivalent to leave-$v$-out cross-validation when $v = n[1-1/(log(n)-1)]$.
-
-\eiz
-
-\end{frame}
-
-
-\begin{frame}{Choosing regression variables}
-
-\structure{Best subsets regression}
-
-\biz
-\item
-Fit all possible regression models using one or more of the predictors.
-
-\item
-Choose the best model based on one of the measures of predictive ability (CV, AIC, AICc, BIC, $\bar{R}^2$).
-\eiz
-
-\vfill\pause
-
-\structure{Warning!}
-\begin{itemize}
-\item If there are a large number of predictors, this is not possible.
-
-For example, 44 predictors leads to 18 trillion possible models!
-\end{itemize}
-
-\end{frame}
-
-
-
-\begin{frame}{Choosing regression variables}\footnotesize\vspace*{-0.2cm}
-{\tabcolsep=0.1cm
-\hspace*{-0.3cm}\begin{tabular}{ccccccccc}
-  \hline
- Savings & Income & Address & Employed & CV & AIC & AICc & BIC & $\bar{R}^2$ \\
-  \hline
-  X & X & X & X & 104.7 & 2325.8 & 2325.9 & 2351.1 & 0.4658 \\
-  X & X & X &   & 106.5 & 2334.1 & 2334.2 & 2355.1 & 0.4558 \\
-  X &   & X & X & 107.7 & 2339.8 & 2339.9 & 2360.9 & 0.4495 \\
-  X &   & X &   & 109.7 & 2349.3 & 2349.3 & 2366.1 & 0.4379 \\
-  X & X &   & X & 112.2 & 2360.4 & 2360.6 & 2381.5 & 0.4263 \\
-  X &   &   & X & 115.1 & 2373.4 & 2373.5 & 2390.3 & 0.4101 \\
-  X & X &   &   & 116.1 & 2377.7 & 2377.8 & 2394.6 & 0.4050 \\
-  X &   &   &   & 119.5 & 2392.1 & 2392.2 & 2404.8 & 0.3864 \\
-    & X & X & X & 164.2 & 2551.6 & 2551.7 & 2572.7 & 0.1592 \\
-    & X & X &   & 164.9 & 2553.8 & 2553.9 & 2570.7 & 0.1538 \\
-    & X &   & X & 176.1 & 2586.7 & 2586.8 & 2603.6 & 0.0963 \\
-    &   & X & X & 177.5 & 2591.4 & 2591.5 & 2608.3 & 0.0877 \\
-    &   & X &   & 178.6 & 2594.6 & 2594.6 & 2607.2 & 0.0801 \\
-    & X &   &   & 179.1 & 2595.3 & 2595.3 & 2607.9 & 0.0788 \\
-    &   &   & X & 190.0 & 2625.3 & 2625.4 & 2638.0 & 0.0217 \\
-    &   &   &   & 193.8 & 2635.3 & 2635.3 & 2643.7 & 0.0000 \\
-   \hline
-\end{tabular}}
-
-\end{frame}
-
-
-\begin{frame}{What to use?}
-
-\structure{Choice: BIC, CV, AICc, AIC, $\bar{R}^2$.}
-\pause
-\biz
-\item BIC tends to choose models too small for prediction.
-
-\item As $n\rightarrow\infty$, BIC selects \emph{true} model if there is one.
-
-\item $\bar{R}^2$ tends to select models too large.
-
-\item AIC also slightly biased towards larger models (but only when $n$ is small).
-
-\item Empirical studies AIC is better than BIC for prediction accuracy.
-\eiz
-\end{frame}
-
-\begin{frame}[squeeze,shrink=0.99]{Choosing regression variables}
-\structure{Backwards stepwise regression}
-
-\biz
-\item Start with a model containing all variables.
-
-\item Try subtracting one variable at a time. Keep the model if it
-has lower \rlap{CV, AICc or AIC.}
-
-\item Iterate until no further improvement.
-\eiz
-
-\pause%\small
-
-\structure{\textcolor[rgb]{0.80,0.00,0.00}{Notes:}}
-\biz\itemsep=0cm\parskip=0cm
-%\item Putting all the predictors in can lead to a significant
-%\textit{overall effect} but with no way of determining the individual effects
-%of each variable.
-%
-%\item Using stepwise regression is useful for choosing only the most
-%significant variables in the regression model.
-
-\item Stepwise regression is not guaranteed to lead to the best possible
-model.
-
-\item If you are trying several different models, use the CV, AICc or AIC %adjusted $R^2$
-value to select between them.
-\eiz
-
-\end{frame}
 
 
 \end{document}
