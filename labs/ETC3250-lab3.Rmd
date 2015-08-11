@@ -23,7 +23,7 @@ We will determine which model is "best" based on the cross-validation statistic 
 ```{r}
 CV <- function(object)
 {
-  cv <- mean((residuals(obj)/(1 - hatvalues(obj)))^2, na.rm = TRUE)
+  cv <- mean((residuals(object)/(1 - hatvalues(object)))^2, na.rm = TRUE)
   return(cv)
 }
 ```
