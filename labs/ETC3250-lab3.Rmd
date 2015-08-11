@@ -1,0 +1,49 @@
+---
+title: "Lab session 3"
+author: "Rob J Hyndman"
+date: "11 August 2015"
+output: html_document
+---
+
+We will build a regression model using the `Boston` data set from the `MASS` package.
+
+The aim is to predict `medv` (median value of owner-occupied homes in each town) using characteristics of each town.
+
+Find the best model you can using the available predictors.
+
+Consider dropping predictors, using transformations of predictors, adding interaction terms, using splines, etc. 
+
+You can easily add main effects and interactions by "multiplying" two predictors like this:
+```{r}
+lm(medv ~ ptratio*age, data=Boston)
+```
+
+We will determine which model is "best" based on the cross-validation statistic to be discussed later in the week. It can be computed using the following function.
+
+```{r}
+CV <- function(object)
+{
+  cv <- mean((residuals(obj)/(1 - hatvalues(obj)))^2, na.rm = TRUE)
+  return(cv)
+}
+```
+
+You can apply this function to the output from the `lm()` function.
+
+The CV statistic is roughly equivalent to the MSE calculated on a test set (even though it is calculated on the training set).
+
+Hints:
+
+  * Regression plots can help you decide if a variable has a nonlinear effect on the response variable.
+  * P-values can suggest potential variables to drop, but remember that p-values are misleading when predictors are correlated.
+
+Try to work systematically, and keep track of the various models you have tried to avoid wasting time by re-fitting old models.
+ 
+#Assignment 3
+
+For your final (best) model, submit an Rmd file with the following information.
+
+ * A summary of your chosen model.
+ * A plot of the predicted values against the actual values for all towns. 
+ * An interpretation of any nonlinear and interaction terms in the model.
+
