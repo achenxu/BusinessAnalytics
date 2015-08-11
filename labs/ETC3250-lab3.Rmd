@@ -13,6 +13,11 @@ Find the best model you can using the available predictors.
 
 Consider dropping predictors, using transformations of predictors, adding interaction terms, using splines, etc. 
 
+You can easily add main effects and interactions by "multiplying" two predictors like this:
+```{r}
+lm(medv ~ ptratio*age, data=Boston)
+```
+
 We will determine which model is "best" based on the cross-validation statistic to be discussed later in the week. It can be computed using the following function.
 
 ```{r}
