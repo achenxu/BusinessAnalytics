@@ -1,0 +1,256 @@
+% * Week 3. (Aug 10) Regression for prediction. Ch3 (Rob)
+%   - Lecture 5: Review of linear regression, matrix formulation
+%   - Lab 3:
+%   - Lecture 6: Subset selection, LOOCV 
+
+
+\documentclass[14pt]{beamer}
+\usepackage{pgf,tikz,pgfpages,amsmath,bm,fancyvrb,animate}
+\usepackage{graphicx,bera,booktabs}
+\usepackage[australian]{babel}
+\usepackage[utf8]{inputenc}
+
+\usetheme{Monash}
+\def\biz{\begin{itemize}[<+-| alert@+>]}
+\def\eiz{\end{itemize}}
+\def\ben{\begin{enumerate}[<+-| alert@+>]}
+\def\een{\end{enumerate}}
+
+\def\E{\text{E}}
+\def\V{\text{Var}}
+
+\graphicspath{{../figures/}{../figures/book_figures/Chapter3/}{../figures/book_figures/Chapter7/}}
+
+\title[3. Nonparametric regression]{Business Analytics}
+\author{3. Nonparametric regression}
+\date{13 August 2015}
+
+\DefineShortVerb{\"}
+\def\FancyVerbFormatCom{\color[rgb]{0.6,0,1}\relax}
+
+
+\begin{document}
+
+\begin{frame}[plain]{}
+\maketitle
+\begin{textblock}{11}(0.5,1.19){\color{white}\large
+\textbf{ETC3250}}
+\end{textblock}
+\end{frame}
+
+\section{Moving beyond linearity}
+
+\begin{frame}{Moving beyond linearity}
+The truth is never linear!\pause
+
+Or almost never!\pause
+
+But often the linearity assumption is good enough.\pause
+
+When it's not \dots
+\begin{itemize}
+\item polynomials
+\item step functions,
+\item splines,
+\item local regression, and
+\item generalized additive models
+\end{itemize}
+offer a lot of flexibility, without losing the ease and
+interpretability of linear models.
+
+\end{frame}
+\begin{frame}{Nonlinear choices}
+\begin{enumerate}
+\item Polynomials (beware)
+\item Truncated power basis splines
+\item Natural splines
+\item B-splines
+\item Smoothing splines
+\item Radial basis functions
+\item Kernel regression
+\item Local regression
+\item kNN
+\end{enumerate}
+\end{frame}
+
+\section{Splines}
+
+\begin{frame}{Splines}
+\only<1>{\fullheight{draftspline}}
+\only<2>{\fullwidth{spline}}
+\only<3>{\fullwidth{spline2}}
+\end{frame}
+ 
+\begin{frame}{Splines}\parskip=1.6ex
+
+Knots: $\kappa_1,\dots,\kappa_K$.
+
+\pause
+
+A spline is a continuous function $f(x)$ consisting of polynomials between each
+consecutive pair of `knots' $x=\kappa_j$ and $x=\kappa_{j+1}$.
+
+\pause
+
+\begin{itemize}
+\item Parameters constrained so that $f(x)$ is continuous.
+
+\item Further constraints imposed to give continuous derivatives.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Splines}
+\fullheight{7-3}
+
+\end{frame}
+
+
+
+\begin{frame}{Truncated power basis}
+\biz
+%\item
+%Let $\kappa_1<\kappa_2<\cdots<\kappa_k$ be knots in interval $(a,b)$.
+
+\item Predictors: $x$, \dots, $x^p$, $(x-\kappa_{1})_+^p$, \dots, $(x-\kappa_{K})_+^p$
+
+\item Then the regression is piecewise order-$p$ polynomials.
+\item $p-1$ continuous derivatives.
+\item Usually choose $p=1$ or $p=3$.
+
+\item $p+K+1$ degrees of freedom
+\eiz
+\end{frame}
+
+
+\begin{frame}[fragile]{Natural splines}
+
+\begin{itemize}
+\item 
+Splines based on truncated power bases have high variance at the outer range of the predictors.
+\item Natural splines are similar, but have additional \alert{boundary constraints}: the function is linear at the boundaries. This reduces the variance.
+
+\item Degrees of freedom $\verb|df|=K$.
+
+\item Create predictors using \verb|ns| function in R (automatically chooses knots given \verb|df|).
+
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Natural splines}
+\only<1>{\fullheight{7-4}}
+
+\only<2>{\fullheight{7-7}}
+\end{frame}
+
+\begin{frame}[fragile]{Knot placement}
+
+\begin{itemize}
+\item Strategy 1: specify \verb|df| (equivalently $K$) and let \verb|ns| place them at appropriate quantiles of the observed $X$.
+
+\item Strategy 2: choose $K$ and their locations.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Splines}
+\fullwidth{pulpspline}
+\only<2>{\fullwidth{pulpspline2}}
+\only<3>{\fullwidth{pulpspline3}}
+\only<4>{\fullwidth{pulpspline4}}
+\only<5>{\fullwidth{pulpspline5}}
+\only<6>{\fullwidth{pulpspline6}}
+\only<7>{\fullwidth{pulpspline7}}
+\only<8>{\fullwidth{pulpspline8}}
+\only<9>{\fullwidth{pulpspline9}}
+\only<10>{\fullwidth{pulpspline10}}
+\only<11>{\fullwidth{pulpspline11}}
+\only<12>{\fullwidth{pulpspline12}}
+\only<13>{\fullwidth{pulpspline13}}
+\only<14>{\fullwidth{pulpspline14}}
+\only<15>{\fullwidth{pulpspline15}}
+\only<16>{\fullwidth{pulpspline16}}
+\only<17>{\fullwidth{pulpspline17}}
+\only<18>{\fullwidth{pulpspline18}}
+\only<19>{\fullwidth{pulpspline19}}
+\only<20>{\fullwidth{pulpspline20}}
+\only<21>{\fullwidth{pulpspline21}}
+\only<22>{\fullwidth{pulpspline22}}
+\only<23>{\fullwidth{pulpspline23}}
+\only<24>{\fullwidth{pulpspline24}}
+\only<25>{\fullwidth{pulpspline25}}
+\end{frame}
+
+\begin{frame}{Basis functions}
+\only<1>{\fullwidth{polybasis}}
+\only<2>{\fullwidth{truncpolybasis}}
+\only<3>{\fullwidth{nsbasis}}
+\only<4>{\fullwidth{bsbasis}}
+\end{frame}
+
+
+\section{Generalized Additive Models}
+
+
+\begin{frame}{The curse of dimensionality}
+
+Why can't we fit models of the form
+$$y = f(x_1,x_2,\dots,x_p) + e?$$\pause
+
+\begin{itemize}
+\item Data is very sparse in high-dimensional space.
+\item Model assumes $p$-way interactions which are almost impossible to estimate.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Generalized Additive Models}
+Allows for flexible nonlinearities in several variables, but retains
+the additive structure of linear models.
+
+\begin{block}{}\vspace*{-0.2cm}
+$$y_i = \beta_0 + f_1(x_{i,1}) + f_2(x_{i,2}) + \dots + f_p(x_{p,1}) + e_i$$
+\end{block}\pause
+
+\begin{itemize}
+\item Each $f_i$ is a smooth univariate function.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Generalized Additive Models}
+
+\begin{itemize}
+\item Can fit a GAM simply using, e.g. natural splines:
+\begin{footnotesize}
+\begin{BVerbatim}
+lm(wage ~ ns(year,df=5) + ns(age,df=5) + education)
+\end{BVerbatim}
+\end{footnotesize}
+\item Coefficients not that interesting; fitted functions are. 
+\item Use \verb|plot.gam| from \verb|gam| package.
+\item  Can mix terms --- some linear, some nonlinear --- and use
+\verb|anova()| to compare models.
+\item GAMs are additive, although low-order interactions can be
+included in a natural way using, e.g. bivariate smoothers or
+interactions of the form ns(age,df=5):ns(year,df=5).
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{Interactions and additivity}
+
+\begin{itemize}
+\item Additive models assume no interactions. 
+\item Add bivariate smooths for two-way interactions.
+\item Graphically check for interactions using faceting.
+\end{itemize}
+\pause
+
+\begin{block}{}\small
+\begin{BVerbatim}
+qplot(age, wage, data = Wage) + facet_wrap(~ year)
+\end{BVerbatim}
+\end{block}
+\end{frame}
+\end{document}
