@@ -3,7 +3,6 @@ title: "Lab session 3"
 author: "Rob J Hyndman"
 date: "11 August 2015"
 output: html_document
-status: process
 ---
 
 We will build a regression model using the `Boston` data set from the `MASS` package.
