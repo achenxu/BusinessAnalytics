@@ -21,9 +21,9 @@
 
 \graphicspath{{../figures/}{../figures/book_figures/Chapter3/}{../figures/book_figures/Chapter7/}}
 
-\title[3. Cross-validation]{Business Analytics}
-\author{3. Cross-validation}
-\date{13 August 2015}
+\title[4. Cross-validation]{Business Analytics}
+\author{4. Cross-validation}
+\date{17 August 2015}
 
 \DefineShortVerb{\"}
 \def\FancyVerbFormatCom{\color[rgb]{0.6,0,1}\relax}
@@ -100,12 +100,12 @@ Minimizing $\hat{\sigma}^2$ works quite well for choosing predictors (but better
 \begin{frame}{Comparing regression models}
 
 However \dots
-\biz
-\item $R^2$  does not allow for ``degrees of \rlap{freedom''.}
+\begin{itemize}
+\item $R^2$  does not allow for ``degrees of freedom''.
 
 \item Adding \textit{any} variable tends to increase the value of $R^2$, even if that variable is
 \rlap{irrelevant.}
-\eiz\pause
+\end{itemize}\pause
 
 To overcome   this problem, we can use \rlap{\emph{adjusted $R^2$}:}
 \begin{block}{}
@@ -130,16 +130,11 @@ To overcome   this problem, we can use \rlap{\emph{adjusted $R^2$}:}
 \structure{Leave one-out cross-validation (LOOCV)}
 \end{textblock}}
 \only<2>{\placefig{0.5}{3.5}{width=12cm}{cvloout}}
-
-\only<3>{\begin{textblock}{12}(0.5,2.9)
-\structure{5-fold cross-validation}
-\end{textblock}}
-\only<3>{\placefig{0.5}{3.5}{width=12cm}{cv2}}
 \end{frame}
 
-\begin{frame}{Cross-validation}
+\begin{frame}{LOO Cross-validation}
 
-Leave-one-out cross-validation for regression can be carried out using the following steps.
+Leave-one-out cross-validation (LOOCV) for regression can be carried out using the following steps.
 \ben
 \item Remove observation $i$ from the data set, and fit the model using the remaining data. Then compute the error ($e_i^*=y_i-\hat{y}_i$) for the omitted observation.
 \item Repeat step 1 for $i=1,\dots,n$.
@@ -148,7 +143,29 @@ Leave-one-out cross-validation for regression can be carried out using the follo
 The best model is the one with the smallest value of CV.
 \end{frame}
 
-\begin{frame}{Multiple regression prediction}
+
+\begin{frame}{LOOCV vs test sets}
+\begin{itemize}
+\item CV has less bias
+\begin{itemize}
+\item We repeatedly fit the statistical learning method using training data
+that contains $n-1$ obs., i.e. almost all the data set is used
+\end{itemize}
+\item LOOCV produces a less variable MSE
+\begin{itemize}
+\item The validation approach produces different MSE when applied
+repeatedly due to randomness in the splitting process, while
+performing LOOCV multiple times will always yield the same
+results, because we split based on 1 obs. each time
+\end{itemize}
+\item LOOCV is (usually) computationally intensive
+\begin{itemize}
+\item We fit the each model $n$ times! 
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{LOOCV for linear models}
 
 
 \begin{block}{Fitted values}\vspace*{-0.2cm}
@@ -236,7 +253,7 @@ where $L$ is the likelihood and $k$ is the number of predictors in the model.\pa
 Fit all possible regression models using one or more of the predictors.
 
 \item
-Choose the best model based on one of the measures of predictive ability (CV, AIC, AICc, BIC, $\bar{R}^2$).
+Choose the best model based on CV (or an asymptotic equivalent: AIC, AICc).
 \eiz
 
 \vfill\pause
@@ -252,50 +269,50 @@ For example, 44 predictors leads to 18 trillion possible models!
 
 
 
-\begin{frame}{Choosing regression variables}\footnotesize\vspace*{-0.2cm}
-{\tabcolsep=0.1cm
-\hspace*{-0.3cm}\begin{tabular}{ccccccccc}
-  \hline
- Savings & Income & Address & Employed & CV & AIC & AICc & BIC & $\bar{R}^2$ \\
-  \hline
-  X & X & X & X & 104.7 & 2325.8 & 2325.9 & 2351.1 & 0.4658 \\
-  X & X & X &   & 106.5 & 2334.1 & 2334.2 & 2355.1 & 0.4558 \\
-  X &   & X & X & 107.7 & 2339.8 & 2339.9 & 2360.9 & 0.4495 \\
-  X &   & X &   & 109.7 & 2349.3 & 2349.3 & 2366.1 & 0.4379 \\
-  X & X &   & X & 112.2 & 2360.4 & 2360.6 & 2381.5 & 0.4263 \\
-  X &   &   & X & 115.1 & 2373.4 & 2373.5 & 2390.3 & 0.4101 \\
-  X & X &   &   & 116.1 & 2377.7 & 2377.8 & 2394.6 & 0.4050 \\
-  X &   &   &   & 119.5 & 2392.1 & 2392.2 & 2404.8 & 0.3864 \\
-    & X & X & X & 164.2 & 2551.6 & 2551.7 & 2572.7 & 0.1592 \\
-    & X & X &   & 164.9 & 2553.8 & 2553.9 & 2570.7 & 0.1538 \\
-    & X &   & X & 176.1 & 2586.7 & 2586.8 & 2603.6 & 0.0963 \\
-    &   & X & X & 177.5 & 2591.4 & 2591.5 & 2608.3 & 0.0877 \\
-    &   & X &   & 178.6 & 2594.6 & 2594.6 & 2607.2 & 0.0801 \\
-    & X &   &   & 179.1 & 2595.3 & 2595.3 & 2607.9 & 0.0788 \\
-    &   &   & X & 190.0 & 2625.3 & 2625.4 & 2638.0 & 0.0217 \\
-    &   &   &   & 193.8 & 2635.3 & 2635.3 & 2643.7 & 0.0000 \\
-   \hline
-\end{tabular}}
+% \begin{frame}{Choosing regression variables}\footnotesize\vspace*{-0.2cm}
+% {\tabcolsep=0.1cm
+% \hspace*{-0.3cm}\begin{tabular}{ccccccccc}
+%   \hline
+%  Savings & Income & Address & Employed & CV & AIC & AICc & BIC & $\bar{R}^2$ \\
+%   \hline
+%   X & X & X & X & 104.7 & 2325.8 & 2325.9 & 2351.1 & 0.4658 \\
+%   X & X & X &   & 106.5 & 2334.1 & 2334.2 & 2355.1 & 0.4558 \\
+%   X &   & X & X & 107.7 & 2339.8 & 2339.9 & 2360.9 & 0.4495 \\
+%   X &   & X &   & 109.7 & 2349.3 & 2349.3 & 2366.1 & 0.4379 \\
+%   X & X &   & X & 112.2 & 2360.4 & 2360.6 & 2381.5 & 0.4263 \\
+%   X &   &   & X & 115.1 & 2373.4 & 2373.5 & 2390.3 & 0.4101 \\
+%   X & X &   &   & 116.1 & 2377.7 & 2377.8 & 2394.6 & 0.4050 \\
+%   X &   &   &   & 119.5 & 2392.1 & 2392.2 & 2404.8 & 0.3864 \\
+%     & X & X & X & 164.2 & 2551.6 & 2551.7 & 2572.7 & 0.1592 \\
+%     & X & X &   & 164.9 & 2553.8 & 2553.9 & 2570.7 & 0.1538 \\
+%     & X &   & X & 176.1 & 2586.7 & 2586.8 & 2603.6 & 0.0963 \\
+%     &   & X & X & 177.5 & 2591.4 & 2591.5 & 2608.3 & 0.0877 \\
+%     &   & X &   & 178.6 & 2594.6 & 2594.6 & 2607.2 & 0.0801 \\
+%     & X &   &   & 179.1 & 2595.3 & 2595.3 & 2607.9 & 0.0788 \\
+%     &   &   & X & 190.0 & 2625.3 & 2625.4 & 2638.0 & 0.0217 \\
+%     &   &   &   & 193.8 & 2635.3 & 2635.3 & 2643.7 & 0.0000 \\
+%    \hline
+% \end{tabular}}
 
-\end{frame}
+% \end{frame}
 
 
-\begin{frame}{What to use?}
+% \begin{frame}{What to use?}
 
-\structure{Choice: BIC, CV, AICc, AIC, $\bar{R}^2$.}
-\pause
-\biz
-\item BIC tends to choose models too small for prediction.
+% \structure{Choice: BIC, CV, AICc, AIC, $\bar{R}^2$.}
+% \pause
+% \biz
+% \item BIC tends to choose models too small for prediction.
 
-\item As $n\rightarrow\infty$, BIC selects \emph{true} model if there is one.
+% \item As $n\rightarrow\infty$, BIC selects \emph{true} model if there is one.
 
-\item $\bar{R}^2$ tends to select models too large.
+% \item $\bar{R}^2$ tends to select models too large.
 
-\item AIC also slightly biased towards larger models (but only when $n$ is small).
+% \item AIC also slightly biased towards larger models (but only when $n$ is small).
 
-\item Empirical studies AIC is better than BIC for prediction accuracy.
-\eiz
-\end{frame}
+% \item Empirical studies AIC is better than BIC for prediction accuracy.
+% \eiz
+% \end{frame}
 
 \begin{frame}[squeeze,shrink=0.99]{Choosing regression variables}
 \structure{Backwards stepwise regression}
@@ -329,5 +346,63 @@ value to select between them.
 
 \end{frame}
 
+\section{Cross-validation}
 
+
+\begin{frame}{Cross-validation}
+
+\begin{itemize}
+\item The computational trick for computing LOOCV for linear models doesn't work in other contexts.
+
+\item In general, LOOCV is too computationally intensive. So we use $k$-fold CV instead (where $k=5$ and $k=10$ are common choices).
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Cross-validation}
+\placefig{0.5}{1.5}{width=12cm}{cv1}
+
+\only<2>{\begin{textblock}{12}(0.5,2.9)
+\structure{Leave one-out cross-validation (LOOCV)}
+\end{textblock}}
+\only<2>{\placefig{0.5}{3.5}{width=12cm}{cvloout}}
+
+\only<3>{\begin{textblock}{12}(0.5,2.9)
+\structure{5-fold cross-validation}
+\end{textblock}}
+\only<3>{\placefig{0.5}{3.5}{width=12cm}{cv2}}
+\end{frame}
+
+\begin{frame}{$k$-fold Cross-validation}
+
+\begin{itemize}
+\item Divide the data set into $k$ different parts.
+\item Remove one part, fit the model on the remaining
+$k-1$ parts, and compute the MSE on the omitted part.
+\item Repeat $k$ times taking out a different part each time
+\end{itemize}\pause
+
+By averaging the $k$ MSEs we get an estimated
+validation (test) error rate for new observations.
+
+\begin{block}{}
+\[
+\text{CV}_{(k)} = \frac{1}{k}\sum_{i=1}^k \text{MSE}_i
+\]
+\end{block}\pause
+
+LOOCV is a special case where $k=n$.
+\end{frame}
+
+\begin{frame}{$k$-fold Cross-validation}
+\begin{itemize}
+\item Each training set is only $(k-1)/k$ as big as the original data set. So the estimates of prediction error will be biased upwards.
+\item Bias minimized when $k=n$ (LOOCV).
+
+\item But variance increases with $k$ (as there are overlapping observations in each part).
+
+\item $k=5$ or $k=10$ provide a good compromise for this bias-variance tradeoff.
+\end{itemize}
+\end{frame}
 \end{document}
