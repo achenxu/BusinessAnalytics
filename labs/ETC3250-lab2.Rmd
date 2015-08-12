@@ -3,7 +3,7 @@ title: "Business Analytics; Lab 2"
 author: "Fred Flinstone"
 date: "4 August 2015"
 output: html_document
-published: false
+status: process
 ---
 
 ## R Markdown
