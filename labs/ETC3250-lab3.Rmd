@@ -45,5 +45,5 @@ For your final (best) model, submit an Rmd file with the following information.
 
  * A summary of your chosen model.
  * A plot of the predicted values against the actual values for all towns. 
- * An interpretation of any nonlinear and interaction terms in the model.
+ * Plots showing the contribution of each variable. [Use plot.gam from the gam package as shown in lectures.]
 
