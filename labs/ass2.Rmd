@@ -1,0 +1,47 @@
+---
+title: "Assignment 2"
+author: "Rob Hyndman"
+output: html_document
+---
+
+```{r echo=FALSE, results='hide'}
+# Libraries
+library(ISLR)
+library(ggplot2)
+library(splines)
+
+# Training and test set
+idx <- sample(1:nrow(Wage), size=2000)
+train <- Wage[idx,]
+test <- Wage[-idx,]
+
+# Find lowest test set MSE
+testMSE <- numeric(20)
+for(i in 1:20) {
+  fit <- lm(log(wage) ~ year + ns(age, df = i) + education
+            + race + jobclass + health + health_ins + maritl, 
+            data = train)
+  testMSE[i] <- mean((test$wage - exp(predict(fit, newdata = test)))^2)
+}
+bestdf <- which.min(testMSE)
+```
+
+Based on a test set of 1000 points, the best df is `r bestdf`. We fit the model to the full data set.
+```{r}
+fit <- lm(log(wage) ~ year + ns(age, df = bestdf) + education
+          + race + jobclass + health + health_ins + maritl, 
+          data = Wage)
+res <- residuals(fit)
+```
+
+## Summary of residuals
+
+```{r echo=FALSE}
+summary(res)
+```
+
+## Residuals against fitted values
+
+```{r echo=FALSE}
+qplot(fitted(fit), res, xlab = "Fitted values", ylab="Residuals")
+```

@@ -124,12 +124,15 @@ To overcome   this problem, we can use \rlap{\emph{adjusted $R^2$}:}
 
 
 \begin{frame}{Test sets}
-\placefig{0.5}{1.5}{width=12cm}{cv1}
+\placefig{0.5}{1.5}{width=12cm,trim=0 0 6 24,clip=true}{cv2}
+\begin{textblock}{12}(1.3,1.)
+\textcolor{blue}{Training data}\hspace*{4cm}\textcolor{red}{Test data}
+\end{textblock}
 
 \only<2>{\begin{textblock}{12}(0.5,2.9)
 \structure{Leave one-out cross-validation (LOOCV)}
 \end{textblock}}
-\only<2>{\placefig{0.5}{3.5}{width=12cm}{cvloout}}
+\only<2>{\placefig{0.5}{3.5}{width=12cm,trim=0 0 6 0,clip=true}{cvloout}}
 \end{frame}
 
 \begin{frame}{LOO Cross-validation}
@@ -361,17 +364,21 @@ value to select between them.
 
 
 \begin{frame}{Cross-validation}
-\placefig{0.5}{1.5}{width=12cm}{cv1}
+
+\placefig{0.5}{1.5}{width=12cm,trim=0 0 6 24,clip=true}{cv2}
+\begin{textblock}{12}(1.3,1.)
+\textcolor{blue}{Training data}\hspace*{4cm}\textcolor{red}{Test data}
+\end{textblock}
 
 \only<2>{\begin{textblock}{12}(0.5,2.9)
 \structure{Leave one-out cross-validation (LOOCV)}
 \end{textblock}}
-\only<2>{\placefig{0.5}{3.5}{width=12cm}{cvloout}}
+\only<2>{\placefig{0.5}{3.5}{width=12cm,trim=0 0 6 0,clip=true}{cvloout}}
 
 \only<3>{\begin{textblock}{12}(0.5,2.9)
 \structure{5-fold cross-validation}
 \end{textblock}}
-\only<3>{\placefig{0.5}{3.5}{width=12cm}{cv2}}
+\only<3>{\placefig{0.5}{3.5}{width=12cm, trim=0 0 6 0,clip=true}{cv2}}
 \end{frame}
 
 \begin{frame}{$k$-fold Cross-validation}
