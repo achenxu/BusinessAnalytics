@@ -46,27 +46,28 @@ This is a repository to organize the teaching material for a new course at Monas
   - Lab 5:
   - Lecture 10: PLS
 
-
-* Week 6. (Sep 7) Visualization. Own lecture notes. (Di)
+* Week 6. (Aug 31) Visualization. Own lecture notes. (Di)
   - Lecture 15: Basic data plots, categorical/numeric variables, facetting
   - Lab 8:
   - Lecture 16: Data cleaning
-  - 
-* Week 7. (Sep 14) Visualization. Own lecture notes. (Di)
+  
+* Week 7. (Sep 7) Visualization. Own lecture notes. (Di)
   - Lecture 17: Plotting geographic data
   - Lab 9:
   - Lecture 18: Plotting multivariate data
 
-* Week 8. (Aug 31) Classification. Ch4,8 (Souhaib & Di)
+* Week 8. (Sep 14) Classification. Ch4,8 (Souhaib & Di)
   - Lecture 11: LDA
   - Lab 6:
   - Lecture 12: Trees
 
 * Week 9. (Sep 21) Classification. Ch4,9. (Souhaib)
-  [Di away]
+  [Di away Sep 23-25]
   - Lecture 13: k-NN
   - Lab 7:
   - Lecture 14: SVM
+
+* [Break Sep 28-Oct 4]
 
 * Week 10. (Oct 5) Advanced classification. Ch8. (Di)
   [Rob and Souhaib away]
@@ -75,11 +76,13 @@ This is a repository to organize the teaching material for a new course at Monas
   - Lecture 20: Boosting, random forests
 
 * Week 11. (Oct 12) Advanced regression. Ch6. (Di & Souhaib)
+[Souhaib away?]
   - Lecture 21: Regularization
   - Lab 11:
   - Lecture 22: Shrinkage
 
 * Week 12. (Oct 19) Clustering. Ch10. (Souhaib & Di)
+ [Souhaib away?, Rob away Oct 22-]
   - Lecture 23: k-means
   - Lab 12:
   - Lecture 24: hierarchical clustering
