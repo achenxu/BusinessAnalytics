@@ -46,12 +46,11 @@ This is a repository to organize the teaching material for a new course at Monas
   - Lab 5:
   - Lecture 10: PLS
 
-
 * Week 6. (Aug 31) Visualization. Own lecture notes. (Di)
   - Lecture 15: Basic data plots, categorical/numeric variables, facetting
   - Lab 8:
   - Lecture 16: Data cleaning
-  - 
+  
 * Week 7. (Sep 7) Visualization. Own lecture notes. (Di)
   - Lecture 17: Plotting geographic data
   - Lab 9:
