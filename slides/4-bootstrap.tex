@@ -52,9 +52,9 @@ The bootstrap is a flexible statistical tool to \textbf{quantify the uncertainty
 \begin{frame}[plain]{What is the bootstrap?}
 
 \begin{itemize}
-	\item  The bootstrap allows us to use a computer to mimic the process of obtaining new data sets, so that we can estimate the variability of our estimate without generating additional samples
+	\item  The bootstrap allows us to use a computer to \textbf{mimic the process of obtaining new data sets}, so that we can estimate the variability of our estimate without generating additional samples
 	\item Rather than repeatedly obtaining independent data sets
-from the population, we instead obtain distinct data sets (with the same size as our original dataset) by repeatedly sampling observations from the original data set with replacement.
+from the population, we instead obtain distinct data sets (with the same size as our original dataset) by repeatedly sampling observations \textbf{from the original data set with replacement} (nonparametric) or \textbf{from an estimated model} (parametric).
 \end{itemize}
 \end{frame}
 
@@ -84,11 +84,14 @@ from the population, we instead obtain distinct data sets (with the same size as
 \end{itemize}
 \end{frame}
 
-\begin{frame}[plain]{Accuracy of the sample median}
+\begin{frame}[plain]{Examples}
 
-Show the difference between standard error for the mean with formula and with bootstrap
+\begin{itemize}
+	\item $\hat \theta = \text{sample mean}$ or $\hat \theta = \text{sample median}$  and the quantity of interest is the standard error of $\hat \theta$, i.e. the standard deviation of the sampling distribution of $\hat \theta$.
+	\item Rob example
+\end{itemize}
 
-Mention that this is not available in other cases
+
 
 \begin{itemize}
 	\item 
@@ -104,28 +107,63 @@ Mention that this is not available in other cases
 
 
 
-\begin{frame}[plain]{Prediction error estimation?}
+\begin{frame}[plain]{Prediction error estimation}
 
-Write cross-validation formula and bootstrap formula (7.54 in ESL)
-that crossvalidationexplicitly uses non-overlapping data for the training and testsamples.
+\begin{itemize}
+	\item Fit the model on a set of bootstrap samples, and then keep track of how well it predicts the original training set
+	
+	$$ \text{Err}_{\text{boot}} = \frac1B \frac1N \sum_{b = 1}^B \sum_{i = 1}^N L(y_i, \hat f^{*b}(x_i))$$ 
+	\pause
+	\item Each of these bootstrap data sets is created by sampling with replacement, and is the same size as our original dataset. As a result some observations may appear more than once in a given bootstrap data set and some not at all.
+\end{itemize}
 
 \end{frame}
 
-\begin{frame}[plain]{Prediction error estimation?}
+\begin{frame}[plain]{Prediction error estimation}
 %
-Each of these bootstrap data sets is created by sampling with replacement, and is the same size as our original dataset. As a result some observations may appear more than once in a given bootstrap data set and some not at all.
 
+\begin{itemize}
+	\item Training and validation sets have observations in common! Overfit predictions will look very good.
+	
+	
 \begin{align*}
 	&\text{P}(\text{observation~} i \in \text{~bootstrap sample~} b) \\
 	&= 1 - (1 - \frac1n)^n \\
 	&\approx 1 - \frac1e \\
 	&= 0.632
 \end{align*}
+	
+	\item Remember that cross-validation uses \emph{non-overlapping} data for the training and validation samples
+\end{itemize}
+
+
 
 \end{frame}
 
 
+\begin{frame}[plain]{Prediction error estimation}
+
+Better bootstrap version: we only keep track of predictions from bootstrap samples not containing that observation. The leave-one-out bootstrap estimate of prediction error can be defined as
+\[ 
+\text{Err}_{\text{loo-boot}} = \frac1N \sum_{i = 1}^N \frac{1}{|C^{-i}|}\sum_{b \in C^{-i}} \ L(y_i, \hat f^{*b}(x_i))
+\]
+where $C^{-i}$ is the set of indices of the bootstrap samples $b$ that do not contain observation $i$.\\
+
+Problem of overfitting with $\text{Err}_{\text{boot}}$ solved but training-set-size bias as with cross-validation.
+
+\end{frame}
+
 % 	\item Other bootstrap procedures: bootstrap for time series, bagging, etc.
+\begin{frame}[plain]{Many applications}
+
+\begin{itemize}
+	\item Computing standard errors for complex statistics
+	\item Prediciton error estimation
+	\item Bagging (Bootstrap aggregating)
+	\item ...
+\end{itemize}	
+\end{frame}
+
 
 
 
