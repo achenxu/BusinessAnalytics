@@ -24,9 +24,9 @@
 \graphicspath{{../figures/}{../figures/book_figures/Chapter5/}}
 
 
-\title[2. The Bootstrap]{Business Analytics}
-\author{2. The Bootstrap}
-
+\title[4. The Bootstrap]{Business Analytics}
+\author{Week 4\\ The Bootstrap}
+\date{20 August 2015}
 
 \DefineShortVerb{\"}
 \def\FancyVerbFormatCom{\color[rgb]{0.6,0,1}\relax}
@@ -36,10 +36,15 @@
 
 \begin{frame}[plain]{}
 \maketitle
-\begin{textblock}{11}(0.5,1.19){\color{white}\large
+\begin{textblock}{11}(0.5,1.3){\color{white}\large
 \textbf{ETC3250}}
 \end{textblock}
 \end{frame}
+
+\begin{frame}{\large Pull yourself up by your bootstraps}
+\fullheight{Bootstraps}
+\end{frame}
+
 
 \begin{frame}[plain]{What is the bootstrap?}
 %
@@ -86,23 +91,20 @@ from the population, we instead obtain distinct data sets (with the same size as
 
 \begin{frame}[plain]{Examples}
 
-\begin{itemize}
-	\item $\hat \theta = \text{sample mean}$ or $\hat \theta = \text{sample median}$  and the quantity of interest is the standard error of $\hat \theta$, i.e. the standard deviation of the sampling distribution of $\hat \theta$.
-	\item Rob example
-\end{itemize}
+What is the standard error of $\hat\theta$ (i.e., the standard deviation of the sampling distribution of $\hat \theta$)?
+
+\begin{enumerate}
+	\item $\hat \theta = \text{sample mean}$ 
+
+	\item $\hat \theta = \text{sample median}$
+
+\item $\hat\theta = $ expected shortfall at 5\%
+
+\item $\hat\theta=$ lag 1 autocorrelation.
+\end{enumerate}
 
 
 
-\begin{itemize}
-	\item 
-\end{itemize}
-\end{frame}
-
-\begin{frame}[plain]{Another example}
-
-\begin{itemize}
-	\item
-\end{itemize}
 \end{frame}
 
 
@@ -158,10 +160,22 @@ Problem of overfitting with $\text{Err}_{\text{boot}}$ solved but training-set-s
 
 \begin{itemize}
 	\item Computing standard errors for complex statistics
-	\item Prediciton error estimation
+	\item Prediction error estimation
 	\item Bagging (Bootstrap aggregating)
 	\item ...
 \end{itemize}	
+\pause
+
+\begin{block}{Variations}
+There are several types of bootstrap based on different assumptions:
+\begin{itemize}\itemsep=0cm\parskip=0cm
+\item block bootstrap
+\item sieve bootstrap
+\item smooth bootstrap
+\item residual bootstrap
+\item wild bootstrap
+\end{itemize}
+\end{block}
 \end{frame}
 
 
