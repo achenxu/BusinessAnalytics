@@ -63,17 +63,17 @@ This is a repository to organize the teaching material for a new course at Monas
 
 * Week 9. (Sep 21) Classification. Ch4,9. (Souhaib)
   [Di away Sep 23-25]
-  - Lecture 13: k-NN
+  - Lecture 13: SVM
   - Lab 7:
-  - Lecture 14: SVM
+  - Lecture 14: k-NN
 
 * [Break Sep 28-Oct 4]
 
 * Week 10. (Oct 5) Advanced classification. Ch8. (Di)
   [Rob and Souhaib away]
-  - Lecture 19: Bagging
+  - Lecture 19: Bagging, random forests
   - Lab 10:
-  - Lecture 20: Boosting, random forests
+  - Lecture 20: Boosting
 
 * Week 11. (Oct 12) Advanced regression. Ch6. (Di & Souhaib)
 [Souhaib away?]
