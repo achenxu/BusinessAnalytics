@@ -21,10 +21,10 @@
 \def\ben{\begin{enumerate}[<+-| alert@+>]}
 \def\een{\end{enumerate}}
 
-\graphicspath{{figs/}}
+\graphicspath{{../figures/}{../figures/book_figures/Chapter6/}}
 
-\title[2. Statistical learning]{Business Analytics}
-\author{2. Statistical learning}
+\title[5. Principal Components Analysis]{Business Analytics}
+\author{Week 5\\ Principal Components Analysis}
 
 
 \DefineShortVerb{\"}
@@ -38,6 +38,287 @@
 \begin{textblock}{11}(0.5,1.3){\color{white}\large
 \textbf{ETC3250}}
 \end{textblock}
+\end{frame}
+
+
+
+\begin{frame}{Principal components analysis}
+\structure{Unsupervised vs Supervised Learning}
+\begin{itemize}
+\item In \textbf{supervised learning} methods, we observe a set of features
+$x_1, x_2, \dots, x_p$ as well as a response or outcome variable $y$. The goal is to predict $y$ using $x_1, x_2, \dots, x_p$.
+\item In \textbf{unsupervised learning}, we observe only the features $x_1, x_2, \dots, x_p$. We are not interested in prediction.
+
+\item \textbf{Principal components analysis} is an unsupervised learning method.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Principal components analysis}
+
+\begin{block}{}
+PCA produces a low-dimensional representation of a
+dataset. It finds a sequence of linear combinations of the
+variables that have maximal variance, and are mutually
+uncorrelated.
+\end{block}\pause
+
+\structure{Why?}
+
+\begin{itemize}
+\item We may have too many predictors for a regression. Instead, we can use the first few principal components. 
+
+\item Understanding relationships between variables.
+
+\item Data visualization. We can plot a small number of variables more easily than a large number of variables.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Principal components analysis}
+
+\begin{alertblock}{}
+The first principal component of a set of features $x_1, x_2, \dots, x_p$ is the linear combination
+\[
+z_1 = \phi_{11}x_1 + \phi_{21} x_2 + \dots + \phi_{p1} x_p
+\]
+that has the largest variance such that  $\displaystyle\sum_{j=1}^p \phi^2_{j1} = 1$.
+\end{alertblock} 
+
+\begin{itemize}
+
+\item The elements $\phi_{11},\dots,\phi_{p1}$ are the \textbf{loadings} of the first principal component.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{PCA Example}
+
+\fullwidth{6-14}
+
+\begin{textblock}{12}(0.6,8.8)
+\textcolor[RGB]{0,159,134}{Green: first PC.}\qquad 
+\textcolor[RGB]{0,114,203}{Blue: second PC}
+\end{textblock}
+\end{frame}
+
+
+
+\begin{frame}{Geometry of PCA}\vspace*{-0.2cm}
+\begin{itemize}
+\item The loading vector $\phi_1 = [\phi_{11},\dots,\phi_{p1}]'$
+defines a direction in feature space along which the data
+vary the most.
+\item If we project the $n$ data points $\bm{x}_1,\dots,\bm{x}_n$ onto this
+direction, the projected values are the principal component
+scores $z_{11},\dots,z_{n1}$.
+% \end{itemize}
+% \end{frame}
+% \begin{frame}{Further principal components}
+
+% \begin{itemize}
+\item The second principal component is the linear combination $z_{i2} = \phi_{12}x_{i1} + \phi_{22}x_{i2} + \dots + \phi_{p2}x_{ip}$ that has maximal variance among all linear
+combinations that are \emph{uncorrelated} with $z_1$.
+\item Equivalent to constraining $\phi_2$ to be orthogonal (perpendicular) to $\phi_1$. And so on.
+\item  There are at most $\min(n - 1, p)$ PCs.
+\end{itemize}
+
+\end{frame}
+
+
+% \begin{frame}{Geometry of PCA}
+
+% \fullwidth{6-14}
+
+% \begin{textblock}{12}(0.6,8.8)
+% \textcolor[RGB]{0,159,134}{Green: first PC.}\qquad 
+% \textcolor[RGB]{0,114,203}{Blue: second PC}
+% \end{textblock}
+% \end{frame}
+
+\begin{frame}{Further principal components}
+\fullwidth{6-15}\pause\vspace*{5.5cm}
+
+\begin{block}{}
+PCA can be thought of as fitting an $n$-dimensional ellipsoid to the data, where each axis of the ellipsoid represents a principal component.
+\end{block}
+\end{frame}
+
+\begin{frame}{Computation of PCs}
+Suppose we have a $n\times p$ data set $\bm{X} = [x_{ij}]$. 
+\begin{itemize}
+\item Centre each of the variables to have mean zero\\ (i.e., the
+column means of $\bm{X}$ are zero).
+\item  $z_{i1} = \phi_{11}x_{i1} + \phi_{21} x_{i2} + \dots + \phi_{p1} x_{ip}$
+\item Sample variance of $z_{i1}$ is $\displaystyle\frac1n\sum_{i=1}^n z_{i1}^2$.
+\end{itemize}\pause
+\begin{block}{}\vspace*{-0.5cm}
+\[
+\mathop{\text{maximize}}_{\phi_{11},\dots,\phi_{p1}} \frac{1}{n}\sum_{i=1}^n 
+\left(\sum_{j=1}^p \phi_{j1}x_{ij}\right)^2 \text{~~subject to~~}
+\sum_{j=1}^p \phi^2_{j1} = 1
+\]
+\end{block}
+
+
+\end{frame}
+
+\begin{frame}{Computation of PCs}
+
+\begin{enumerate}
+\item Compute the covariance matrix (after scaling the columns of $\bm{X}$)
+$$\bm{C} = \bm{X}'\bm{X}$$
+
+\item Find eigenvalues and eigenvectors:
+$$\bm{C}=\bm{V}\bm{D}\bm{V}'$$ 
+where columns of $\bm{V}$ are orthonormal\\ (i.e., $\bm{V}'\bm{V}=\bm{I}$)
+
+\item Compute PCs: $\bm{\Phi} = \bm{V}$.\quad $\bm{Z} = \bm{X}\bm{\Phi}$.
+
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Computation of PCs}
+
+\begin{block}{Singular Value Decomposition}
+$$\bm{X} = \bm{U}\bm{\Lambda}\bm{V}'$$
+\end{block}
+\begin{itemize}
+\item $\bm{X}$ is $n\times p$ matrix
+\item $\bm{U}$ is $n \times r$ matrix with orthonormal columns ($\bm{U}'\bm{U}=\bm{I}$)
+\item $\bm{\Lambda}$ is $r \times r$ {diagonal} matrix with non-negative elements.
+\item $\bm{V}$ is $p \times r$ matrix with orthonormal columns ($\bm{V}'\bm{V}=\bm{I}$).
+\end{itemize}
+\begin{block}{}It is always possible to uniquely decompose a matrix in this way.\end{block}
+
+\end{frame}
+
+
+\begin{frame}{Computation of PCs}
+
+\begin{enumerate}
+
+\item Compute SVD: $\bm{X} = \bm{U}\bm{\Lambda}\bm{V}'$.
+
+\item Compute PCs: $\bm{\Phi} = \bm{V}$.\quad $\bm{Z} = \bm{X}\bm{\Phi}$.
+\end{enumerate}\pause
+
+
+\structure{Relationship with covariance:}
+\[
+\bm{C} = \bm{X}'\bm{X}
+       = \bm{V}\bm{\Lambda}\bm{U}' \bm{U}\bm{\Lambda}\bm{V}'
+       = \bm{V}\bm{\Lambda}^2\bm{V}'
+       = \bm{V}\bm{D}\bm{V}'
+\]\pause\vspace*{-0.7cm}
+\begin{itemize}
+\item Eigenvalues of $\bm{C}$ are squares of singular values of $\bm{X}$.
+\item Eigenvectors of $\bm{C}$ are right singular vectors of \rlap{$\bm{X}$.}
+\item The PC directions $\phi_1,\phi_2,\phi_3,\dots$ are the
+right singular vectors of the matrix $\bm{X}$.
+\item The variances of the components are $1/n$ times the eigenvalues of $\bm{C}$.
+\end{itemize}
+
+
+
+\end{frame}
+
+\begin{frame}{\large Example: National track records}
+
+The data on national track records for men are listed in the
+following table (as at 1984):
+
+\hspace*{-0.2cm}{\fontsize{9}{12}\sf\tabcolsep=0.13cm\begin{tabular}{lrrrrrrrrr}
+\hline
+\bf Country & \bf 100m & \bf 200m & \bf 400m & \bf 800m & \bf 1500m & \bf 5000m & \bf 10000m & \bf Marathon\\
+& \it (s) & \it (s) & \it (s) & \it (min) & \it (min) & \it (min) & \it (min) & \it (min)\\
+\hline
+ Argentina  & 10.39 & 20.81 & 46.84 & 1.81 & 3.70 & 14.04 & 29.36 & 137.72   \\
+ Australia  & 10.31 & 20.06 & 44.84 & 1.74 & 3.57 & 13.28 & 27.66 & 128.30  \\
+ Austria    & 10.44 & 20.81 & 46.82 & 1.79 & 3.60 & 13.26 & 27.72 & 135.90  \\
+ Belgium    & 10.34 & 20.68 & 45.04 & 1.73 & 3.60 & 13.22 & 27.45 & 129.95  \\
+ Bermuda    & 10.28 & 20.58 & 45.91 & 1.80 & 3.75 & 14.68 & 30.55 & 146.62  \\
+ Brazil     & 10.22 & 20.43 & 45.21 & 1.73 & 3.66 & 13.62 & 28.62 & 133.13  \\
+\hspace*{0.5cm} \vdots \\
+ Turkey     & 10.71 & 21.43 & 47.60 & 1.79 & 3.67 & 13.56 & 28.58 & 131.50  \\
+ USA        &  9.93 & 19.75 & 43.86 & 1.73 & 3.53 & 13.20 & 27.43 & 128.22  \\
+ USSR       & 10.07 & 20.00 & 44.60 & 1.75 & 3.59 & 13.20 & 27.53 & 130.55  \\
+ W.Samoa    & 10.82 & 21.86 & 49.00 & 2.02 & 4.24 & 16.28 & 34.71 & 161.83  \\
+\hline
+\end{tabular}}
+
+\end{frame}
+\begin{frame}{\large Example: National track records}
+
+\only<1>{\fullheight{trackpairs}}
+\only<2>{\fullwidth{track1}}
+\only<3>{\fullwidth{track2}}
+
+\end{frame}
+\begin{frame}[fragile]{\large Example: National track records}
+\fontsize{9}{14}\sf
+
+\begin{BVerbatim}
+> pca
+Standard deviations:
+[1] 2.573 0.937 0.399 0.352 0.283 0.261 0.215 0.150
+
+Rotation:
+           PC1     PC2    PC3     PC4    PC5     PC6      PC7       PC8
+X100m    0.318  0.5669  0.332 -0.1276  0.263 -0.5937  0.13624 -0.105542
+X200m    0.337  0.4616  0.361  0.2591 -0.154  0.6561 -0.11264  0.096054
+X400m    0.356  0.2483 -0.560 -0.6523 -0.218  0.1566 -0.00285  0.000127
+X800m    0.369  0.0124 -0.532  0.4800  0.540 -0.0147 -0.23802  0.038165
+X1500m   0.373 -0.1398 -0.153  0.4045 -0.488 -0.1578  0.61001 -0.139291
+X5K      0.364 -0.3120  0.190 -0.0296 -0.254 -0.1413 -0.59130 -0.546697
+X10K     0.367 -0.3069  0.182 -0.0801 -0.133 -0.2190 -0.17687  0.796795
+Marathon 0.342 -0.4390  0.263 -0.2995  0.498  0.3153  0.39882 -0.158164
+\end{BVerbatim}
+
+\end{frame}
+
+
+\begin{frame}{Scree plots and biplots}
+\only<1>{\fullwidth{trackscree}}
+\only<2>{\fullheight{trackbiplot}}
+
+\end{frame}
+
+\begin{frame}{Scree plots and biplots}
+\begin{block}{Scree plot}
+Plot of variance explained by each component vs number of component.
+\end{block}
+
+\begin{block}{Biplot}
+Plot of PC2 vs PC1, overlaid with directions of the loading vectors $(\phi_{j1},\phi_{j2})$.
+\end{block}
+\end{frame}
+
+\begin{frame}{Scaling}
+
+\begin{itemize}
+\item If the variables are in different units, scaling each to have standard deviation equal to one is recommended.
+
+\item If they are in the same units, you might or might not scale the variables.
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{\large Proportion of variance explained}\fontsize{13}{14}\sf
+
+\alert{Total variance} in data (assuming variables centered at 0):
+\[
+\text{TV} = \sum_{j=1}^p \text{Var}(x_j) = \sum_{j=1}^p \frac{1}{n}\sum_{i=1}^n x_{ij}^2
+\]
+
+\alert{Variance explained} by $m$th PC:
+$$V_m = \text{Var}(z_m) = \frac{1}{n}\sum_{i=1}^n z_{im}^2$$
+
+$$\text{TV} = \sum_{m=1}^M V_m\qquad \text{where $M=\min(n-1,p)$.}$$
+
+\begin{block}{Proportion of variance explained:}
+$$\text{PVE}_m = V_m / TV$$
+\end{block}
 \end{frame}
 
 
