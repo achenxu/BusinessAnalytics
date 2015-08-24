@@ -9,7 +9,7 @@ men <- men[,-1]
 summary(men)
 
 
-ggpairs(men)
+ggscatmat(men)
 
 # Compute PCs using built-in function
 z <- prcomp(men, scale=TRUE)
@@ -35,9 +35,11 @@ ggscreeplot(z)
 ggbiplot(z)
 
 
+## EXAMPLE 2
 library(ISLR)
 summary(USArrests)
 
+ggscatmat(USArrests)
 z <- prcomp(USArrests, scale=TRUE)
 summary(z)
 z
