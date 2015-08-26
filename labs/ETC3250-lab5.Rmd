@@ -2,7 +2,7 @@
 title: "ETC3250 Lab 5"
 author: "Rob Hyndman"
 date: "25 August 2015"
-output: html_document
+output: pdf_document
 ---
 
 
