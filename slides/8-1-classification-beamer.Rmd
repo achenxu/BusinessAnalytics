@@ -364,10 +364,25 @@ qplot(FL, RW, data=crab, color=sex, shape=sex) + ylim(c(2,22)) + xlim(c(2,22)) +
 
 ## Accuracy and Error
 
+- Error from the model is the proportion of misclassified cases to toal number of cases. 
+- It is important to look at this for each class also.
+- Accuracy is 1-error
+
+## Example: Crabs
+
+```{r crab-error, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+crab.lda <- lda(sex~FL+RW, data=crab, 
+                 prior=c(0.5, 0.5))
+table(crab$sex, predict(crab.lda, crab)$class)
+```
+
+- Overall error = 6/100 = 0.06
+- Males = 5/50 = 0.10
+- Females = 1/50 = 0.02
 
 ## Notes to self
 
-- Give terminology
+- Give terminology difference between stats and data mining
 - Add creative commons license
 
 - to make plain markdown vs beamer formats needs ot switch html vs latex commands! will need two versions - yuck!
