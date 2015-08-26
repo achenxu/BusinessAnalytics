@@ -96,6 +96,7 @@ qplot(tars1, aede1, data=flea, color=species, shape=species) +
 
 ```{r crab, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4.5, fig.width=4.5}
 crab <- read.csv("http://www.ggobi.org/book/data/australian-crabs.csv")
+crab <- subset(crab, species=="Blue", select=c("sex", "FL", "RW"))
 qplot(FL, RW, data=crab, color=sex, shape=sex) + 
   theme(aspect.ratio=1) 
 ```
@@ -275,7 +276,94 @@ qplot(x, y, data=df, geom="line", colour=cl) +
 
 $S_p$ is the pooled variance-covariance matrix.
 
+## Let's do it
+
+```{r crab-calc1, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+crab <- crab[,-4]
+crab$sex <- factor(crab$sex, levels=c("Male", "Female"))
+qplot(FL, RW, data=crab, color=sex, shape=sex) + 
+  theme(aspect.ratio=1) 
+```
+
+## Summary statistics
+
+```{r crab-calc2, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+options(digits=3)
+c_m <- summarise(group_by(crab, sex), FL=mean(FL), RW=mean(RW))
+c_m
+s1 <- var(crab[crab$sex=="Male",-1])
+s2 <- var(crab[crab$sex=="Female",-1])
+s1
+s2
+```
+
+## Pooled variance-covariance
+
+$$S_p = \frac{(n_1-1)S_1}{n_1+n_2-2}+\frac{(n_2-1)S_2}{n_1+n_2-2}$$
+
+$S_p=$
+```{r crab-calc3, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+sp <- (49*s1 + 49*s2)/(98)
+sp
+```
+
+$S_p^{-1}=$
+```{r crab-calc4, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+spi <- 1/(sp[1,1]*sp[2,2]-sp[1,2]*sp[2,1]) * matrix(c(sp[2,2], -sp[1,2], -sp[2,1], sp[1,1]), ncol=2)
+spi
+```
+
+## Linear combination
+
+$(\bar{x}_1-\bar{x}_2)^TS_p^{-1}=$
+```{r crab-calc5, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+proj <- as.matrix((c_m[1,-1]-c_m[2,-1]))%*%spi
+proj
+```
+
+New variable: `r proj[1]`xFL`r proj[2]`xRW
+
+Low-dimensional space (discriminant space): `r proj[1]`xFL`r proj[2]`xRW=0
+
+## Plot it - discriminant space
+
+```{r crab-calc6, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+qplot(FL, RW, data=crab, color=sex, shape=sex) + 
+  geom_abline(intercept=30, slope=-1.26) + 
+  theme(aspect.ratio=1) 
+```
+
+## Plot it - discriminant space
+
+```{r crab-calc6b, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+crab$d1 <- 3.07*crab$FL - 3.86*crab$RW
+qplot(d1, data=crab, geom="histogram", fill=sex) + facet_wrap(~sex, ncol=1) 
+```
+
+## Plot it - boundary
+
+```{r crab-calc7, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+qplot(FL, RW, data=crab, color=sex, shape=sex) + 
+  geom_abline(intercept=30, slope=-1.26, linetype=2) + 
+  geom_abline(intercept=0.753, slope=0.795) + 
+  theme(aspect.ratio=1) 
+```
+
+## ???
+
+These lines are orthogonal !!!
+
+## Plot it - boundary
+
+```{r crab-calc7b, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+qplot(FL, RW, data=crab, color=sex, shape=sex) + ylim(c(2,22)) + xlim(c(2,22)) + 
+  geom_abline(intercept=30, slope=-1.26, linetype=2) + 
+  geom_abline(intercept=0.753, slope=0.795) + 
+  theme(aspect.ratio=1) 
+```
+
 ## Accuracy and Error
+
 
 ## Notes to self
 
