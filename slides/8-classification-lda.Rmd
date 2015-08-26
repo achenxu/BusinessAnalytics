@@ -1,0 +1,554 @@
+---
+title: 'ETC3250 Business Analytics: Classification'
+author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
+date: "September 14, 2015"
+output:
+  beamer_presentation: 
+    theme: Monash
+---
+
+## What is classification?
+
+- Supervised classification includes multivariate techniques finding a rule for separating observations/cases into known classes, and using this rule to classify new observations.
+- The process starts with a training sample, that is the full data set with known classes. Typically the variables that will be used to generate the classification rule are easy/cheap to measure, but the class is more difficult to measure. It is important to be able to classify new observations using variables that are easy to measure.
+
+## Supervised vs Unsupervised
+
+Unsupervised classification, also called cluster analysis, differs from supervised in that the classes are not known ahead of time, and need to be discovered first and labelled. 
+
+```{r fleaplots, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+library(ggplot2)
+library(tourr)
+library(dplyr)
+
+data(flea)
+qplot(tars1, aede1, data=flea, color=species) + 
+  theme(aspect.ratio=1, legend.position="none") + xlab("") + ylab("")
+qplot(tars1, aede1, data=flea) + theme(aspect.ratio=1) + xlab("") + ylab("")
+```
+
+## Example 1: Olive oils
+
+\begin{tabular}{cp{3in}}
+\includegraphics[height=2in]{../figures/Italian-olive-oils-map.png}
+&
+\vspace{-2in}
+\begin{itemize}
+\item Example data: Fatty acid composition of Italian olive oils. 
+\item Three growing regions: labelled 1, 2, 3 (class variable)
+\item 8 fatty acids, \% in the sample x 100. 
+\end{itemize}
+\end{tabular}
+
+## Question
+
+- Two variables shown. How would you draw boundaries, so that if you received a new assayed sample you would be able to confidently predict which region produced the oil? 
+
+```{r olives, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4.5, fig.width=4.5}
+data(olive)
+olive$region <- factor(olive$region, labels=c("South", "Sardinia", "North"))
+qplot(eicosenoic, linoleic, data=olive, color=region, shape=region, alpha=I(0.8)) +
+  theme(aspect.ratio=1)
+```
+
+## Example 2: Beetles
+
+\begin{tabular}{p{1.5in}p{3in}}
+\includegraphics[height=1in]{../figures/beetle.jpg}
+
+{\tiny (Copyright 2005 Jim McClarin)}
+&
+\vspace{-1in}
+\begin{itemize}
+\item Example data: Beetles 
+\item 3 species (class variable)
+\item 6 physical measurements
+\end{itemize}
+\end{tabular}
+
+## Question
+
+- Two variables shown. How would you draw boundaries, so that if you found a new specimen you would be able to confidently predict the species? 
+
+```{r flea, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4.5, fig.width=4.5}
+qplot(tars1, aede1, data=flea, color=species, shape=species) + 
+  theme(aspect.ratio=1) 
+```
+
+## Example 3: Australian crabs
+
+\begin{tabular}{p{1.5in}p{3in}}
+\includegraphics[height=1in]{../figures/crab.jpg}
+
+{\tiny (Andrei Nikulinsky @clusterpod)}
+&
+\vspace{-1in}
+\begin{itemize}
+\item Example data: Crabs 
+\item 2 species, 2 sexes (class variable)
+\item 5 physical measurements
+\end{itemize}
+\end{tabular}
+
+## Question
+
+- Two variables shown. How would you draw boundaries, so that if you found a new specimen you would be able to confidently predict two sexes? 
+
+```{r crab, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4.5, fig.width=4.5}
+crab <- read.csv("http://www.ggobi.org/book/data/australian-crabs.csv")
+crab <- subset(crab, species=="Blue", select=c("sex", "FL", "RW"))
+qplot(FL, RW, data=crab, color=sex, shape=sex) + 
+  theme(aspect.ratio=1) 
+```
+
+## Simple approach
+
+- Calculate the mean of each class
+- Calculate the distance between the new observation and each of the means
+- Predict the new observation into the class of the closest mean
+
+## Boundaries for Olive oils  
+
+```{r oliveslda, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+olive.p <- data.frame(expand.grid(eicosenoic = seq(0, 60, 1), linoleic = seq(440, 1500, 10)))
+library(MASS)
+olive.lda <- lda(region~eicosenoic+linoleic, data=olive, 
+                 prior=c(0.34, 0.33, 0.33))
+olive.p$region <- predict(olive.lda, olive.p)$class
+ol.m <- summarise(group_by(olive, region), eicosenoic=mean(eicosenoic),
+                  linoleic=mean(linoleic))
+qplot(eicosenoic, linoleic, data=olive.p, color=region, alpha=I(0.2)) +
+  geom_point(data=olive, aes(shape=region)) + 
+  geom_point(data=ol.m, shape=3, size=5, color="black") +
+  theme_bw() + theme(aspect.ratio=1)
+```
+
+## Boundaries for Beetles  
+
+```{r flealda, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+flea.p <- data.frame(expand.grid(tars1 = seq(120, 250, 1), aede1 = seq(110, 160, 1)))
+flea.lda <- lda(species~tars1+aede1, data=flea, 
+                 prior=c(0.34, 0.33, 0.33))
+flea.p$species <- predict(flea.lda, flea.p)$class
+fl.m <- summarise(group_by(flea, species), tars1=mean(tars1),
+                  aede1=mean(aede1))
+qplot(tars1, aede1, data=flea.p, color=species, alpha=I(0.2)) +
+  geom_point(data=flea, aes(shape=species)) + 
+  geom_point(data=fl.m, shape=3, size=5, color="black") +
+  theme_bw() + theme(aspect.ratio=1)
+```
+
+## Boundaries for Crabs  
+
+```{r crablda, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+crab.p <- data.frame(expand.grid(FL = seq(7, 23.5, 0.2), RW = seq(6.3, 20.5, 0.2)))
+crab.lda <- lda(sex~FL+RW, data=crab, 
+                 prior=c(0.5, 0.5))
+crab.p$sex <- predict(crab.lda, crab.p)$class
+cr.m <- summarise(group_by(crab, sex), FL=mean(FL),
+                  RW=mean(RW))
+qplot(FL, RW, data=crab.p, color=sex, alpha=I(0.2)) +
+  geom_point(data=crab, aes(shape=sex)) + 
+  geom_point(data=cr.m, shape=3, size=5, color="black") +
+  theme_bw() + theme(aspect.ratio=1)
+```
+
+## YOUR TURN
+
+- How close do the LDA boundaries match what you designed?
+- What is different? 
+- Why does it differ?
+
+## LDA Rule for TWO groups, ONE variable
+
+This method is called *linear discriminant analysis* (LDA). If there is only ONE VARIABLE and TWO GROUPS, then the LDA Rule would be: 
+
+*For a new observation, $x_0$, assign it to group 2 if* 
+
+$$
+x_0 - \frac{\bar{x}_1 + \bar{x}_2}{2} \geq 0 ~~~( ~OR ~x_0 \geq \frac{\bar{x}_1 + \bar{x}_2}{2})
+$$
+
+*otherwise assign it to group 1.* 
+
+This assumes that group 1 has the smaller mean.
+
+
+## Example: olive oils
+
+\begin{itemize}
+\item One variable, two groups
+\item Where does the boundary go?
+\end{itemize}
+
+```{r lda-olive, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4, fig.align="right"}
+olive.sub <- subset(olive, region != "South")
+olive.sub$region <- factor(olive.sub$region)
+qplot(linoleic, data=olive.sub, fill=region, color=region, 
+      geom="density", alpha=I(0.5)) +
+  theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
+```
+
+## LDA Rule
+
+```{r lda-olive2, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE}
+olive.lda <- lda(region~linoleic, data=olive.sub, 
+                 prior=c(0.5, 0.5))
+olive.lda$means
+```
+
+$\frac{\bar{x}_1 + \bar{x}_2}{2}$ = `r sum(olive.lda$means)/2`
+
+- What is the rule?? 
+- To what group would a sample with 10.5% linoleic acid belong?
+- What about a sample with 7.5% linoleic acid content?
+
+## LDA Boundary
+
+```{r lda-olive3, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4}
+qplot(linoleic, data=olive.sub, fill=region, color=region, 
+      geom="density", alpha=I(0.5)) +
+  geom_vline(xintercept=961.78) +
+  theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
+```
+
+## Example: crabs
+
+\begin{itemize}
+\item One variable (ratio of FL and RW), two sexes
+\item Where does the boundary go?
+\end{itemize}
+
+```{r lda-crab, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4, fig.align="right"}
+#crab$FL.RW <- 3.01*crab$FL -3.86*crab$RW
+crab$FL.RW <- crab$FL/crab$RW
+qplot(FL.RW, data=crab, fill=sex, color=sex, 
+      geom="density", alpha=I(0.5)) +
+  theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
+```
+
+## LDA Rule
+
+```{r lda-crab2, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE}
+crab.lda <- lda(sex~FL.RW, data=crab, 
+                 prior=c(0.5, 0.5))
+crab.lda$means
+```
+
+$\frac{\bar{x}_1 + \bar{x}_2}{2}$ = `r sum(crab.lda$means)/2`
+
+- What is the rule?? 
+
+## LDA Boundary
+
+```{r lda-crab3, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4}
+qplot(FL.RW, data=crab, fill=sex, color=sex, 
+      geom="density", alpha=I(0.5)) +
+  geom_vline(xintercept=1.22) +
+  theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
+```
+
+## Theory
+
+In a perfect world, if we assume we have two samples from two normal distributions with different means but same variance, then the LDA rule is exactly perfect. 
+
+```{r lda-normal, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=2.5, fig.width=4.5}
+library(mvtnorm)
+df <- data.frame(x=c(seq(-5, 5, 0.1), seq(-5, 5, 0.1)), 
+  y=c(dnorm(seq(-5, 5, 0.1), mean=-2), dnorm(seq(-5, 5, 0.1), mean=2)), 
+      cl=c(rep("A", 101), rep("B",101)))
+qplot(x, y, data=df, geom="line", colour=cl) +
+  geom_vline(xintercept=0) +
+  theme_bw()
+```
+
+## More than one variable, only two groups
+
+- With two groups project the data into 1D, and then compute means and compare
+
+*For a new observation, $x_0$, assign it to group 2 if* 
+
+$$
+(\bar{x}_1-\bar{x}_2)^TS_p^{-1}(x_0 - \frac{\bar{x}_1 + \bar{x}_2}{2}) \geq 0
+$$
+
+*otherwise assign it to group 1.* 
+
+$S_p$ is the pooled variance-covariance matrix.
+
+## Let's do it
+
+```{r crab-calc1, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+crab <- crab[,-4]
+crab$sex <- factor(crab$sex, levels=c("Male", "Female"))
+qplot(FL, RW, data=crab, color=sex, shape=sex) + 
+  theme(aspect.ratio=1) 
+```
+
+## Summary statistics
+
+```{r crab-calc2, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+options(digits=3)
+c_m <- summarise(group_by(crab, sex), FL=mean(FL), RW=mean(RW))
+c_m
+s1 <- var(crab[crab$sex=="Male",-1])
+s2 <- var(crab[crab$sex=="Female",-1])
+s1
+s2
+```
+
+## Pooled variance-covariance
+
+$$S_p = \frac{(n_1-1)S_1}{n_1+n_2-2}+\frac{(n_2-1)S_2}{n_1+n_2-2}$$
+
+$S_p=$
+```{r crab-calc3, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+sp <- (49*s1 + 49*s2)/(98)
+sp
+```
+
+$S_p^{-1}=$
+```{r crab-calc4, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+spi <- 1/(sp[1,1]*sp[2,2]-sp[1,2]*sp[2,1]) * matrix(c(sp[2,2], -sp[1,2], -sp[2,1], sp[1,1]), ncol=2)
+spi
+```
+
+## Linear combination
+
+$(\bar{x}_1-\bar{x}_2)^TS_p^{-1}=$
+```{r crab-calc5, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+proj <- as.matrix((c_m[1,-1]-c_m[2,-1]))%*%spi
+proj
+```
+
+New variable: `r proj[1]`xFL`r proj[2]`xRW
+
+Low-dimensional space (discriminant space): `r proj[1]`xFL`r proj[2]`xRW=0
+
+## Plot it - discriminant space
+
+```{r crab-calc6, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+qplot(FL, RW, data=crab, color=sex, shape=sex) + 
+  geom_abline(intercept=30, slope=-1.26) + 
+  theme(aspect.ratio=1) 
+```
+
+## Plot it - discriminant space
+
+```{r crab-calc6b, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+crab$d1 <- 3.07*crab$FL - 3.86*crab$RW
+qplot(d1, data=crab, geom="histogram", fill=sex) + facet_wrap(~sex, ncol=1) 
+```
+
+## Plot it - boundary
+
+```{r crab-calc7, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+qplot(FL, RW, data=crab, color=sex, shape=sex) + 
+  geom_abline(intercept=30, slope=-1.26, linetype=2) + 
+  geom_abline(intercept=0.753, slope=0.795) + 
+  theme(aspect.ratio=1) 
+```
+
+## ???
+
+These lines are orthogonal !!!
+
+## Plot it - boundary
+
+```{r crab-calc7b, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+qplot(FL, RW, data=crab, color=sex, shape=sex) + ylim(c(2,22)) + xlim(c(2,22)) + 
+  geom_abline(intercept=30, slope=-1.26, linetype=2) + 
+  geom_abline(intercept=0.753, slope=0.795) + 
+  theme(aspect.ratio=1) 
+```
+
+## Accuracy and Error
+
+- Error from the model is the proportion of misclassified cases to toal number of cases. 
+- It is important to look at this for each class also.
+- Accuracy is 1-error
+
+## Example: Crabs
+
+```{r crab-error, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+crab.lda <- lda(sex~FL+RW, data=crab, 
+                 prior=c(0.5, 0.5))
+table(crab$sex, predict(crab.lda, crab)$class)
+```
+
+- Overall error = 6/100 = 0.06
+- Males = 5/50 = 0.10
+- Females = 1/50 = 0.02
+
+## Training, validation and test error
+
+In practice, it is important to use a separate data set to compute the error, in order to get the likely error that would be made with future samples. 
+
+## Splitting your data 
+
+1. Decide on % in each of training, validation and test sets
+2. Use this % to select cases within each class, to preserve the % by class
+3. Generate random numbers to select cases, and keep these (or the seed)
+
+Why?
+
+## Example
+
+Say, use 50, 25, 25 %
+
+```{r crab-sets, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE} 
+crab.s <- arrange(crab, sex)
+tr <- sort(c(sample(1:50, 25), sample(51:100, 25)))
+idx <- c(1:100)[-tr]
+vl <- sort(c(sample(idx[1:25], 13), sample(idx[26:50], 13)))
+ts <- idx[-vl]
+```
+
+Training: `r tr`
+
+Validation: `r vl`
+
+Test: `r ts`
+
+## Calculate test error
+
+```{r crab-err1, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+crab.tr <- crab[tr,]
+crab.lda <- lda(sex~FL+RW, crab.tr, prior=c(0.5, 0.5))
+```
+
+Training error: 
+```{r crab-err2, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+crab.vl <- crab[vl,]
+x <- table(crab.tr$sex, predict(crab.lda, crab.tr)$class)
+err <- (x[2,1]+x[1,2])/50
+err
+```
+
+Validation error: 
+```{r crab-err3, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+crab.ts <- crab[ts,]
+x <- table(crab.vl$sex, predict(crab.lda, crab.vl)$class)
+err <- (x[2,1]+x[1,2])/25
+err
+```
+
+Test error: 
+```{r crab-err4, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+x <- table(crab.ts$sex, predict(crab.lda, crab.ts)$class)
+err <- (x[2,1]+x[1,2])/25
+err
+```
+
+## Incorporating prior probabilities
+
+Sometimes it can be more costly to misclassify members on one group than those of the other group, e.g. malignant vs benign tumor. Address this by assigning prior probabilities $p_1, p_2 (p_1+p_2=1)$ for each group. 
+
+$$
+(\bar{x}_1-\bar{x}_2)^TS_p^{-1}(x_0 - \frac{\bar{x}_1 + \bar{x}_2}{2}) \geq ln\frac{p_2}{p_1}
+$$
+
+The effect is to shift the boundary away from the group with the highest prior probability.
+
+## More than two groups
+
+The basic principle *allocate the new observation to the group that has the closest mean* holds. 
+
+Rearrange the equations:
+
+$$
+(\bar{x}_1-\bar{x}_2)^TS_p^{-1}(x_0 - \frac{\bar{x}_1 + \bar{x}_2}{2}) \geq ln\frac{p_2}{p_1}
+$$
+
+$$
+\bar{x}_1^TS_p^{-1}x_0 + \bar{x}_1^TS_p^{-1}\bar{x}_1 -(\bar{x}_2^TS_p^{-1}x_0 - \bar{x}_2^TS_p^{-1}\bar{x}_2 \geq (ln(p_2)-ln(p_1))/2
+$$
+
+$$
+\bar{x}_1^TS_p^{-1}x_0 + \bar{x}_1^TS_p^{-1}\bar{x}_1 - ln(p_2) \geq \bar{x}_2^TS_p^{-1}x_0 - \bar{x}_2^TS_p^{-1}\bar{x}_2 -ln(p_1)/2
+$$
+
+## Discriminant equations/functions
+
+For $j=1, ..., g$
+
+$$
+\bar{x}_j^TS_p^{-1}x_0 + \bar{x}_j^TS_p^{-1}\bar{x}_j - ln(p_2)
+$$
+
+Calculate this for every group and allocate the new observation to the group which yields the largest value.
+
+## Canonical coordinates
+
+One of the major advantages of LDA is that a low-dimensional space of best separation can be found. This is called the discriminant space, and is defined by a new set of variables called canonical variables. Define, B=between groups sum of squares, W=within group sum of squares
+
+$$
+B = \sum_{i=1}^{g} n_i{\bar{X}_i-\bar{X}}{\bar{X}_i-\bar{X}}^T
+W = \sum_{i=1}^g(n_i-1)S_i
+$$
+
+Compute an eigendecomposition of $W^{-1}B$ to get the discriminant space.
+
+## Example: olive oils
+
+- All 8 variables, and 3 groups. 
+
+```{r olive-ds, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.width=5, fig.height=5, fig.align="right"}
+olive.lda <- lda(region~., data=olive[,-2], 
+                 prior=c(0.34, 0.33, 0.33))
+o.p <- data.frame(predict(olive.lda, olive)$x, region=factor(olive$region))
+qplot(LD1, LD2, data=o.p, color=region) + theme(aspect.ratio=1)
+```
+
+## Example: flea
+
+- All 6 variables, and 3 groups. 
+
+```{r flea-ds, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.width=5, fig.height=5, fig.align="right"}
+flea.lda <- lda(species~., data=flea, 
+                 prior=c(0.34, 0.33, 0.33))
+f.p <- data.frame(predict(flea.lda, flea)$x, species=flea$species)
+qplot(LD1, LD2, data=f.p, color=species) + theme(aspect.ratio=1)
+```
+
+## Example: crab
+
+- All 5 variables, and 4 groups. 
+
+```{r crab-ds, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.width=5, fig.height=5, fig.align="right"}
+crab <- read.csv("http://www.ggobi.org/book/data/australian-crabs.csv")
+crab$sp.sex <- factor(paste(crab$species, crab$sex))
+crab.lda <- lda(sp.sex~., data=crab[,-c(1,2)], 
+                 prior=c(0.25, 0.25, 0.25, 0.25))
+c.p <- data.frame(predict(crab.lda, crab)$x, sp.sex=crab$sp.sex)
+qplot(LD1, LD2, data=c.p, color=sp.sex) + theme(aspect.ratio=1)
+```
+
+## Assumptions for LDA
+
+- Variance-covariance for each group is the same! Pretty strict assumption! (Homogeneity, homoskedastic)
+- Samples from from multivariate normal populations, with (different) means
+
+## Quadratic discriminant analysis
+
+When the equal variance-covariance assumption isn't satisfied but the population could still be considered to be normal, the rule would change from linear to quadratic:
+
+*Allocate a new observation $x_0$ to group 1 if*
+
+$$
+-\frac{1}{2}x^T_0(S^{-1}_1-S^{-1}_2)x_0 + 
+(\bar{x}^T_1S_1^{-1}-\bar{x}^T_2S^{-1}_2)x_0 - 
+$$
+
+$$
+\frac{1}{2}ln\frac{|S_1|}{|S_2|} +
+(\bar{x}^T_1S_1^{-1}\bar{x}_1-\bar{x}^T_2S_2^{-1}\bar{x}_2) 
+\geq ln(\frac{p_2}{p_1})
+$$
+
+*otherwise allocate to group 2*
+
+## Terminology 
+
+Different fields have different names for the same components of classification. Here is a glossary:
+
