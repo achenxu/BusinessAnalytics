@@ -1,6 +1,7 @@
 library(GGally)
 library(ggplot2)
-library(ggbiplot) #only on github
+
+#library(ggbiplot) #only on github
 
 
 men <- read.csv("../data/trackrecords.txt")

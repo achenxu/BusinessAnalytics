@@ -5,7 +5,7 @@ yahooclose <- ts(rev(read.csv("../data/yahoo.csv",stringsAsFactors = FALSE)[,4])
 plot(yahooclose, ylab="Yahoo Closing Price")
 
 # Calculate log returns
-x <- window(diff(log(yahooclose)))
+x <- diff(log(yahooclose))
 plot(x, ylab="Yahoo Log Return")
 
 # Compute 5th percentile of log returns
