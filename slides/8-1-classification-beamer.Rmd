@@ -173,60 +173,107 @@ x_0 - \frac{\bar{x}_1 + \bar{x}_2}{2} \geq 0 ~~~( ~OR ~x_0 \geq \frac{\bar{x}_1 
 This assumes that group 1 has the smaller mean.
 
 
-## LDA Rule for TWO groups, one variable: olive oils
+## Example: olive oils
 
-```{r lda-olive, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
+\begin{itemize}
+\item One variable, two groups
+\item Where does the boundary go?
+\end{itemize}
+
+```{r lda-olive, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4, fig.align="right"}
 olive.sub <- subset(olive, region != "South")
 olive.sub$region <- factor(olive.sub$region)
 qplot(linoleic, data=olive.sub, fill=region, color=region, 
       geom="density", alpha=I(0.5)) +
   theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
-olive.lda <- lda(region~linoleic, data=olive.sub, 
-                 prior=c(0.5, 0.5))
 ```
 
-## LDA Rule for TWO groups, one variable: olive oils
+## LDA Rule
 
 ```{r lda-olive2, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE}
-olive.lda
+olive.lda <- lda(region~linoleic, data=olive.sub, 
+                 prior=c(0.5, 0.5))
+olive.lda$means
 ```
 
 $\frac{\bar{x}_1 + \bar{x}_2}{2}$ = `r sum(olive.lda$means)/2`
 
-## LDA Rule for TWO groups, one variable: olive oils
+- What is the rule?? 
+- To what group would a sample with 10.5% linoleic acid belong?
+- What about a sample with 7.5% linoleic acid content?
 
-<div class="columns-2">
+## LDA Boundary
 
 ```{r lda-olive3, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4}
-olive.sub <- subset(olive, region != "South")
-olive.sub$region <- factor(olive.sub$region)
 qplot(linoleic, data=olive.sub, fill=region, color=region, 
       geom="density", alpha=I(0.5)) +
   geom_vline(xintercept=961.78) +
   theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
 ```
 
-A sample with 10.5% linoleic acid content would be classified to which region?
+## Example: crabs
 
-What about a sample with 7.5% linoleic acid content?
+\begin{itemize}
+\item One variable (ratio of FL and RW), two sexes
+\item Where does the boundary go?
+\end{itemize}
 
-</div>
+```{r lda-crab, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4, fig.align="right"}
+#crab$FL.RW <- 3.01*crab$FL -3.86*crab$RW
+crab$FL.RW <- crab$FL/crab$RW
+qplot(FL.RW, data=crab, fill=sex, color=sex, 
+      geom="density", alpha=I(0.5)) +
+  theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
+```
+
+## LDA Rule
+
+```{r lda-crab2, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE}
+crab.lda <- lda(sex~FL.RW, data=crab, 
+                 prior=c(0.5, 0.5))
+crab.lda$means
+```
+
+$\frac{\bar{x}_1 + \bar{x}_2}{2}$ = `r sum(crab.lda$means)/2`
+
+- What is the rule?? 
+
+## LDA Boundary
+
+```{r lda-crab3, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4}
+qplot(FL.RW, data=crab, fill=sex, color=sex, 
+      geom="density", alpha=I(0.5)) +
+  geom_vline(xintercept=1.22) +
+  theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
+```
 
 ## Theory
 
 In a perfect world, if we assume we have two samples from two normal distributions with different means but same variance, then the LDA rule is exactly perfect. 
 
-```{r lda-normal, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=2.5, fig.width=2.5}
+```{r lda-normal, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=2.5, fig.width=4.5}
 library(mvtnorm)
 df <- data.frame(x=c(seq(-5, 5, 0.1), seq(-5, 5, 0.1)), 
   y=c(dnorm(seq(-5, 5, 0.1), mean=-2), dnorm(seq(-5, 5, 0.1), mean=2)), 
       cl=c(rep("A", 101), rep("B",101)))
 qplot(x, y, data=df, geom="line", colour=cl) +
   geom_vline(xintercept=0) +
-  theme_bw() + theme(legend.position="bottom")
+  theme_bw()
 ```
 
-## More than one variable
+## More than one variable, only two groups
+
+- With two groups project the data into 1D, and then compute means and compare
+
+*For a new observation, $x_0$, assign it to group 2 if* 
+
+\[
+(\bar{x}_1-\bar{x}_2)^TS_p^{-1}(x_0 - \frac{\bar{x}_1 + \bar{x}_2}{2}) \geq 0
+\]
+
+*otherwise assign it to group 1.* 
+
+$S_p$ is the pooled variance-covariance matrix.
 
 ## Accuracy and Error
 
