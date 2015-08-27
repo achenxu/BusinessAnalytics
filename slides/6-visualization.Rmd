@@ -1,5 +1,5 @@
 ---
-title: 'ETC3250 Business Analytics: Classification'
+title: 'ETC3250 Business Analytics: Plotting Data'
 author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
 date: "August 31, 2015"
 output:
