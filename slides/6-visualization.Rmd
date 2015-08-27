@@ -1,0 +1,185 @@
+---
+title: 'ETC3250 Business Analytics: Classification'
+author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
+date: "August 31, 2015"
+output:
+  beamer_presentation: 
+    theme: Monash
+---
+
+## What makes a data plot?
+
+- data
+- aesthetics: mapping of variables to graphical elements
+- geom: type of plot structure to use
+- layers
+
+## Example: Oscars
+
+Extracted from The Oscars Database. https://oscars.silk.co. Best actors, actresses and directors, only.
+
+Motivation "Tonight we honor Hollywood’s best and whitest– sorry, brightest" (Neil Patrick Harris, Oscars 2015)
+
+```{r oscars, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+oscars <- read.csv("../data/oscars.csv", stringsAsFactors=FALSE)
+acting <- subset(oscars, AwardCategory=="Actor")
+#library(xtable)
+#print(xtable(acting$Ethnicity), type="latex")
+data.frame(table(acting$Ethnicity))
+```
+
+## Variables
+
+- Categorical: Name, Sex, Birthplace, CityofBirth, State, Ethnicity, SexualOrientation, Religion, AwardCategory, Movie, Country
+
+- Quantitative: Age, NumberofAwards
+
+- Temporal: DOB, Year
+
+## Mapping hierarchy
+
+Cleveland & McGill (1984) 
+
+Data element to graphical element in rank order of accuracy in returning data value, is as follows:
+
+1. Position - common scale
+2. Position - nonaligned scale
+3. Length, direction, angle
+4. Area
+5. Volume, curvature
+6. Shading, color
+
+Results corroborated by Heer & Bostock (2010).
+
+## Mapping hierarchy
+
+![Cleveland](../figures/cleveland.png)
+
+## Basic mappings
+
+Quantitative information should be mapped to position along a line, as first preference. Only two quantitative variables in the data: Age, NumberofAwards. Could treat year as quantitive to begin, too.
+
+Unit of the data is person, award winner, aggregate this for categorical variables. 
+Then we will have counts for categories, which is quantitative elements that should be mapped to position along a line.
+
+## Let's look at Ethnicity. 
+
+- In R, the best plotting package is ```ggplot2```, good defaults (mostly) and conceptual structure underlying drawing data.
+- How are data elements mapped to graphical elements?
+- Are the number of Asian Oscar recipients higher than Hispanic?
+
+```{r ethnicity-pie, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=4.5, fig.height=4, fig.align="right"}
+library(ggplot2)
+library(grid)
+qplot(factor(1), fill=Ethnicity, data=acting) + coord_polar(theta = "y") + 
+  xlab("") + ylab("") + theme_bw() + 
+  theme(axis.text=element_text(size=8), axis.title=element_text(size=10), 
+        legend.key.size=unit(0.15, "in"))
+```
+
+## Bar chart
+
+```
+library(ggplot2)
+qplot(Ethnicity, data=acting) + coord_flip()
+```
+
+- Are the number of Asian Oscar recipients higher than Hispanic?
+
+```{r ethnicity, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=3, fig.height=2}
+library(ggplot2)
+qplot(Ethnicity, data=acting) + coord_flip() + 
+  theme(axis.text=element_text(size=8), axis.title=element_text(size=10))
+```
+
+## Drill down
+
+The bar for whites is SO big, remove to focus on other categories. 
+
+```{r ethnicity-nonw, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=3, fig.height=2}
+qplot(Ethnicity, data=subset(acting, Ethnicity != "White")) + coord_flip() + 
+  theme(axis.text=element_text(size=8), axis.title=element_text(size=10))
+```
+
+Grammar
+===
+
+```qplot(Ethnicity, data=acting)```
+
+Data and variable are supplied. Implicit to these instructions, is the mapping and geom.
+
+```ggplot(data=acting) + geom_bar(mapping=aes(x=Ethnicity, y=..count..))```
+
+- `x` is mapped to categorical variable
+- `y` is automatically calculated as the count of each level
+- `count` is represented as a bar (read off using position along a line)
+
+Order matters
+===
+
+Sort categories by total count. 
+
+```{r, results='none', fig.show='hide'}
+acting$Ethnicity <- factor(acting$Ethnicity, 
+      levels=c("White", "Black", 
+               "Hispanic", "Asian", 
+               "Multiracial", 
+               "Middle Eastern"))
+qplot(Ethnicity, data=subset(acting, 
+                Ethnicity != "White"))
+```
+
+***
+```{r, echo=FALSE}
+qplot(Ethnicity, data=subset(acting, Ethnicity != "White"))
+```
+
+Flipping axes, adding color
+===
+
+Flip axes to get better read on long labels
+
+```{r, results='hold'}
+qplot(Ethnicity, data=subset(acting, Ethnicity != "White")) + coord_flip()
+```
+
+***
+
+Color bars by gender
+
+```{r, results='hold'}
+qplot(Ethnicity, data=subset(acting, Ethnicity != "White"), fill=Sex) +
+    coord_flip() + theme(legend.position="bottom")
+```
+
+Color choice
+===
+
+There are several choices of color schemes: RColorBrewer developed for maps, and is good for area plots. To see possibilities. 
+
+```
+library(RColorBrewer)
+display.brewer.all()
+```
+
+***
+
+```{r, results='hold'}
+qplot(Ethnicity, data=subset(acting, Ethnicity != "White"), fill=Sex) + 
+  scale_fill_brewer(type="qual", palette=2) +
+  coord_flip() + 
+  theme(legend.position="bottom")
+```
+
+Mosaic
+===
+
+To read proportions, along with counts of major variable, it is better to replace stacking with a mosaic plot. 
+
+Notice that bars are now sorted by proportion.
+
+***
+```{r, results='hold', fig.align='center', fig.height=6, fig.width=8}
+library(plotluck)
+plotluck(acting, Ethnicity, Sex)
+```
