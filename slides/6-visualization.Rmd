@@ -244,6 +244,139 @@ qplot(Decade, Prop, data=subset(ptable, Ethnicity=="White"|Ethnicity=="Black"),
   scale_colour_brewer(type="qual", palette=2) 
 ```
 
+## Perceptual principles: proximity
+
+- Place elements for primary comparison close together. 
+- Is a week day/weekend day pattern? 
+- Better to plot proportions.
+
+![Proximity](../figures/proximity1.pdf)
+
+
+```{r proximity1, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=3.5}
+library(dplyr)
+hotel <- read.csv("../data/hotel-cleaned.csv", stringsAsFactors=FALSE)
+hotel$s.weekd <- factor(hotel$s.weekd, 
+  levels=c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), 
+  labels=c("M","Tu","W", "Th", "F", "Sa","Su"))
+d <- summarise(group_by(hotel, s.weekd), p=length(purchase[purchase==1])/length(purchase))
+qplot(s.weekd, p, data=d, geom=c("point", "line"), ylim=c(0,0.045), 
+      xlab="Day of the Week", ylab="Proportion purchased", group=1)
+```
+
+## Perceptual principles: proximity
+
+Rearrange into proportions, and plot these as points. The question "Is there a difference in purchase rate by day of search?" Proportions better answers this question. (Numbers for each day of the week are large enough for proportion to be reliably interpreted.)
+
+
+```{r proximity2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=3.5}
+library(dplyr)
+hotel <- read.csv("../data/hotel-cleaned.csv", stringsAsFactors=FALSE)
+hotel$s.weekd <- factor(hotel$s.weekd, 
+  levels=c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"), 
+  labels=c("M","Tu","W", "Th", "F", "Sa","Su"))
+d <- summarise(group_by(hotel, s.weekd), p=length(purchase[purchase==1])/length(purchase))
+qplot(s.weekd, p, data=d, geom=c("point", "line"), ylim=c(0,0.045), 
+      xlab="Day of the Week", ylab="Proportion purchased", group=1)
+```
+
+## Perceptual principles: proximity
+
+Primary purpose is to examine wins and losses of two teams. Closest bars are the two teams, faceted by win/loss. 
+
+![Soccer Stats](../figures/soccer-stats.png)
+
+## Perceptual principles: color
+
+Applying color takes some care: 
+
+1. Color is a pre-attentive graphical element, which means people see it before they realize they see it. If most elements are blue and one is red we will pick the red element out SO QUICKLY.
+2. Color is low on the scale of accurate reading. Use sparingly. 
+3. Map the appropriate information to the appropriate scale:
+
+- Use QUALITATIVE scales to display categorical data, small number of levels, 
+- SEQUENTIAL scales are used to represent a gradient of quantitative information, e.g. 0-100
+- DIVERGING scales are used to represent negative to positive quantitative information.
+
+## Color blindness
+
+Color choice can affect whether all your audience can see what you see.
+
+```{r color2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=3.5}
+library(dichromat)
+library(scales)
+clrs <- hue_pal()(2)
+qplot(Ethnicity, data=subset(acting, Ethnicity != "White"), fill=Sex) + 
+  scale_fill_manual(values=clrs) +
+  coord_flip() + theme(legend.position="bottom")
+```
+
+## Color blind-proofing
+
+Using the package ```dichromat```, to see what this looks like to a red-green color blind eye.
+
+```{r color3, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=3.5}
+clrs <- dichromat(hue_pal()(2))
+qplot(Ethnicity, data=subset(acting, Ethnicity != "White"), fill=Sex) + 
+  scale_fill_manual(values=clrs) +
+  coord_flip() + theme(legend.position="bottom")
+```
+
+## Exploring the Oscars 
+
+- How does the age of the winners change, on average by gender, over time?
+
+```{r explore, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=3.5}
+qplot(factor(Decade), Age, data=acting, geom="boxplot")
+```
+
+## Exploring the Oscars 
+
+```{r explore2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=3.5}
+qplot(Decade, Age, data=acting, geom=c("point", "smooth"), se=F)
+```
+
+## Exploring the Oscars 
+
+- Is there a difference between best actor vs best actress?
+
+```{r explore3, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=3.5}
+qplot(factor(Decade), Age, data=acting, geom="boxplot", facets=.~Sex) + xlab("Decade")
+```
+
+## Exploring the Oscars 
+
+- Difference between best actor vs best actress ages, by decade?
+
+```{r explore4, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=3.5}
+qplot(factor(Decade), Age, data=acting, geom="boxplot", fill=Sex) + 
+  xlab("Decade") +
+  theme(legend.position="bottom")
+```
+
+## Showing the statistics
+
+- Compute the mean for each decade and show this
+
+```{r stats, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=3.5}
+agesex <- summarise(group_by(acting, Decade, Sex), m=mean(Age, na.rm=T), 
+                    s=qt(0.975, length(Age)-1)*sd(Age, na.rm=T)/length(Age))
+qplot(Decade, m, data=agesex, group=Sex, colour=Sex, geom=c("point", "line")) + 
+  ylab("Ave Age") +
+  theme(legend.position="bottom")
+```
+
+## Showing the statistics
+
+- Add a 95% point-wise confidence interval
+
+```{r stats2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=3.5}
+qplot(Decade, m, data=agesex, group=Sex, colour=Sex, geom=c("point", "line")) + 
+  geom_ribbon(mapping=aes(ymin=m-s, ymax=m+s, fill=Sex), alpha=0.5) +
+  ylab("Ave Age") +
+  theme(legend.position="bottom")
+```
+
 ## Resources
 
 - 'R Graphics Cookbook' Winston Chang http://www.cookbook-r.com/Graphs/
