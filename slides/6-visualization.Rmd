@@ -94,19 +94,18 @@ qplot(Ethnicity, data=acting) + coord_flip() +
 
 ## Drill down
 
-The bar for whites is SO big, remove to focus on other categories. 
+- The bar for whites is SO big, remove to focus on other categories. 
 
 ```{r ethnicity-nonw, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=3, fig.height=2}
 qplot(Ethnicity, data=subset(acting, Ethnicity != "White")) + coord_flip() + 
   theme(axis.text=element_text(size=8), axis.title=element_text(size=10))
 ```
 
-Grammar
-===
+## Grammar
 
 ```qplot(Ethnicity, data=acting)```
 
-Data and variable are supplied. Implicit to these instructions, is the mapping and geom.
+- Data and variable are supplied. Implicit to these instructions, is the mapping and geom.
 
 ```ggplot(data=acting) + geom_bar(mapping=aes(x=Ethnicity, y=..count..))```
 
@@ -114,12 +113,11 @@ Data and variable are supplied. Implicit to these instructions, is the mapping a
 - `y` is automatically calculated as the count of each level
 - `count` is represented as a bar (read off using position along a line)
 
-Order matters
-===
+## Order matters
 
-Sort categories by total count. 
+- Sort categories by total count. 
 
-```{r, results='none', fig.show='hide'}
+```
 acting$Ethnicity <- factor(acting$Ethnicity, 
       levels=c("White", "Black", 
                "Hispanic", "Asian", 
@@ -128,58 +126,129 @@ acting$Ethnicity <- factor(acting$Ethnicity,
 qplot(Ethnicity, data=subset(acting, 
                 Ethnicity != "White"))
 ```
+## Ordered bars
 
-***
-```{r, echo=FALSE}
-qplot(Ethnicity, data=subset(acting, Ethnicity != "White"))
+```{r order, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=3, fig.height=2}
+qplot(Ethnicity, data=subset(acting, Ethnicity != "White")) + coord_flip() +
+  theme(axis.text=element_text(size=8), axis.title=element_text(size=10))
 ```
 
-Flipping axes, adding color
-===
+## Adding color
 
-Flip axes to get better read on long labels
+- Color bars by gender
 
-```{r, results='hold'}
-qplot(Ethnicity, data=subset(acting, Ethnicity != "White")) + coord_flip()
 ```
-
-***
-
-Color bars by gender
-
-```{r, results='hold'}
+qplot(Ethnicity, data=subset(acting, Ethnicity != "White"), 
+  fill=Sex) + coord_flip()
+```
+    
+```{r color, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=4, fig.height=2, fig.align="right"}
 qplot(Ethnicity, data=subset(acting, Ethnicity != "White"), fill=Sex) +
-    coord_flip() + theme(legend.position="bottom")
+    coord_flip() + 
+  theme(axis.text=element_text(size=8), axis.title=element_text(size=10))
 ```
 
-Color choice
-===
+## Color choice
 
-There are several choices of color schemes: RColorBrewer developed for maps, and is good for area plots. To see possibilities. 
+- There are several choices of color schemes: RColorBrewer developed for maps, and is good for area plots.  
 
 ```
+qplot(Ethnicity, data=subset(acting, Ethnicity != "White"), 
+  fill=Sex) + scale_fill_brewer(type="qual", palette=2) +
+  coord_flip()
+```
+
+```{r colorchoose, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=4, fig.height=2, fig.align="right"}
 library(RColorBrewer)
-display.brewer.all()
-```
-
-***
-
-```{r, results='hold'}
+# display.brewer.all() # To see possible palettes
 qplot(Ethnicity, data=subset(acting, Ethnicity != "White"), fill=Sex) + 
   scale_fill_brewer(type="qual", palette=2) +
   coord_flip() + 
-  theme(legend.position="bottom")
+  theme(axis.text=element_text(size=8), axis.title=element_text(size=10))
 ```
 
-Mosaic
-===
+## Mosaic
 
-To read proportions, along with counts of major variable, it is better to replace stacking with a mosaic plot. 
+- To read proportions, along with counts of major variable, it is better to replace stacking with a mosaic plot (using ```plotluck``` package. 
+- Notice that bars are now sorted by proportion.
 
-Notice that bars are now sorted by proportion.
-
-***
-```{r, results='hold', fig.align='center', fig.height=6, fig.width=8}
+```{r mosaic, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=4.5, fig.height=4.5, fig.align="right"}
 library(plotluck)
 plotluck(acting, Ethnicity, Sex)
 ```
+
+## Temporal Trend
+
+- These numbers are aggregated across almost 100 years of Oscar winners. 
+- Maybe the proportions have changed over time.
+- We will aggregate by decade, and compute proportions for each ethnic class, and take a look at these.
+
+```{r years, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+summary(acting$Year)
+```
+
+## Temporal Trend
+
+```{r time, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=6, fig.height=4}
+acting$Decade <- floor(acting$Year/10)*10
+ptable <- data.frame(prop.table(table(acting$Decade, acting$Ethnicity), 1))
+colnames(ptable) <- c("Decade", "Ethnicity", "Prop")
+ptable$Decade <- as.numeric(as.character(ptable$Decade))
+```
+
+```{r time2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=6, fig.height=4}
+qplot(Decade, Prop, data=ptable, colour=Ethnicity, group=Ethnicity, size=I(5)) + geom_line()
+```
+
+## Facetting
+
+- Whites dominate again, so lets use facetting to zoom in. Focus only on ethnicities with reasonable numbers. 
+
+```{r facets, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=4}
+qplot(Decade, Prop, data=subset(ptable, Ethnicity=="White"|Ethnicity=="Black"), colour=Ethnicity, group=Ethnicity, size=I(5)) + geom_line() + scale_colour_brewer(type="qual", palette=2) +
+facet_wrap(~Ethnicity, scales="free_y")
+```
+
+## Examine trend
+
+- Use a trend line, loess, instead of connecting the dots.
+
+```{r trend, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=4}
+qplot(Decade, Prop, data=subset(ptable, Ethnicity=="White"|Ethnicity=="Black"), 
+      colour=Ethnicity, size=I(5)) + geom_smooth(se=F) + 
+  scale_colour_brewer(type="qual", palette=2) +
+  facet_wrap(~Ethnicity, scales="free_y")
+```
+
+## Layering
+
+- Pull demographics data from http://en.wikipedia.org/wiki/Historical_racial_and_ethnic_demographics_of_the_United_States. 
+
+- Overlay these values as a line plot on the Oscars proportions.
+
+```{r layers, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=4}
+library(reshape2)
+pop.prop <- read.csv("../data/wiki-race.csv")
+pop.prop.m <- melt(pop.prop[,1:3], id="Year")
+colnames(pop.prop.m) <- c("Decade", "Ethnicity", "Prop")
+pop.prop.m$Prop <- pop.prop.m$Prop/100
+```
+
+## Layering
+
+```{r layers2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7, fig.height=3.5}
+qplot(Decade, Prop, data=subset(ptable, Ethnicity=="White"|Ethnicity=="Black"), 
+      colour=Ethnicity, group=Ethnicity, size=I(5)) +
+  facet_wrap(~Ethnicity, scales="free_y") +
+  geom_line(data=pop.prop.m, aes(x=Decade, y=Prop, colour=Ethnicity, group=Ethnicity)) + 
+  scale_colour_brewer(type="qual", palette=2) 
+```
+
+## Resources
+
+- 'R Graphics Cookbook' Winston Chang http://www.cookbook-r.com/Graphs/
+- ggplot2 http://ggplot2.org/ (On the graphics package specifics)
+- https://github.com/garrettgman (Basic R usage)
+- http://yihui.name/knitr/ (Rmarkdown usage)
+- http://stackoverflow.com (Q/A site with LOTS of useful info)
+- `Creating More Effective Graphs' Naomi Robbins http://www.nbr-graphs.com (Conceptual)
