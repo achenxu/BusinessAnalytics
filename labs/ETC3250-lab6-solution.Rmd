@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 
-#Principal component analysis, and dimension reduction
+# Principal component analysis, and dimension reduction: SOLUTION
 
 We will run PCA on the multiple test scores for Australian 15 year olds PISA test scores.
 
@@ -28,6 +28,13 @@ oz <- read.csv("../data/PISA-oz.csv") # You might need to change the directory t
 dim(oz)
 ```
 
+*14,481 Australian students were tested in 2012. This data set has 80 variables.*
+
+*ST08Q01 is the gender of the student*
+
+*PV1MACC-PV5MACC are measuring understanding of change and relationships, PV1MACQ-PV5MACQ measure understanding od quantity, 
+PV1MACS-PV5MACS, measure space and shape, PV1MACU-PV5MACU measure uncertainty and data, perhaps the closest to statistics, PV1MAPE-PV5MAPE measure employ, which we would guess to be run the ideas, PV1MAPF-PV5MAPF cover formulating the problems, and PV1MAPI-PV5MAPI tests interpretative skills.*
+
 ## Task 2
 
 Compute a PCA on the variables PV1MACC through PV5MAPI. Make a scree plot, and examine the principal components for the first 4. What proportion of variation in the data is explained by the first principal component? Second, third and fourth? 
@@ -41,6 +48,8 @@ options(digits=2)
 math_pca$sdev
 math_pca$rotation[,1:4]
 ```
+
+*The proportion of variation explained by PC1 is* `r math_pca$sdev[1]^2/35`, and `r math_pca$sdev[2]^2/35`, `r math_pca$sdev[3]^2/35` and `r math_pca$sdev[4]^2/35`, *for the second, third and fourth respectively.* 
 
 ## Task 3 
 
@@ -59,6 +68,8 @@ library(GGally)
 ggscatmat(math_ave)
 ```
 
+*The main source of variation in the data is the sum of all types of tests. The second and third principal components suggest the secondary source of variation is in the type of math test, because the coefficients break up into groups of 5 that match the different tests. This tells us that the test scores are pretty similar for type of test, and differ more across test types, so it is reasonable to average the scores for the type of test.*
+
 ## Task 4
 
 Compute the average overall math score for each student (this means averaging PV1MATH-PV5MATH). Make a side-by-side boxplot of these scores by gender. Is there a difference in math scores for girls and boys? Write a few sentences explaining what you learn. (Note that the full range of math scores is 0-1000.)
@@ -67,6 +78,8 @@ Compute the average overall math score for each student (this means averaging PV
 m_g <- data.frame(gender=oz$ST04Q01, math=apply(oz[,31:35], 1, mean))
 qplot(gender, math, data=m_g, geom="boxplot")
 ```
+
+*The median math score for girls is a little lower than for boys, and the spread is a little smaller. The boys scores may be considered roughly to be shifted up by about 10 points from the girls scores. There is little difference in the two distributions because 10 points out of 1000 is very small. The top score was earned by a boy, but the second top by a girl, and the lowest score was earned by a boy.*
 
 ## Task 5 
 
@@ -80,3 +93,5 @@ mga$sch <- factor(mga$sch, levels=order(mga$m))
 qplot(sch, m, data=mga) + 
   geom_linerange(aes(x=sch, ymin=m-s, ymax=m+s)) + coord_flip()
 ```
+
+*There is a difference of about 600 points from the average of the top school to that of the bottom. The standard deviations are reasonably similar, on the order of 100 points. The data suggests that the school does matter, and that schools in Australia are heterogeneous in the math scores the students earn.*
