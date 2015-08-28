@@ -1,0 +1,25 @@
+---
+title: "ETC3250 Lab 6"
+author: "Di Cook"
+date: "1 September 2015"
+output: pdf_document
+---
+
+
+#Principal component analysis, and dimension reduction
+
+We will run PCA on the multiple test scores for Australian 15 year olds PISA test scores.
+
+```{r, echo=FALSE, message=FALSE}
+library(ggplot2)
+library(GGally)
+```
+
+# Task 1
+
+Read in the PISA data. How many variables are included in the data set? Read the data dictionary to find out what the variables named ST08Q01, PV2MACU are.
+
+```{r, echo=FALSE, message=FALSE}
+oz <- read.csv("../data/PISA-oz.csv")
+dim(oz)
+```
