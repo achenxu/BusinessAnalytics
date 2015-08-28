@@ -385,3 +385,5 @@ qplot(Decade, m, data=agesex, group=Sex, colour=Sex, geom=c("point", "line")) +
 - http://yihui.name/knitr/ (Rmarkdown usage)
 - http://stackoverflow.com (Q/A site with LOTS of useful info)
 - `Creating More Effective Graphs' Naomi Robbins http://www.nbr-graphs.com (Conceptual)
+- http://www.csc.ncsu.edu/faculty/healey/PP/ (Perceptual principles)
+- http://www.simonslab.com/videos.html (Perception)
