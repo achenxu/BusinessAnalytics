@@ -1,6 +1,8 @@
 # BusinessAnalyticsCourse
 This is a repository to organize the teaching material for a new course at Monash University, to be jointly taught by Di Cook, Rob Hyndman and Souhaib Ben Taieb.
 
+M 1-2 E365; T 4-6 E157; Th 11-12 H7
+
 ##  Topics
 
 * What is statistical learning?
