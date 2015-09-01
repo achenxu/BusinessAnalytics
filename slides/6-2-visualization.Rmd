@@ -137,6 +137,18 @@ ggparcoord(choc, columns=c(6,7,12,11,13), groupColumn="Type")
 - unusual chocolates
 - 
 
+## Example: Men's Tennis, Wimbledon
+
+```{r parcoords-tennis, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=5.0, fig.height=4.5}
+wim <- read.csv("../data/Wimbledon.atp.2014.csv", stringsAsFactors = HELLNO, row.names=1)
+wim$focus <- "Other"
+wim$focus[wim$Name=="Nick Kyrgios (AUS)"] <- "Kyrgios"
+wim$focus[wim$Name=="Rafael Nadal (ESP)"] <- "Nadal"
+ggparcoord(wim, columns=2:14, groupColumn="focus", alphaLines = 0.5) + 
+   scale_color_manual(values=c("Kyrgios"="#1B9E77", "Nadal"="#D95F02", "Other"="grey90")) + 
+  theme_bw() + coord_flip() 
+```
+
 ## Categorical variables
 
 ```{r parcoords-leastangle, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=7.0, fig.height=4.5}
@@ -172,8 +184,22 @@ ggobi chocolates.csv
 
 - Note how similar this is to biplot
 
+## Tours showing simple data structure 
+
+Click on the links to see the videos on vimeo
+
+- Clusters: [clusters](https://vimeo.com/137916478)
+- Nonlinear dependence: [nonlinear](https://vimeo.com/137803197)
+- Nonlinear+noise: [nonlinear w/noise](https://vimeo.com/137803195)
+- Labelled classes, outliers: [supervised classification](https://vimeo.com/137803196)
+- Multivariate normal: [Pollen data](https://vimeo.com/137803198)
+
 ## Linking on NRC data
 
+- Putting all of these plots together, and linking them enables exploring for all sorts of structure in the data
+- The video [here](https://vimeo.com/137042766) illustrates this approach for exploring the National Research Council rankings of Statistics graduate programs in the USA. 
+- The data contains two different ranking schemes (R, S) both of which rely on surveys of faculty on how other departments are viewed. (Rough explanation) One creates the ranks using regression of the faculty ranking against information collected about each department, and then predicts the ranks. The second is based on a factor analysis of the department information.
+- Statistics collected include number of students, faculty, female faculty and students, number of professors in each rank, time to degree, average GREs of incoming students, average number of publications/citations per faculty, student activities, groups, ...
 
 ## Time series: Exchange rates
 
