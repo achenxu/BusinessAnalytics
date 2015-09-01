@@ -129,6 +129,11 @@ qplot(Ethnicity, data=subset(acting,
 ## Ordered bars
 
 ```{r order, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=3, fig.height=2}
+acting$Ethnicity <- factor(acting$Ethnicity, 
+      levels=c("White", "Black", 
+               "Hispanic", "Asian", 
+               "Multiracial", 
+               "Middle Eastern"))
 qplot(Ethnicity, data=subset(acting, Ethnicity != "White")) + coord_flip() +
   theme(axis.text=element_text(size=8), axis.title=element_text(size=10))
 ```

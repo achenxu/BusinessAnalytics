@@ -37,10 +37,10 @@ rates <- rbind(rates, ru)
 rates[,1:10]
 
 # get individual dates, after missing some
-x <- fromJSON("http://openexchangerates.org/api/historical/2015-08-28.json?app_id=a7586d03ef2049c4a13a12a01c709468")
+x <- fromJSON("http://openexchangerates.org/api/historical/2015-08-30.json?app_id=a7586d03ef2049c4a13a12a01c709468")
 x <- x$rates
 x <- x[-c(164,166)]
-rates <- rbind(rates, data.frame(date="2015-08-28", x))
+rates <- rbind(rates, data.frame(date="2015-08-30", x))
 rownames(rates) <- rates$date
 rates[,1:10]
 
@@ -64,6 +64,13 @@ r_m <- melt(r_s_s, id="date")
 r_m$date <- as.Date(r_m$date)
 qplot(date, value, data=r_m, geom="line", group=variable, colour=variable, ylab="Rate", xlab="") + 
   theme(legend.position="bottom")
+
+library(GGally)
+ggscatmat(r_s)
+
+# Write the series and the PCs
+r_p <- data.frame(r_s, r_pca$x)
+write.csv(r_p, file="rates-pca.csv", quote=F)
 
 # Check the autocorrelation
 

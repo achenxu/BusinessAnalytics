@@ -75,6 +75,34 @@ ggpairs(tips, columns=c(1,2,3,4,7))
 - ...
 - ...
 
+## Example: Exchange rates
+
+```{r rates-ts, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=6.0, fig.height=5.5}
+rates <- read.csv("../data/rates.csv", stringsAsFactors = F)
+r_s <- rates[,c("AUD", "NZD", "GBP", "EUR","CNY","JPY","ZAR")]
+rownames(r_s) <- rates$date
+r_s_s <- data.frame(apply(r_s, 2, scale))
+r_s_s$date <- rownames(r_s)
+r_m <- melt(r_s_s, id="date")
+r_m$date <- as.Date(r_m$date)
+qplot(date, value, data=r_m, geom="line", group=variable, colour=variable, ylab="Rate", xlab="") + 
+  theme(legend.position="bottom")
+```
+
+## PCA on exchange rates
+
+```{r rates-pca, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+options(digits=2)
+r_pca <- prcomp(r_s, scale=TRUE)
+r_pca
+```
+
+## Example: Exchange rates
+
+```{r rates-scatmat, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=6.0, fig.height=5.5}
+ggscatmat(r_s)
+```
+
 ## Parallel coordinate plot
 
 ![parcoords](../figures/parcoords.png)
@@ -140,9 +168,9 @@ ggobi chocolates.csv
 
 ## Tour
 
-- Show videos
+- [Explanation of the tour](https://vimeo.com/137803267)
 
-- Similarity to biplot
+- Note how similar this is to biplot
 
 ## Linking on NRC data
 
