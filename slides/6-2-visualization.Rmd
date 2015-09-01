@@ -201,11 +201,68 @@ Click on the links to see the videos on vimeo
 - The data contains two different ranking schemes (R, S) both of which rely on surveys of faculty on how other departments are viewed. (Rough explanation) One creates the ranks using regression of the faculty ranking against information collected about each department, and then predicts the ranks. The second is based on a factor analysis of the department information.
 - Statistics collected include number of students, faculty, female faculty and students, number of professors in each rank, time to degree, average GREs of incoming students, average number of publications/citations per faculty, student activities, groups, ...
 
-## Time series: Exchange rates
+## Maps: Australia electoral boundaries
 
-## Tennis data
+Boundaries come from [http://www.aec.gov.au/electorates/maps.htm](http://www.aec.gov.au/electorates/maps.htm)
 
-## Maps
+```{r maps-election, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=6.0, fig.height=4.5, results='hide'}
+library(maptools)
+gpclibPermit()
+xx <- readShapeSpatial("../data/australia/region.shp")
+xxx <- thinnedSpatialPoly(as(xx, "SpatialPolygons"), 
+        tolerance=0.1, minarea=0.001, topologyPreserve=TRUE)
+extractPolygons <- function(shapes) {
+  require(plyr)
 
-Australia election data
+  dframe <- ldply(1:length(shapes@polygons), function(i) {
+    ob <- shapes@polygons[[i]]@Polygons
+    dframe <- ldply(1:length(ob), function(j) {
+      x <- ob[[j]]
+      co <- x@coords
+      data.frame(co, order=1:nrow(co), group=j)
+    })
+    dframe$region <- i
+    dframe
+  })
+  # construct a group variable from both group and polygon:
+  dframe$group <- interaction(dframe$region, dframe$group)
+  
+  dframe
+}
+oz <- extractPolygons(xxx)
+qplot(x, y, order=order, group=group, data=oz, geom="polygon") + 
+  xlab("") + ylab("") + coord_map() + theme_bw()
+```
 
+## Make it a chloropleth map
+
+```{r maps-election2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=6.0, fig.height=4.5}
+xx@data$elec_id <- 1:150
+oz_all <- merge(oz, xx@data, by.x="region", by.y="elec_id")
+qplot(x, y, order=order, group=group, data=oz_all, geom="polygon", 
+      fill=AREA_SQKM) + xlab("") + ylab("") + coord_map() + theme_bw()
+```
+
+## Add locations of polling stations
+
+```{r maps-election3, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.width=6.0, fig.height=4}
+#oz_poll_stns <- read.csv("http://www.aec.gov.au/About_AEC/cea-notices/files/2013/prdelms.gaz.statics.130901.09.00.02.csv", stringsAsFactors=FALSE)
+oz_poll_stns <- read.csv("../data/australia/polling-places.csv", 
+                         stringsAsFactors=FALSE)
+oz_poll_stns$Lat <- as.numeric(oz_poll_stns$Lat)
+oz_poll_stns$Long <- as.numeric(oz_poll_stns$Long)
+table(oz_poll_stns$StateAb)
+
+ggplot() + geom_polygon(data=oz_all, aes(x=x, y=y, order=order, 
+                  group=group)) + 
+  geom_point(data=subset(oz_poll_stns, Status!="Abolition"), 
+             aes(x=Long, y=Lat), colour=I("red")) + 
+  xlab("") + ylab("")+ coord_map() + 
+  theme_bw()
+```
+
+## Last question
+
+Is a pie chart simply a bar chart in polar coordinates?
+
+Can you use the grammar of graphics of ggplot2 to answer this question?
