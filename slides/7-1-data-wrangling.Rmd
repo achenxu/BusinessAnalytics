@@ -116,3 +116,189 @@ french_fries_long_sub <- french_fries_long[
 qplot(variable, rating, data = french_fries_long_sub, 
       fill = variable, geom = "boxplot")
 ```
+
+## Long to Wide
+
+In certain applications, we may wish to take a long dataset and convert it to a wide dataset (Perhaps displaying in a table).
+
+```{r echo=FALSE}
+head(french_fries_long)
+```
+
+## Spread
+
+We use the **spread** function from tidyr to do this:
+
+```
+french_fries_wide <- spread(french_fries_long, 
+  key = variable, value = rating)
+head(french_fries_wide)
+```
+
+```{r echo=FALSE}
+french_fries_wide <- spread(french_fries_long, key = variable, value = rating)
+
+head(french_fries_wide)
+```
+
+## The Split-Apply-Combine Approach
+
+- *Split* a dataset into many smaller sub-datasets
+- *Apply* some function to each sub-dataset to compute a result
+- *Combine* the results of the function calls into a one dataset
+
+## The Split-Apply-Combine Approach
+
+![SAC](../figures/sac.png)
+
+## Split-Apply-Combine in dplyr
+
+```
+library(dplyr)
+french_fries_split <- group_by(french_fries_long, 
+  variable) # SPLIT
+french_fries_apply <- summarise(french_fries_split, 
+  m = mean(rating, na.rm = TRUE), s=sd(rating, na.rm=TRUE)) 
+  # APPLY + COMBINE
+french_fries_apply
+```
+
+```{r echo=FALSE, message=FALSE, error=FALSE}
+library(dplyr)
+french_fries_split <- group_by(french_fries_long, variable) # SPLIT
+french_fries_apply <- summarise(french_fries_split, m = mean(rating, na.rm = TRUE), s=sd(rating, na.rm=TRUE)) # APPLY + COMBINE
+french_fries_apply
+```
+
+## The pipe operator
+
+- dplyr allows us to chain together these data analysis tasks using the `%>%` (pipe) operator
+- `x %>% f(y)` is shorthand for `f(x, y)`
+- Example:
+
+```
+french_fries %>%
+    gather(key = variable, value = rating, potato:painty) %>%
+    group_by(variable) %>%
+    summarise(rating = mean(rating, na.rm = TRUE))
+```
+
+## dplyr verbs
+
+There are five primary dplyr **verbs**, representing distinct data analysis tasks:
+
+- Filter: Remove the rows of a data frame, producing subsets
+- Arrange: Reorder the rows of a data frame
+- Select: Select particular columns of a data frame
+- Mutate: Add new columns that are functions of existing columns
+- Summarise: Create collapsed summaries of a data frame
+ 
+## Filter
+
+```
+french_fries %>%
+    filter(subject == 3, time == 1)
+```
+
+```{r echo=FALSE}
+french_fries %>%
+    filter(subject == 3, time == 1)
+```
+
+```{r echo=FALSE}
+french_fries %>%
+    gather(key = variable, value = rating, potato:painty) %>%
+    group_by(variable) %>%
+    summarise(rating = mean(rating, na.rm = TRUE))
+```
+
+## Arrange
+
+```
+french_fries %>%
+    arrange(desc(rancid)) %>%
+    head
+```
+
+```{r echo=FALSE}
+french_fries %>%
+    arrange(desc(rancid)) %>%
+    head
+```
+
+## Select
+
+```
+french_fries %>%
+    select(time, treatment, subject, rep, potato) %>%
+    head
+```
+
+```{r echo=FALSE}
+french_fries %>%
+    select(time, treatment, subject, rep, potato) %>%
+    head
+```
+
+## Summarise
+
+```
+french_fries %>%
+    group_by(time, treatment) %>%
+    summarise(mean_rancid = mean(rancid), sd_rancid = sd(rancid))
+```
+
+```{r echo=FALSE}
+french_fries %>%
+    group_by(time, treatment) %>%
+    summarise(mean_rancid = mean(rancid), sd_rancid = sd(rancid))
+```
+
+## Dates and Times
+
+Dates are deceptively hard to work with in R.
+
+**Example**: 02/05/2012. Is it February 5th, or May 2nd?
+
+Other things are difficult too:
+
+- Time zones
+- POSIXct format in base R is challenging
+
+The **lubridate** package helps tackle some of these issues.
+
+## Basic Lubridate Use
+
+```
+library(lubridate)
+
+now()
+today()
+now() + hours(4)
+today() - days(2)
+```
+
+```{r, echo=FALSE, results='hold'}
+library(lubridate)
+
+now()
+today()
+now() + hours(4)
+today() - days(2)
+```
+
+## Parsing Dates
+
+```
+ymd("2013-05-14")
+mdy("05/14/2013")
+dmy("14052013")
+ymd_hms("2013:05:14 14:50:30", tz = "America/Chicago")
+```
+
+```{r, echo=FALSE, results='hold'}
+ymd("2013-05-14")
+mdy("05/14/2013")
+dmy("14052013")
+ymd_hms("2013:05:14 14:50:30", tz = "America/Chicago")
+```
