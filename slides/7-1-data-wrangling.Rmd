@@ -9,7 +9,7 @@ output:
 
 ## Using the packages tidyr, dplyr
 
-During a ten week sensory experiment, 12 individuals were asked to assess taste of french fries on several scales (how potato-y, buttery, grassy, rancid, paint-y do the fries taste?)
+During a ten week sensory experiment, 12 individuals were asked to assess taste of french fries (HOT CHIPS!) on several scales (how potato-y, buttery, grassy, rancid, paint-y do the fries taste?)
 
 French fries were fried in one of three different oils, and each week individuals had to assess six batches of french fries (all three oils, replicated twice)
 
@@ -69,3 +69,50 @@ to this **long format**:
 
 ![long](../figures/tablelong.png)
 
+## Gathering
+
++ When gathering, you need to specify the **keys** (identifiers) and the **values** (measures).
+
++ Keys/Identifiers:
+-- Identify a record (must be unique)
+-- Example: Indices on an random variable
+-- Fixed by design of experiment (known in advance)
+-- May be single or composite (may have one or more variables)
+
++ Values/Measures:
+-- Collected during the experiment (not known in advance)
+-- Usually numeric quantities
+
+## Gathering the French Fry Data
+
+```
+french_fries_long <- gather(french_fries, key = variable, value = rating, potato:painty)
+
+head(french_fries_long)
+```
+
+```{r, echo=F}
+french_fries_long <- gather(french_fries, key = variable, value = rating, potato:painty)
+
+head(french_fries_long)
+```
+
+## Let's Re-write the code for our Plot
+
+```
+french_fries_long_sub <- french_fries_long[
+  french_fries_long$time == 10,]
+
+qplot(variable, rating, data = french_fries_long_sub, 
+  fill = variable, geom = "boxplot")
+```
+
+## And plot it
+
+```{r, echo=FALSE}
+french_fries_long_sub <- french_fries_long[
+  french_fries_long$time == 10,]
+
+qplot(variable, rating, data = french_fries_long_sub, 
+      fill = variable, geom = "boxplot")
+```
