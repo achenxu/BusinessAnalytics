@@ -1,0 +1,71 @@
+---
+title: 'ETC3250 Business Analytics: Data Wrangling'
+author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
+date: "September 7, 2015"
+output:
+  beamer_presentation: 
+    theme: Monash
+---
+
+## Using the packages tidyr, dplyr
+
+During a ten week sensory experiment, 12 individuals were asked to assess taste of french fries on several scales (how potato-y, buttery, grassy, rancid, paint-y do the fries taste?)
+
+French fries were fried in one of three different oils, and each week individuals had to assess six batches of french fries (all three oils, replicated twice)
+
+```{r, echo = FALSE}
+library(xtable)
+library(reshape2)
+library(tidyr)
+
+head(french_fries)
+```
+
+## This format is not ideal for data analysis
+
+What code would be needed to plot each of the ratings over time as a different color?
+
+```
+library(ggplot2)
+french_sub <- french_fries[french_fries$time == 10,]
+qplot("1_potato", potato, data = french_sub, 
+   fill = I("red"), geom = "boxplot") +
+ geom_boxplot(aes(x = "2_buttery", y = buttery), 
+  fill = I("orange")) +
+ geom_boxplot(aes(x = "3_grassy", y = grassy), 
+  fill = I("yellow")) +
+ geom_boxplot(aes(x = "4_rancid", y = rancid), 
+  fill = I("green")) +
+ geom_boxplot(aes(x = "5_painty", y = painty), 
+   fill = I("blue")) +
+    xlab("variable") + ylab("rating")
+```
+
+## The Plot
+
+```{r, echo=FALSE}
+library(ggplot2)
+
+french_sub <- french_fries[french_fries$time == 10,]
+
+qplot("1_potato", potato, data = french_sub, fill = I("red"), 
+      geom = "boxplot") +
+ geom_boxplot(aes(x = "2_buttery", y = buttery), fill = I("orange")) +
+ geom_boxplot(aes(x = "3_grassy", y = grassy), fill = I("yellow")) +
+ geom_boxplot(aes(x = "4_rancid", y = rancid), fill = I("green")) +
+    geom_boxplot(aes(x = "5_painty", y = painty), fill = I("blue")) +
+    xlab("variable") + ylab("rating")
+```
+
+## What we have ..
+
+We want to change this **wide format**:
+
+![wide](../figures/tableoverview.png)
+
+## and what we want
+
+to this **long format**:
+
+![long](../figures/tablelong.png)
+

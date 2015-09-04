@@ -6,6 +6,7 @@ library(jsonlite)
 # Read in what we have already
 rates <- read.csv("data/rates.csv", stringsAsFactors = F)
 rates[,1:10]
+rates$date <- as.Date(rates$date)
 
 # Look at exchange rates
 library(ggplot2)
@@ -37,10 +38,10 @@ rates <- rbind(rates, ru)
 rates[,1:10]
 
 # get individual dates, after missing some
-x <- fromJSON("http://openexchangerates.org/api/historical/2015-08-30.json?app_id=a7586d03ef2049c4a13a12a01c709468")
+x <- fromJSON("http://openexchangerates.org/api/historical/2015-09-02.json?app_id=a7586d03ef2049c4a13a12a01c709468")
 x <- x$rates
 x <- x[-c(164,166)]
-rates <- rbind(rates, data.frame(date="2015-08-30", x))
+rates <- rbind(rates, data.frame(date="2015-09-02", x))
 rownames(rates) <- rates$date
 rates[,1:10]
 
