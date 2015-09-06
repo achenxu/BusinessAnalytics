@@ -256,7 +256,7 @@ french_fries %>%
 
 ## Dates and Times
 
-Dates are deceptively hard to work with in R.
+- Dates are deceptively hard to work with in R.
 
 **Example**: 02/05/2012. Is it February 5th, or May 2nd?
 
@@ -293,12 +293,257 @@ today() - days(2)
 ymd("2013-05-14")
 mdy("05/14/2013")
 dmy("14052013")
-ymd_hms("2013:05:14 14:50:30", tz = "America/Chicago")
+ymd_hms("2015:05:14 14:50:30", tz = "America/Chicago")
+ymd_hms("2015:05:14 14:50:30", tz = "Australia/Melbourne")
+today(tzone = "America/Chicago")
+today(tzone = "Australia/Melbourne")
 ```
 
 ```{r, echo=FALSE, results='hold'}
 ymd("2013-05-14")
 mdy("05/14/2013")
 dmy("14052013")
-ymd_hms("2013:05:14 14:50:30", tz = "America/Chicago")
+ymd_hms("2015:05:14 14:50:30", tz = "America/Chicago")
+ymd_hms("2015:05:14 14:50:30", tz = "Australia/Melbourne")
+today(tzone = "America/Chicago")
+today(tzone = "Australia/Melbourne")
+```
+
+## Dates example: Oscars date of birth
+
+```
+oscars <- read.csv("../data/oscars.csv", stringsAsFactors=FALSE)
+summary(oscars$DOB)
+head(oscars$DOB)
+oscars$DOB <- as.Date(oscars$DOB, format="%m/%d/%Y")
+summary(oscars$DOB)
+```
+
+```{r, echo=F}
+oscars <- read.csv("../data/oscars.csv", stringsAsFactors=FALSE)
+summary(oscars$DOB)
+head(oscars$DOB)
+oscars$DOB <- as.Date(oscars$DOB, format="%m/%d/%Y")
+summary(oscars$DOB)
+```
+
+## Calculating on dates
+
+- You should never ask a woman her age, but ... really!
+
+```
+oscars$DOByr <- year(oscars$DOB)
+summary(oscars$DOByr)
+oscars %>% filter(DOByr == "2029") %>% select(Name, Sex, DOB)
+```
+
+```{r, echo=F, fig.width=3, fig.height=2, message=FALSE, error=FALSE}
+oscars$DOByr <- year(oscars$DOB)
+summary(oscars$DOByr)
+oscars %>% filter(DOByr == "2029") %>% select(Name, Sex, DOB)
+```
+
+## Months
+
+```
+oscars$DOBmth <- month(oscars$DOB, )
+table(oscars$DOBmth)
+oscars$DOBmth <- factor(oscars$DOBmth, levels=1:12, 
+  labels=month.abb)
+```
+
+```{r, echo=F, fig.width=3, fig.height=2, message=FALSE, error=FALSE}
+oscars$DOBmth <- month(oscars$DOB)
+table(oscars$DOBmth)
+oscars$DOBmth <- factor(oscars$DOBmth, levels=1:12, 
+  labels=month.abb)
+```
+
+## Now plot it
+
+```
+qplot(DOBmth, data=oscars)
+```
+
+```{r, echo=F, fig.width=4, fig.height=2.5}
+qplot(DOBmth, data=oscars)
+```
+
+## Should you be born in April?
+
+```
+df <- data.frame(m=sample(1:12, 423, replace=TRUE))
+df$m2 <- factor(df$m, levels=1:12, 
+  labels=month.abb)
+qplot(m2, data=df)
+```
+
+```{r, echo=F, fig.width=4, fig.height=2.5}
+df <- data.frame(m=sample(1:12, 423, replace=TRUE))
+df$m2 <- factor(df$m, levels=1:12, 
+  labels=month.abb)
+qplot(m2, data=df)
+```
+
+## Working with strings
+
+- Example: NBA salaries
+
+- ESPN provides basketball players' salaries for the 2013-2014 season at [http://espn.go.com/nba/salaries](http://espn.go.com/nba/salaries)
+
+```{r, echo=FALSE}
+library(XML)
+nba14 <- NULL
+for (i in 1:50) {
+  temp <- readHTMLTable(
+    sprintf("http://espn.go.com/nba/salaries/_/page/%d",i))[[1]]
+  nba14 <- rbind(nba14, temp)
+}
+head(nba14)
+str(nba14)
+```
+
+## Cleaning NBA salaries data
+
+```
+head(nba14$SALARY)
+
+# get rid of $ and , in salaries and convert to numeric:
+gsub("[$,]", "", head(as.character(nba14$SALARY)))
+nba14$SALARY <- as.numeric(gsub("[$,]", "", 
+  as.character(nba14$SALARY)))
+```
+
+```{r, echo=FALSE, warning=TRUE}
+head(nba14$SALARY)
+
+# get rid of $ and , in salaries and convert to numeric:
+gsub("[$,]", "", head(as.character(nba14$SALARY)))
+nba14$SALARY <- as.numeric(gsub("[$,]", "", as.character(nba14$SALARY)))
+```
+
+- Where does the warning come from?
+
+## Cleaning NBA salaries data: hunting the warning
+
+```
+head(subset(nba14, is.na(SALARY)))
+```
+
+```{r, echo=FALSE}
+head(subset(nba14, is.na(SALARY)))
+```
+
+- We don't need these rows - delete all of them
+
+```
+dim(nba14)
+nba14 <- nba14[-which(nba14$RK=="RK"),]
+dim(nba14)
+```
+
+```{r, echo=FALSE}
+dim(nba14)
+nba14 <- nba14[-which(nba14$RK=="RK"),]
+dim(nba14)
+```
+
+## Cleaning NBA data
+
+- Separate names into first, last, and position
+
+```
+library(stringr)
+splits <- str_split(as.character(nba14$NAME), pattern="(, )| ")
+splits[1:3]
+library(plyr)
+numnames <- ldply(splits, length)
+summary(numnames) # some players have multiple names, ... sigh 
+```
+
+```{r, echo=FALSE}
+library(stringr)
+splits <- str_split(as.character(nba14$NAME), pattern="(, )| ")
+splits[1:3]
+library(plyr)
+numnames <- ldply(splits, length)
+summary(numnames) # some players have multiple names, ... sigh 
+```
+
+## Cleaning data
+
+- There's only limited possibilities in terms of what we can do automatically about people with multiple names - we will deal with them alongside the other ones and flag them ... maybe we should leave first and last name together.
+
+```
+head(splits[numnames>3], 5)
+sum(numnames>3)
+```
+
+```{r, echo=FALSE}
+head(splits[numnames>3], 5)
+sum(numnames>3)
+```
+
+## Cleaning NBA data
+
+```
+splitnames <- ldply(splits, function(x) 
+  c(name=paste(x[-length(x)], collapse=" "), 
+  position=x[length(x)]))
+head(splitnames) # looks OK
+# now copy into the nba14 data frame
+nba14$name <- as.factor(splitnames$name)
+nba14$position <- as.factor(splitnames$position)
+```
+
+```{r, echo=FALSE}
+splitnames <- ldply(splits, function(x) c(name=paste(x[-length(x)], collapse=" "), position=x[length(x)]))
+head(splitnames) # looks OK
+# now copy into the nba14 data frame
+nba14$name <- as.factor(splitnames$name)
+nba14$position <- as.factor(splitnames$position)
+```
+
+## Cleaned data ...?
+
+```
+summary(nba14)
+```
+
+```{r, echo=FALSE}
+summary(nba14)
+```
+
+Who knows about this team null Unknown? 
+
+```
+nba14$TEAM[nba14$TEAM=="null Unknown"] <- NA
+```
+
+```{r, echo=FALSE}
+nba14$TEAM[nba14$TEAM=="null Unknown"] <- NA
+```
+
+## Cleaned data ...?
+
+- Numbers might still be wrong, but now we are in a position to check for that.
+
+```
+library(ggplot2)
+qplot(SALARY, geom="histogram", data=nba14)
+```
+
+```{r, echo=FALSE, message=FALSE, error=FALSE, fig.width=3, fig.height=2}
+library(ggplot2)
+qplot(SALARY, geom="histogram", data=nba14)
+```
+
+## Show it
+
+```
+qplot(position, SALARY, geom="boxplot", data=nba14)
+```
+
+```{r, echo=FALSE, fig.width=4, fig.height=3}
+qplot(position, SALARY, geom="boxplot", data=nba14)
 ```
