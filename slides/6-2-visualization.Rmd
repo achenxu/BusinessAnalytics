@@ -266,3 +266,13 @@ ggplot() + geom_polygon(data=oz_all, aes(x=x, y=y, order=order,
 Is a pie chart simply a bar chart in polar coordinates?
 
 Can you use the grammar of graphics of ggplot2 to answer this question?
+
+```
+df <- data.frame(X1 = c(rep("A", 20), rep("B", 8), rep("C", 32)), X2 = rnorm(60))
+qplot(X1, data=df, geom="bar")
+qplot(X1, data=df, geom="bar") + coord_polar()
+ggplot(df, aes(x = factor(1), fill = X1)) +
+ geom_bar(width = 1)
+ggplot(df, aes(x = factor(1), fill = X1)) +
+ geom_bar(width = 1) + coord_polar(theta="y")
+```
