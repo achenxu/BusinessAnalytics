@@ -15,6 +15,7 @@ output: pdf_document
 library(ggplot2)
 library(tidyr)
 library(dplyr)
+library(lubridate)
 billboard <- read.csv("../data/billboard.csv")
 ```
 2. Use ``tidyr`` to convert this data into a long format appropriate for plotting a time series (date on the x axis, chart position on the y axis)
@@ -40,6 +41,10 @@ This dataset contains information on over 300,000 flights that departed from New
 
 ```{r, echo=FALSE, eval=FALSE}
 flights %>% group_by(dest) %>% summarise(m=mean(arr_delay, na.rm=T)) %>% arrange(desc(m))
+mymode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
 flights %>% group_by(carrier) %>% summarise(m=mymode(dest))
 ```
 
@@ -49,6 +54,12 @@ flights %>% group_by(carrier) %>% summarise(m=mymode(dest))
 2. Use dplyr to calculate the average departure delay for each date.
 3. Plot a time series of the date versus the average departure delay
 
+```{r, echo=FALSE, fig.show='hide'}
+flights$date <- ymd(paste(flights$year, flights$month, flights$day, sep = "-"))
+delay.dat <- flights %>% group_by(date) %>% summarise(dep_delay = mean(dep_delay, na.rm = TRUE))
+
+qplot(date, dep_delay, geom = "line", data = delay.dat)
+```
 
 # Assignment 7
 
