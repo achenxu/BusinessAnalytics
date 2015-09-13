@@ -4,7 +4,7 @@ source("nicefigs.R")
 
 
 savepdf("../figures/statlearn", width=16,height=11 * 0.5)
-par(mfrow = c(1, 2))
+par(mfrow = c(1, 3))
 
 x <- seq(10, 22, by = 0.1)
 y <- 2*x + rnorm(x, sd = 4)
@@ -30,6 +30,7 @@ x3 <- mvrnorm(n = N, mu = mu_3, Sigma_3)
 plot(rbind(x1, x2, x3), xlab = expression(X[1]), ylab = expression(X[2]), col = rep(c("red", "green", "blue"), each = N))
 
 
+plot(rbind(x1, x2, x3), xlab = expression(X[1]), ylab = expression(X[2]))
 
 
 dev.off()
