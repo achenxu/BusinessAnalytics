@@ -48,7 +48,7 @@
 6  & Visualization                               &      & Di \\
 7  & Visualization                               &      & Di \\
 8  & \textcolor{blue}{Classification}                              & 4  & Souhaib, Di\\
-9  & Classification                              & 4,9  & Souhaib\\
+9  & Classification                              & 4,9  & Di, Souhaib\\
 -  & Semester Break \\
 10 & Advanced classification                     & 8    & Di \\
 11 & Advanced regression                         & 6    & Di \\
@@ -119,8 +119,7 @@ $}
 
 \item The ``Bayes error rate'' is the lowest possible error rate that could be achieved if we knew exactly the ``true'' probability distribution of the data.
 \item It is analagous to the ``irreducible error'' in regression.
-\item On test data, no classifier can get lower error rates than the Bayes error rate.
-\item In reality, the Bayes classifier is not known.
+\item In reality, the \alert{Bayes classifier}  is not known.
 \end{itemize}
 
 \end{frame}
@@ -231,11 +230,14 @@ Problem: $\hat p(X) > 0$ or $\hat p(X) <0$
 
 \begin{frame}{Logistic regression}\large
 
+Logistic regression
 \centerline{\includegraphics[width=.7\textwidth]{Table1}}
 
 \centerline{\includegraphics[width=.7\textwidth]{Table2}} 
 
-TABLE 3.1
+Linear regression
+\centerline{\includegraphics[width=.7\textwidth]{Table8}} 
+
 
 \end{frame}
 
@@ -244,12 +246,28 @@ TABLE 3.1
 \centerline{$p(X) = \frac{e^{\beta_0 + \beta_1 X_1 + \dots + \beta_p X_p}}{1 + e^{\beta_0 + \beta_1 X_1 + \dots + \beta_p X_p  }} $}
 
 \centerline{\includegraphics[width=.7\textwidth]{Table3}}
-\vspace{-.5cm}
-\centerline{\includegraphics[width=.7\textwidth]{4-3}}
 
-{\small A student is riskier than a non-student if no information about the student's credit card balance is available. However, that student is less risky than a non-student with the \emph{same credit card balance}.}
+\vspace{1cm}
+\centerline{\includegraphics[width=.7\textwidth]{Table1}}
+
+\centerline{\includegraphics[width=.7\textwidth]{Table2}} 
+
 
 \end{frame}
+
+
+\begin{frame}{Logistic regression}
+
+\centerline{\includegraphics[width=.7\textwidth]{Table3}}
+%\vspace{-.5cm}
+
+\centerline{\includegraphics[width=.7\textwidth]{4-3}}
+\vspace{-.3cm}
+{\small A student is \textbf{riskier} than a non-student \alert{without information about the student's credit card balance}. However, that student is \textbf{less risky} than a non-student with the \alert{same credit card balance}.}
+
+\end{frame}
+
+
 
 \begin{frame}{Logistic regression}\large
 
@@ -265,6 +283,18 @@ TABLE 3.1
 
 
 
+
+
+\begin{frame}{Evaluation of classifiers}
+
+
+$\text{\alert{default} = \alert{Yes}} \text{~if~} \scriptsize \hat p(\text{\alert{balance}}) > 0.5 $
+\centerline{\includegraphics[width=.7\textwidth]{Table4}}
+
+What is the problem with the \emph{overall error rate}?
+
+\end{frame}
+
 \begin{frame}{Evaluation of classifiers}\large
 
 
@@ -278,29 +308,58 @@ $\text{\alert{default} = \alert{Yes}} \text{~if~} \scriptsize \hat p(\text{\aler
 
 \end{frame}
 
-\begin{frame}{Evaluation of classifiers}\large
 
+\begin{frame}{Evaluation of classifiers}
+
+
+\centerline{\includegraphics[width=.8\textwidth]{4-7}}
+
+\begin{itemize}
+	\item Overall error rate (black solid) 
+	\item False positive (blue dashed)
+	\item False negative (orange dotted)
+\end{itemize}
+
+\centerline{\textcolor{blue}{How to choose the threshold?}}
+
+
+\end{frame}
+
+\begin{frame}{Evaluation of classifiers}
+
+\centerline{\includegraphics[width=.7\textwidth]{Table4}}
 
 \centerline{\includegraphics[width=.7\textwidth]{Table6}}
+
 
 \centerline{\includegraphics[width=.7\textwidth]{Table7}}
 
 
 \end{frame}
 
-\begin{frame}{Evaluation of classifiers}\large
 
-\centerline{\includegraphics[width=.55\textwidth]{4-7} \includegraphics[width=.5\textwidth]{4-8}}
+\begin{frame}{Evaluation of classifiers}
+
+The receiver operating characteristic (ROC) curve
+
+\centerline{\includegraphics[width=.6\textwidth]{4-8}}
 
 \end{frame}
 
 %\begin{frame}{Multiclass classification}\large
 %\end{frame}
+% \centerline{\includegraphics[width=.55\textwidth]{4-7} \includegraphics[width=.5\textwidth]{4-8}}
 
 
 \begin{frame}{Next class}
 
-\begin{center} \textcolor{blue}{Linear Discriminant Analysis} \end{center}
+
+\begin{center} \textcolor{blue}{Linear Discriminant Analysis (LDA)} \end{center}
+
+\begin{itemize}
+	\item Logistic regression is a discriminative model while LDA is a generative model
+	\item How would you use binary logistic regression for multi-class classification? LDA is a better approach for multi-class classification
+\end{itemize}
 
 \end{frame}
 
