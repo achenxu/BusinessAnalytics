@@ -335,6 +335,8 @@ summary(oscars$DOB)
 oscars$DOByr <- year(oscars$DOB)
 summary(oscars$DOByr)
 oscars %>% filter(DOByr == "2029") %>% select(Name, Sex, DOB)
+oscars %>% filter(DOByr < 1950) %>% select(Name, Sex, DOB)
+oscars %>% filter(DOByr > 2015) %>% select(Name, Sex, DOB)
 ```
 
 ```{r, echo=F, fig.width=3, fig.height=2, message=FALSE, error=FALSE}

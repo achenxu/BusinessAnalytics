@@ -33,4 +33,8 @@ output:
 
 - Imputation methods to substitute missings
 
-
+```
+library(MissingDataGUI)
+data(tao)
+MissingDataGUI(tao)
+```
