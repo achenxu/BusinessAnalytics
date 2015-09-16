@@ -548,7 +548,4 @@ $$
 
 *otherwise allocate to group 2*
 
-## Terminology 
-
-Different fields have different names for the same components of classification. Here is a glossary:
 
