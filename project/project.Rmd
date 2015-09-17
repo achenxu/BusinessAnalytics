@@ -1,0 +1,61 @@
+---
+title: "ETC3250 - Project"
+author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
+output: pdf_document
+---
+
+The project for this course will be to analyse paintings by Bob Ross. This was the subject of the [538 post](http://fivethirtyeight.com/features/a-statistical-analysis-of-the-work-of-bob-ross/). 
+
+We have taken the painting images from the [sales site](http://www.saleoilpaintings.com/paintings/bob-ross/bob-ross-sale-3_1.html), read the images into R, resized them all to be 20 by 20 pixels. Each painting has been classified into one of 8 classes. This is the data that you will work with. 
+
+It is provided in wide and long form. Long form is good for making pictures of the original painting, and the wide form is what you will need to use for the classification. In wide form, each row corresponds to one painting, and the rgb color values at each pixel are in each column. With a 20x20 image, this leads to 400x3=1200 columns. 
+
+There are 241 paintings in the full data set. We have given you a training set of 178 paintings. Your job is to build the best classifier that you can using this training data and use it to predict the data that we have not labelled. We have the classes for this test data, and can provide you with the error for your predictions. 
+
+Here is a quick look at the data, and making plots. 
+
+```{r, message=FALSE, echo=FALSE, fig.height=2, fig.width=2, fig.show='hold'}
+paintings <- read.csv("../data/paintings-train.csv", stringsAsFactors=FALSE)
+dim(paintings)
+table(paintings$class)
+paintings_long <- read.csv("../data/paintings-long-train.csv", stringsAsFactors=FALSE)
+dim(paintings_long)
+library(ggplot2)
+library(dplyr)
+df <- filter(paintings_long, id == 5)
+qplot(x, -y, data=df, fill=h, geom="tile") + scale_fill_identity(labels=df$h) + theme_bw() +
+    theme(axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank())
+df <- filter(paintings_long, id == 167)
+qplot(x, -y, data=df, fill=h, geom="tile") + scale_fill_identity(labels=df$h) + theme_bw() +
+    theme(axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank())
+df <- filter(paintings_long, id == 150)
+qplot(x, -y, data=df, fill=h, geom="tile") + scale_fill_identity(labels=df$h) + theme_bw() +
+    theme(axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank())
+paintings$class[paintings$id %in% c(5,167,140)]
+```
+
+These are the original paintings for these three data points. 
+
+![bobross5](../data/paintings/bobross5.jpg)
+![bobross41](../data/paintings/bobross167.jpg)
+![bobross140](../data/paintings/bobross140.jpg)
+
+The labels for the paintings have been automatically created from the paintings names. It is possible that a painting might be better labelled as a different class. 
+
+Deadlines:
+
+Grading: 
+
+Uploading predictions: 
