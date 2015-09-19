@@ -4,7 +4,7 @@ author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
 output: pdf_document
 ---
 
-The project for this course will be to analyse paintings by Bob Ross. This was the subject of the [538 post](http://fivethirtyeight.com/features/a-statistical-analysis-of-the-work-of-bob-ross/). 
+The project for this course will be to analyse the happy paintings by Bob Ross. This was the subject of the [538 post](http://fivethirtyeight.com/features/a-statistical-analysis-of-the-work-of-bob-ross/). 
 
 We have taken the painting images from the [sales site](http://www.saleoilpaintings.com/paintings/bob-ross/bob-ross-sale-3_1.html), read the images into R, resized them all to be 20 by 20 pixels. Each painting has been classified into one of 8 classes. This is the data that you will work with. 
 
@@ -29,6 +29,13 @@ qplot(x, -y, data=df, fill=h, geom="tile") + scale_fill_identity(labels=df$h) + 
           axis.text.x = element_blank(),
           axis.text.y = element_blank(),
           axis.ticks = element_blank())
+df <- filter(paintings_long, id == 140)
+qplot(x, -y, data=df, fill=h, geom="tile") + scale_fill_identity(labels=df$h) + theme_bw() +
+    theme(axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank())
 df <- filter(paintings_long, id == 167)
 qplot(x, -y, data=df, fill=h, geom="tile") + scale_fill_identity(labels=df$h) + theme_bw() +
     theme(axis.title.x = element_blank(),
@@ -36,23 +43,16 @@ qplot(x, -y, data=df, fill=h, geom="tile") + scale_fill_identity(labels=df$h) + 
           axis.text.x = element_blank(),
           axis.text.y = element_blank(),
           axis.ticks = element_blank())
-df <- filter(paintings_long, id == 150)
-qplot(x, -y, data=df, fill=h, geom="tile") + scale_fill_identity(labels=df$h) + theme_bw() +
-    theme(axis.title.x = element_blank(),
-          axis.title.y = element_blank(),
-          axis.text.x = element_blank(),
-          axis.text.y = element_blank(),
-          axis.ticks = element_blank())
-paintings$class[paintings$id %in% c(5,167,140)]
+paintings$class[paintings$id %in% c(5,140,167)]
 ```
 
 These are the original paintings for these three data points. 
 
 ![bobross5](../data/paintings/bobross5.jpg)
-![bobross41](../data/paintings/bobross167.jpg)
-![bobross140](../data/paintings/bobross140.jpg)
+![bobross41](../data/paintings/bobross140.jpg)
+![bobross140](../data/paintings/bobross167.jpg)
 
-The labels for the paintings have been automatically created from the paintings names. It is possible that a painting might be better labelled as a different class. 
+The labels for the paintings have been automatically created from the paintings names. It is possible that a painting might be better labelled as a different class. Also feel free to create new variables to help you build a better classifier, for example, average of pixels in corners. 
 
 Deadlines:
 

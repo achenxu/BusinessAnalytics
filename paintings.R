@@ -227,3 +227,47 @@ write.csv(paint2_long.tr, file="data/paintings-long-train.csv", row.names=F)
 write.csv(paint2_long.ts, file="data/paintings-long-test.csv", row.names=F)
 
 write.csv(indx, file="data/paintings-test-indices.csv", row.names=F)
+
+# classification
+library(randomForest)
+paint2.tr$class <- factor(paint2.tr$class)
+p2.tr.rf <- randomForest(class~., data=paint2.tr[,-c(1:2)], importance=T, confusion=T)
+p2.tr.rf
+imp <- data.frame(p2.tr.rf$importance)
+p2.tr.rf$importance[1:2,]
+imp$var <- rownames(p2.tr.rf$importance)
+imp <- arrange(imp, desc(MeanDecreaseGini))
+imp$var <- factor(imp$var, levels=imp$var)
+qplot(1:1200, imp$MeanDecreaseGini) + xlim(1,50)
+qplot(1:1200, sort(imp$trees, decreasing=T)) + xlim(1,50)
+imp$var[order(imp$trees, decreasing=T)][1:2]
+# b308 b307 is important for trees
+qplot(1:1200, sort(imp$impressions, decreasing=T)) + xlim(1,50)
+imp$var[order(imp$impressions, decreasing=T)][1:10]
+qplot(1:1200, sort(imp$cold, decreasing=T)) + xlim(1,50)
+imp$var[order(imp$cold, decreasing=T)][1:10]
+# r293 r313 b317 b295 g334 b343 b297 r274 r354 b67 
+
+ts.p <- predict(p2.tr.rf, paint2.ts)
+table(paint2.ts$class, ts.p)
+
+# Plot the long form to examine red/green/blue components by class
+qplot(class, r, data=paint2_long.tr, geom="boxplot")
+qplot(class, g, data=paint2_long.tr, geom="boxplot")
+qplot(class, b, data=paint2_long.tr, geom="boxplot")
+
+qplot(r, g, data=paint2_long.tr, alpha=I(0.3)) + facet_wrap(~class) + theme_bw() 
+qplot(r, b, data=paint2_long.tr, alpha=I(0.3)) + facet_wrap(~class) + theme_bw() 
+qplot(g, b, data=paint2_long.tr, alpha=I(0.3)) + facet_wrap(~class) + theme_bw() 
+
+p_l.tr.av <- summarise(group_by(paint2_long.tr, id), 
+                       r=mean(r), g=mean(g), b=mean(b))
+p_l.tr.av <- merge(p_l.tr.av, paint2.tr[,1:3])
+
+qplot(class, r, data=p_l.tr.av, geom="boxplot")
+qplot(class, g, data=p_l.tr.av, geom="boxplot")
+qplot(class, b, data=p_l.tr.av, geom="boxplot")
+
+qplot(r, g, data=p_l.tr.av) + facet_wrap(~class) + theme_bw() + theme(aspect.ratio=1)
+qplot(r, b, data=p_l.tr.av) + facet_wrap(~class) + theme_bw() + theme(aspect.ratio=1)
+qplot(g, b, data=p_l.tr.av) + facet_wrap(~class) + theme_bw() + theme(aspect.ratio=1)
