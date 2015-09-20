@@ -255,6 +255,83 @@ qplot(x1, x2, data=pred.grid, shape=y, color=y, alpha=I(0.1)) + theme_bw() +
   theme(aspect.ratio=1, legend.position="none")
 ```
 
+## Examples: olive oils
+
+```{r olive-nl, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=2.5, fig.width=2.5, fig.show='hold'}
+qplot(eicosenoic, linoleic, data=olive, color=region, shape=region, alpha=I(0.5)) +
+  scale_color_hue("") + scale_shape_discrete("") +
+  theme_bw() + theme(aspect.ratio=1, legend.position="bottom")
+olive.sub <- filter(olive, region != "south")
+olive.sub$region <- factor(olive.sub$region)
+qplot(linoleic, arachidic, data=olive.sub, colour=region, shape=region) +
+  scale_color_hue("") + scale_shape_discrete("") +
+  theme_bw() + theme(aspect.ratio=1, legend.position="bottom")
+```
+
+## Examples: olive oils
+
+```
+olive.svm <- svm(region~linoleic + arachidic, data=olive.sub, 
+  kernel="polynomial", degree=2)
+```
+
+```{r olive-nl2, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=2.8, fig.width=2.8, fig.show='hold'}
+olive.svm <- svm(region~linoleic + arachidic, data=olive.sub, kernel="polynomial", degree=2)
+olive.p <- data.frame(expand.grid(linoleic = seq(440, 1500, 10), arachidic = seq(0, 105, 2)))
+olive.p$region <- predict(olive.svm, olive.p)
+qplot(linoleic, arachidic, data=olive.p, color=region, alpha=I(0.1)) +
+  geom_point(data=olive.sub, aes(shape=region)) + 
+  theme_bw() + theme(aspect.ratio=1, legend.position="none")
+```
+
+## Examples: olive oils
+
+```
+olive.svm <- svm(region~linoleic + arachidic, data=olive.sub, 
+  kernel="radial")
+```
+
+```{r olive-nl3, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=2.8, fig.width=2.8, fig.show='hold'}
+olive.svm <- svm(region~linoleic + arachidic, data=olive.sub, kernel="radial")
+olive.p <- data.frame(expand.grid(linoleic = seq(440, 1500, 10), arachidic = seq(0, 105, 2)))
+olive.p$region <- predict(olive.svm, olive.p)
+qplot(linoleic, arachidic, data=olive.p, color=region, alpha=I(0.1)) +
+  geom_point(data=olive.sub, aes(shape=region)) + 
+  theme_bw() + theme(aspect.ratio=1, legend.position="none")
+```
+
+## Examples: olive oils
+
+```
+olive.svm <- svm(region~., data=olive.sub[,-c(2,10)], 
+  kernel="radial")
+```
+
+```{r olive-nl4, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=2.8, fig.width=2.8, fig.show='hold'}
+olive.svm <- svm(region~., data=olive.sub[,-c(2,10)], kernel="radial")
+olive.p <- data.frame(expand.grid(linoleic = seq(440, 1500, 10), arachidic = seq(0, 105, 2)),
+                      palmitic=1098, palmitoleic=90, stearic=223, oleic=7620, linolenic=25)
+olive.p$region <- predict(olive.svm, olive.p)
+qplot(linoleic, arachidic, data=olive.p, color=region, alpha=I(0.1)) +
+  geom_point(data=olive.sub, aes(shape=region)) + 
+  theme_bw() + theme(aspect.ratio=1, legend.position="none")
+```
+
+## High-dimensional data
+
+- For high-dimension low sample size problems (more variables than samples) SVM cannot properly estimate the coefficients for the separating hyperplane
+- Even fitting a linear kernel is a problem
+_ The same is true for LDA
+- Dimension reduction, or penalisation, needs to be used in association with the classifiers
+
+## Links to ggobi videos
+
+- How do boundaries look in high dimensions?
+- [This video](http://www.ggobi.org/book/chap-class/SVM.mov) is a basic intro to visualising the SVM model
+- [This video](https://vimeo.com/125405961) shows boundaries for a radial kernel fitted to 3D data
+- [This video](https://vimeo.com/125405962) shows boundaries for a polynomial kernel fitted to 5D data
+- [This video](http://www.ggobi.org/book/chap-class/classifly.mov) another video illustrating looking at boundaries for an SVM model
+
 ## Multiclass
 
 The available procedures are:
