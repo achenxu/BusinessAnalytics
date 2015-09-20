@@ -1,0 +1,171 @@
+---
+title: "ETC3250 Lab 9"
+author: "Souhaib Ben Taieb"
+date: "22 September 2015"
+output: html_document
+---
+
+## Comparison of classification algorithms
+
+In this lab, we will compare different classificaiton algorithms empirically. The data set we will analyze consists of percentage returns for the S\&P 500 stock index over $1,250$ days, from the beginning of 2001 until the end of 2005. For each date, we have the percentage returns for each of the five previous trading days, Lag1 through Lag5. Additional variables include Volume (the number of shares traded on the previous day, in billions), Today (the percentage return on the date in question) and Direction (whether the market was Up or Down on this date).
+
+
+Analyze the data and make some conclusions about what you observe:
+```{r eval=FALSE}
+rm(list = ls())
+library(ISLR)
+names(Smarket)
+summary (Smarket)
+cor(Smarket [, -9])
+heatmap(cor(Smarket [, -9]))
+```
+
+Observations in 2005 will be used as test set:
+```{r eval=FALSE}
+train <- (Year < 2005)
+Smarket.2005 <- Smarket[!train, ]
+dim(Smarket.2005)
+Direction.2005 <- Direction [!train]
+```
+
+Logistic regression:
+```{r eval=FALSE}
+attach(Smarket)
+contrasts(Direction)
+
+glm.fit <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = Smarket, family = binomial, subset = train)
+summary(glm.fit)
+glm.probs <- predict (glm.fit, Smarket.2005, type = "response")
+glm.pred <- rep ("Down", nrow(Smarket.2005))
+glm.pred[glm.probs > .5] <- "Up"
+table(glm.pred, Direction.2005)
+mean(glm.pred == Direction.2005)
+
+glm.fit <- glm(Direction ~ Lag1 + Lag2, data = Smarket, family = binomial, subset = train)
+glm.probs <- predict (glm.fit, Smarket.2005, type = "response")
+glm.pred <- rep ("Down", nrow(Smarket.2005))
+glm.pred[glm.probs > .5] <- "Up"
+table(glm.pred, Direction.2005)
+mean(glm.pred == Direction.2005)
+predict(glm.fit, newdata = data.frame(Lag1 = c(1.2 ,1.5), Lag2 = c(1.1 , -0.8) ), type = "response")
+
+```
+
+Linear Discriminant Analysis (LDA):
+```{r eval=FALSE}
+library(MASS)
+lda.fit <- lda(Direction ~ Lag1+Lag2 ,data=Smarket, subset =train)
+lda.fit
+
+lda.pred=predict(lda.fit , Smarket.2005)
+names(lda.pred)
+
+lda.class <- lda.pred$class
+table(lda.class, Direction.2005)
+mean(lda.class == Direction.2005)
+
+sum(lda.pred$posterior [ ,1] >= .5)
+sum(lda.pred$posterior [,1] < .5)
+
+lda.pred$posterior [1:20 ,1]
+lda.class [1:20]
+
+
+```
+
+Quadratic Discriminant Analysis (QDA):
+```{r eval=FALSE}
+
+qda.fit <- qda(Direction ~ Lag1+Lag2 ,data=Smarket ,subset =train)
+qda.class <- predict (qda.fit ,Smarket.2005) $class
+table(qda.class, Direction.2005)
+mean(qda.class == Direction.2005)
+```
+
+K-Nearest Neighbors (KNN):
+```{r eval=FALSE}
+train.X=cbind(Lag1, Lag2)[train ,]
+test.X=cbind (Lag1, Lag2)[!train ,]
+train.Direction <- Direction [train]
+
+set.seed (1)
+knn.pred <- knn(train.X,test.X,train.Direction ,k=1)
+table(knn.pred, Direction.2005)
+mean(knn.pred == Direction.2005)
+```
+Is scaling important for KNN?
+
+How the data look like?
+```{r eval=FALSE}
+col.directions <- rep("red", length(Direction))
+col.directions[Direction == "Up"] <- "green"
+plot(Lag1, Lag2, col = col.directions)
+points(Lag1[!train], Lag2[!train], col = "black")
+```
+
+Support Vector Machines (SVM):
+```{r eval=FALSE}
+library (e1071)
+dat <- data.frame(train.X, y = train.Direction)
+
+# Linear kernel
+svmfit <- svm(y ~ ., data= dat , kernel = "linear", cost =10, scale = FALSE)
+plot(svmfit, dat)
+svmfit$index
+summary (svmfit)
+
+set.seed(1)
+tune.out=tune(svm, y ~., data = dat, kernel = "linear", ranges = list(cost=c(0.001 , 0.01, 0.1, 1,5,10,100)) )
+summary(tune.out)
+bestmodel <- tune.out$best.model
+svm.pred <- predict(bestmodel, test.X)
+table(svm.pred, Direction.2005)
+mean(svm.pred == Direction.2005)
+plot(bestmodel, dat)
+
+# Radial kernel
+svmfit <- svm(y ~ ., data= dat , kernel = "radial", gamma = 1, cost = 1)
+plot(svmfit, dat)
+svmfit$index
+summary (svmfit)
+
+tune.out=tune(svm, y ~., data = dat, kernel = "radial", ranges = list(cost=c(0.1 ,1 ,10, 1000), gamma=c(0.5, 1, 4)) )
+summary(tune.out)
+bestmodel <- tune.out$best.model
+svm.pred <- predict(bestmodel, test.X)
+table(svm.pred, Direction.2005)
+mean(svm.pred == Direction.2005)
+plot(bestmodel, dat)
+```
+
+## Assignment
+
+Using the Boston data set, fit classification models in order to predict whether a given suburb has a crime rate above or below the median.
+Explore logistic regression, LDA, QDA, SVM and KNN models using various subsets of the predictors. Describe your findings. 
+
+Here is some code to get you started.
+
+```{r eval=FALSE}
+set.seed(1986)
+
+dat <- Boston
+dat$crim <- factor(ifelse(dat$crim < median(dat$crim), "below", "above"), levels = c("below", "above"))
+contrasts(dat$crim)
+
+n <- nrow(dat)
+train <- sample(seq(n), 400)
+test <- setdiff(seq(n), train)
+
+train.dat <- dat[train ,]
+test.dat  <- dat[test  ,]
+
+glm.fit <- glm(crim ~ ., data = train.dat, family = binomial)
+summary(glm.fit)
+
+glm.probs <- predict (glm.fit ,test.dat , type="response")
+glm.pred <- rep ("below" , nrow(test.dat))
+glm.pred[glm.probs >.5] <- "above"
+
+table(glm.pred, test.dat$crim)
+mean(glm.pred == test.dat$crim)
+```
