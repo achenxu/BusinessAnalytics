@@ -321,7 +321,7 @@ qplot(linoleic, arachidic, data=olive.p, color=region, alpha=I(0.1)) +
 
 - For high-dimension low sample size problems (more variables than samples) SVM cannot properly estimate the coefficients for the separating hyperplane
 - Even fitting a linear kernel is a problem
-_ The same is true for LDA
+- The same is true for LDA
 - Dimension reduction, or penalisation, needs to be used in association with the classifiers
 
 ## Links to ggobi videos
