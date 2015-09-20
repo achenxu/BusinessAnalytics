@@ -204,6 +204,11 @@ paint2.ts <- paint2.ts[,c(1,2,1203,3:1202)]
 
 write.csv(paint2.tr, file="data/paintings-train.csv", row.names=F)
 write.csv(paint2.ts, file="data/paintings-test.csv", row.names=F)
+paint2.ts.unlabelled <- paint2.ts
+paint2.ts.unlabelled$id <- NA
+paint2.ts.unlabelled$name <- NA
+paint2.ts.unlabelled$class <- NA
+write.csv(paint2.ts.unlabelled, file="data/paintings-test-unlabelled.csv", row.names=F)
 
 paint2_long.tr <- filter(paint_long2, id %in% paint2.tr$id)
 paint2_long.ts <- filter(paint_long2, id %in% paint2.ts$id)
@@ -225,6 +230,11 @@ for (i in 1:8) {
 
 write.csv(paint2_long.tr, file="data/paintings-long-train.csv", row.names=F)
 write.csv(paint2_long.ts, file="data/paintings-long-test.csv", row.names=F)
+paint2_long.ts.unlabelled <- paint2_long.ts
+paint2_long.ts.unlabelled$id <- NA
+paint2_long.ts.unlabelled$name <- NA
+paint2_long.ts.unlabelled$class <- NA
+write.csv(paint2_long.ts.unlabelled, file="data/paintings-long-test-unlabelled.csv", row.names=F)
 
 write.csv(indx, file="data/paintings-test-indices.csv", row.names=F)
 
