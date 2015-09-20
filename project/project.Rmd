@@ -4,22 +4,45 @@ author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
 output: pdf_document
 ---
 
-The project for this course will be to analyse the happy paintings by Bob Ross. This was the subject of the [538 post](http://fivethirtyeight.com/features/a-statistical-analysis-of-the-work-of-bob-ross/). 
+# Can we tell what is in the painting by the colors of the pixels?
+
+The project for this course is to analyse the happy paintings by Bob Ross. This was the subject of the [538 post](http://fivethirtyeight.com/features/a-statistical-analysis-of-the-work-of-bob-ross/), "A Statistical Analysis of the Work of Bob Ross". 
 
 We have taken the painting images from the [sales site](http://www.saleoilpaintings.com/paintings/bob-ross/bob-ross-sale-3_1.html), read the images into R, resized them all to be 20 by 20 pixels. Each painting has been classified into one of 8 classes. This is the data that you will work with. 
 
-It is provided in wide and long form. Long form is good for making pictures of the original painting, and the wide form is what you will need to use for the classification. In wide form, each row corresponds to one painting, and the rgb color values at each pixel are in each column. With a 20x20 image, this leads to 400x3=1200 columns. 
+It is provided in wide and long form. Long form is good for making pictures of the original painting, and the wide form is what you will need to use for fitting the classification models. In wide form, each row corresponds to one painting, and the rgb color values at each pixel are in each column. With a 20x20 image, this leads to 400x3=1200 columns. 
 
-There are 241 paintings in the full data set. We have given you a training set of 178 paintings. Your job is to build the best classifier that you can using this training data and use it to predict the data that we have not labelled. We have the classes for this test data, and can provide you with the error for your predictions. 
+There are 241 paintings in the full data set. We have given you a training set of 178 paintings. Your job is to build the best classifier that you can, using this training data and use it to predict the data that we have not labelled. We have the classes for this test data, and can provide you with the error for your predictions. 
 
-Here is a quick look at the data, and making plots. 
+These are three of the original paintings in the collection, labelled as scene, water, flowers: 
 
-```{r, message=FALSE, echo=FALSE, fig.height=2, fig.width=2, fig.show='hold'}
+![bobross5](../data/paintings/bobross5.jpg)
+![bobross41](../data/paintings/bobross140.jpg)
+![bobross140](../data/paintings/bobross167.jpg)
+
+Here is a quick look at the data produced from the paintings, and code for making plots. 
+
+Wide form dimensions, number of paintings in each class, and first few columns and rows: 
+
+```{r, message=FALSE, echo=FALSE, results='hold', fig.height=2, fig.width=2, fig.show='hold'}
 paintings <- read.csv("../data/paintings-train.csv", stringsAsFactors=FALSE)
 dim(paintings)
 table(paintings$class)
+options(digits=2)
+paintings[1:5, 1:11]
+```
+
+Long_form dimensions, and first few rows:
+
+```{r, message=FALSE, echo=FALSE, results='hold', fig.height=2, fig.width=2, fig.show='hold'}
 paintings_long <- read.csv("../data/paintings-long-train.csv", stringsAsFactors=FALSE)
 dim(paintings_long)
+head(paintings_long)
+```
+
+Plots of the long form data, for the same three paintings:
+
+```{r, message=FALSE, echo=FALSE, results='hold', fig.height=2, fig.width=2, fig.show='hold'}
 library(ggplot2)
 library(dplyr)
 df <- filter(paintings_long, id == 5)
@@ -46,16 +69,27 @@ qplot(x, -y, data=df, fill=h, geom="tile") + scale_fill_identity(labels=df$h) + 
 paintings$class[paintings$id %in% c(5,140,167)]
 ```
 
-These are the original paintings for these three data points. 
+## Task
 
-![bobross5](../data/paintings/bobross5.jpg)
-![bobross41](../data/paintings/bobross140.jpg)
-![bobross140](../data/paintings/bobross167.jpg)
+1. Create the most accurate classifier that you can for the data, as measured by the test data. This will require submitting your predictions to a specially created kaggle site.
+2. Provide some exploratory descriptive summaries of the data, that illustrate how the types of paintings differ, or are similar, and point out unusual paintings that don't fit their group.
+3. Write a 3-5 page report summarizing your approach to building the classifier, and your findings about the data.
 
-The labels for the paintings have been automatically created from the paintings names. It is possible that a painting might be better labelled as a different class. Also feel free to create new variables to help you build a better classifier, for example, average of pixels in corners. 
+## Some caveats
 
-Deadlines:
+- The labels for the paintings have been automatically created from the paintings names. It is possible that a painting might be better labelled as a different class. 
+- Also it might be good to create new variables to help you build a better classifier, for example, average of pixels in corners. 
+- You will need to submit at least one entry to the kaggle site created for testing the classifier
 
-Grading: 
+## Deadlines:
 
-Uploading predictions: 
+- Oct 14: Initial overview of data, summary statistics, plots that illustrate differences between types of paintings and unusual paintings
+- Oct 21: At least one sibmission of predictions to kaggle. Instructions on how to do this will come later.
+- Nov 11: Final report due
+
+## Grading: 
+
+- Total points: 
+- Accuracy of classifier:
+- Report: 
+- Met deadlines: 
