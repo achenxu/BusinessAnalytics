@@ -57,7 +57,7 @@ library(MASS)
 lda.fit <- lda(Direction ~ Lag1+Lag2 ,data=Smarket, subset =train)
 lda.fit
 
-lda.pred=predict(lda.fit , Smarket.2005)
+lda.pred <- predict(lda.fit , Smarket.2005)
 names(lda.pred)
 
 lda.class <- lda.pred$class
