@@ -1,0 +1,73 @@
+---
+title: 'ETC3250 Business Analytics: Advanced Classification - Trees & Forests'
+author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
+date: "October 5, 2015"
+output:
+  beamer_presentation: 
+    theme: Monash
+---
+
+## Random forests - overview
+
+- Multiple trees, fit to samples
+- Sample cases, using bootstrapping (ones not chosen are called out-of-bag, used for testing purposes)
+- Sample variables
+- Lots of control parameters
+- Lots of diagnostics generated!
+
+## Bagging
+
+- Bagging stands for "bootstrap aggregation". Combine the results from multiple models built on different bootstrap samples.
+- Random forests are an example of bagging
+- Bagging can be used with almost any classifier
+- Bagging reduces variation in estimates
+
+## Forest algorithm
+
+1. Input: $L = {(x_i, y_i), i=1, ..., n}, y_i \in \{1, ..., g\}, m < p$, number of variables chosen for each tree, $B$ is the number of bootstrap samples.
+2. For $b =1, 2, ..., B$:
+  - Draw a bootstrap sample, $L^{*b}$ of size $n^{*b}$ from $L$.
+  - Grow tree classifier, $T^{*b}$. At each node use a random selection of $m$ variables, and grow to maximum depth without pruning.
+  - Predict the class of each case not drawn in $L^{*b}$.
+3. Combine the predictions for each case, by majority vote, to give predicted class.
+
+## Input defaults
+
+- $B$ is at least $1000$
+- $m = \sqrt(p)$
+- $n^{*b}$ is usually about $\frac{2}{3} n$
+
+## Error
+
+Compute the proportion of times the case is misclassified when it is out-of-bag (oob). Average these to give the predictive error.
+
+## Diagnostics
+
+- Variable importance: more complicated than one might think
+- Vote matrix, $n\times g$: Proportion of times a case is predicted to the class $k$.
+- Proximities, $n\times n$: Closeness of cases measured by how often they are in the same terminal node.
+
+## Variable importance
+
+1. For every tree predict the oob cases and count the number of votes cast for the correct class. 
+2. Randomly permute the values on a variable in the oob cases and predict the class for these cases. 
+3. Subtract the number of votes for the correct class in the variable-permuted oob cases from the number of votes for the correct class in the real oob cases. The average of this number over all trees in the forest is the raw importance score for that variable. If the value is small, then the variable is not very important. 
+
+## Gini importance
+
+- Gini importance adds up the difference in impurity value of the descendant nodes with the parent node. 
+- Quick to calculate, and usually consistent with the results of the permutation method.
+
+## Vote matrix
+
+- Can be used to identify troublesome cases.
+- Used with plots of the actual data can help determine if it is the record itself that is the problem, or if it is a limitation of the method.
+- Understand the difference in accuracy of prediction for different classes.
+
+## Proximities
+
+- Run both in- and out-of-bag cases down the tree, and increase proximity value of cases $i, j$ by 1 each time they are in the same terminal node. 
+- Normalize by dividing by $B$.
+
+## Example: olives from the south
+

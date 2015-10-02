@@ -210,6 +210,11 @@ paint2.ts.unlabelled$name <- NA
 paint2.ts.unlabelled$class <- NA
 write.csv(paint2.ts.unlabelled, file="data/paintings-test-unlabelled.csv", row.names=F)
 
+write.csv(paint2.ts[,c(1,3)], file="data/paintings-test-solution.csv", row.names=F)
+paint2.ts.sample <- paint2.ts[,c(1,3)]
+paint2.ts.sample$class <- paint2.ts.sample$class[sample(1:63, replace=T)]
+write.csv(paint2.ts.sample, file="data/paintings-test-sample.csv", row.names=F)
+
 paint2_long.tr <- filter(paint_long2, id %in% paint2.tr$id)
 paint2_long.ts <- filter(paint_long2, id %in% paint2.ts$id)
 
@@ -224,6 +229,14 @@ paint2_long.ts$class <- NA
 cls <- unique(paint2$class)
 for (i in 1:8) {
   ids <- paint2$id[paint2$class == cls[i]]
+  ids <- ids[!is.na(ids)]
+  paint2_long.ts$class[paint2_long.ts$id %in% ids] <- cls[i]
+}
+
+paint2_long.ts$class <- NA
+cls <- unique(paint2$class)
+for (i in 1:8) {
+  ids <- paint2.ts$id[paint2.ts$class == cls[i]]
   ids <- ids[!is.na(ids)]
   paint2_long.ts$class[paint2_long.ts$id %in% ids] <- cls[i]
 }
@@ -259,7 +272,19 @@ imp$var[order(imp$cold, decreasing=T)][1:10]
 # r293 r313 b317 b295 g334 b343 b297 r274 r354 b67 
 
 ts.p <- predict(p2.tr.rf, paint2.ts)
-table(paint2.ts$class, ts.p)
+
+# Compute errors to match with kaggle
+x <- as.matrix(addmargins(table(paint2.ts$class, ts.p)))
+diag(x) <- 0
+x <- x[-9,]
+mean(apply(x, 1, function(x) sum(x[-9])/x[9]))
+sum(x[,-9])/sum(x[,9])
+tr.ts <- data.frame(paint2.ts$class, ts.p)
+
+
+# For submission
+ts.submit <- data.frame(id=paint2.ts$id, class=ts.p)
+write.csv(ts.submit, file="paintings-submit.csv", row.names=F)
 
 # Plot the long form to examine red/green/blue components by class
 qplot(class, r, data=paint2_long.tr, geom="boxplot")

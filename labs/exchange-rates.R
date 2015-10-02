@@ -21,8 +21,8 @@ cor(rates$AUD, rates$NZD)
 
 # get individual dates, in a batch
 ru <- NULL
-dt <- as.Date("2015-08-14")
-for (i in 1:5) {
+dt <- as.Date("2015-09-25")
+for (i in 1:4) {
   cat(i,"\n")
   url <- paste("http://openexchangerates.org/api/historical/",dt,".json?app_id=a7586d03ef2049c4a13a12a01c709468", sep="")
   x <- fromJSON(url)
@@ -47,8 +47,9 @@ rates[,1:10]
 
 # Get today and add
 x <- fromJSON("http://openexchangerates.org/api/latest.json?app_id=a7586d03ef2049c4a13a12a01c709468")$rates
+x <- x[-c(164,166)]
 rates <- rbind(rates, data.frame(date=as.character(today()), x))
-rownames(rates) <- rates$date
+rownames(rates)[218] <- as.character(today())
 rates[,1:10]
 write.csv(rates, file="/Users/dicook/Monash.business/BusinessAnalyticsCourse/data/rates.csv",row.names=FALSE, quote=FALSE)
 
