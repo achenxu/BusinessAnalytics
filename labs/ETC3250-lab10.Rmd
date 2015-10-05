@@ -1,0 +1,51 @@
+---
+title: "ETC3250 Lab 10"
+author: "Di Cook"
+date: "6 October 2015"
+output: pdf_document
+---
+
+
+# Trees and Forests
+
+## Task 1
+
+Read in the chocolates data, from the class web site:
+
+```{r, message=FALSE, warning=FALSE, error=FALSE}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(GGally)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+
+choc <- read.csv("../data/chocolates.csv", 
+                  stringsAsFactors = FALSE)
+
+choc$Type <- factor(choc$Type)
+choc.sub <- select(choc, Type:Protein)
+rownames(choc.sub) <- paste(choc$MFR, choc$Name, choc$Country)
+```
+
+1. Fit a default tree to the tennis data. Print the tree, write the decision rule, compute the error, and make a plot that shows the boundary.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+choc.rp <- rpart(Type~., data=choc.sub)
+prp(choc.rp)
+qplot(Fiber, CalFat, data=choc.sub, colour=Type) + 
+  geom_vline(xintercept=4.8256, colour="black") + 
+  geom_segment(aes(x=0, xend=4.8256, y=337.7, yend=337.7), colour="black") + 
+  theme(aspect.ratio=1)
+table(choc.sub$Type, predict(choc.rp, choc.sub, type="class"))
+```
+
+2. Fit a random forest to the tennis data. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+choc.rf <- randomForest(Type~., data=choc.sub, importance=TRUE)
+choc.rf
+choc.rf$importance
+```
