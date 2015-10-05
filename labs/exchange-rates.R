@@ -21,8 +21,8 @@ cor(rates$AUD, rates$NZD)
 
 # get individual dates, in a batch
 ru <- NULL
-dt <- as.Date("2015-09-25")
-for (i in 1:4) {
+dt <- as.Date("2015-09-30")
+for (i in 1:6) {
   cat(i,"\n")
   url <- paste("http://openexchangerates.org/api/historical/",dt,".json?app_id=a7586d03ef2049c4a13a12a01c709468", sep="")
   x <- fromJSON(url)

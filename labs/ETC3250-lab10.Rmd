@@ -10,9 +10,9 @@ output: pdf_document
 
 ## Task 1
 
-Read in the chocolates data, from the class web site:
+Read in the chocolates data, from the class web site. Fit a default tree to the tennis data. Print the tree, write the decision rule, compute the error, and make a plot that shows the boundary.
 
-```{r, message=FALSE, warning=FALSE, error=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
 library(ggplot2)
 library(tidyr)
 library(dplyr)
@@ -30,22 +30,45 @@ choc.sub <- select(choc, Type:Protein)
 rownames(choc.sub) <- paste(choc$MFR, choc$Name, choc$Country)
 ```
 
-1. Fit a default tree to the tennis data. Print the tree, write the decision rule, compute the error, and make a plot that shows the boundary.
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.height=3.5, fig.width=3.5, fig.show='hold'}
 choc.rp <- rpart(Type~., data=choc.sub)
 prp(choc.rp)
 qplot(Fiber, CalFat, data=choc.sub, colour=Type) + 
   geom_vline(xintercept=4.8256, colour="black") + 
   geom_segment(aes(x=0, xend=4.8256, y=337.7, yend=337.7), colour="black") + 
-  theme(aspect.ratio=1)
+  theme(aspect.ratio=1, legend.position="bottom")
 table(choc.sub$Type, predict(choc.rp, choc.sub, type="class"))
 ```
 
-2. Fit a random forest to the tennis data. 
+## Task 2
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
-choc.rf <- randomForest(Type~., data=choc.sub, importance=TRUE)
+Fit a random forest to the chocolates data. Report the error, and use a parallel coordinate plot to display the data using the importance to order the variables. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.height=4, fig.width=8}
+choc.rf <- randomForest(Type~., data=choc.sub, importance=TRUE, ntree=500, mtry=4)
 choc.rf
 choc.rf$importance
+ord <- order(choc.rf$importance[,4], decreasing=T) + 1
+ggparcoord(choc.sub, columns=ord[1:5], groupColumn="Type")
 ```
+
+## Task 3
+
+Find the labels of the dark chocolates that were misclassified by the forest. Are they the same for both classifiers? Explain why these were misclassified. For example, are they dark chocolates with unusually low fiber?
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.height=4, fig.width=8}
+choc.sub$pred <- choc.rf$predicted
+subset(choc.sub, Type != pred & Type == "Dark")[,1:2]
+choc.sub$pD <- choc.sub$Type != choc.sub$pred & choc.sub$Type == "Dark"
+ggparcoord(choc.sub, columns=ord[1:5], groupColumn="pD", alphaLines=0.3) +
+  scale_color_manual(values=c("FALSE"="grey", "TRUE"="red"))
+```
+
+## Task 4
+
+There are a number of zeros in the data. Do you think these are really zeros? How might you fix this?
+
+## Assignment
+
+Using the best model that you, tree, forest, lda, svm, ... predict the type of chocolate of the `chocolates-new.csv` data provided on the web. 
