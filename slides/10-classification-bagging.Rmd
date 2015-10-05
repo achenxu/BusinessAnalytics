@@ -1,0 +1,360 @@
+---
+title: 'ETC3250 Business Analytics: Advanced Classification - Trees & Forests'
+author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
+date: "October 5, 2015"
+output:
+  beamer_presentation: 
+    theme: Monash
+---
+
+## Random forests - overview
+
+- Multiple trees, fit to samples
+- Sample cases, using bootstrapping (ones not chosen are called out-of-bag, used for testing purposes)
+- Sample variables
+- Lots of control parameters
+- Lots of diagnostics generated!
+
+## Bagging
+
+- Bagging stands for "bootstrap aggregation". Combine the results from multiple models built on different bootstrap samples.
+- Random forests are an example of bagging
+- Bagging can be used with almost any classifier
+- Bagging reduces variation in estimates
+
+## Forest algorithm
+
+1. Input: $L = {(x_i, y_i), i=1, ..., n}, y_i \in \{1, ..., g\}, m < p$, number of variables chosen for each tree, $B$ is the number of bootstrap samples.
+2. For $b =1, 2, ..., B$:
+  - Draw a bootstrap sample, $L^{*b}$ of size $n^{*b}$ from $L$.
+  - Grow tree classifier, $T^{*b}$. At each node use a random selection of $m$ variables, and grow to maximum depth without pruning.
+  - Predict the class of each case not drawn in $L^{*b}$.
+3. Combine the predictions for each case, by majority vote, to give predicted class.
+
+## Input defaults
+
+- $B$ is at least $1000$
+- $m = \sqrt(p)$
+- $n^{*b}$ is usually about $\frac{2}{3} n$
+
+## Error
+
+Compute the proportion of times the case is misclassified when it is out-of-bag (oob). Average these to give the predictive error.
+
+## Diagnostics
+
+- Variable importance: more complicated than one might think
+- Vote matrix, $n\times g$: Proportion of times a case is predicted to the class $k$.
+- Proximities, $n\times n$: Closeness of cases measured by how often they are in the same terminal node.
+
+## Variable importance
+
+1. For every tree predict the oob cases and count the number of votes cast for the correct class. 
+2. Randomly permute the values on a variable in the oob cases and predict the class for these cases. 
+3. Subtract the number of votes for the correct class in the variable-permuted oob cases from the number of votes for the correct class in the real oob cases. The average of this number over all trees in the forest is the raw importance score for that variable. If the value is small, then the variable is not very important. 
+
+## Gini importance
+
+- Gini importance adds up the difference in impurity value of the descendant nodes with the parent node. 
+- Quick to calculate, and usually consistent with the results of the permutation method.
+
+## Vote matrix
+
+- Proportion of trees the case is predicted to be each class, ranges between 0-1
+- Can be used to identify troublesome cases.
+- Used with plots of the actual data can help determine if it is the record itself that is the problem, or if it is a limitation of the method.
+- Understand the difference in accuracy of prediction for different classes.
+
+## Proximities
+
+- Run both in- and out-of-bag cases down the tree, and increase proximity value of cases $i, j$ by 1 each time they are in the same terminal node. 
+- Normalize by dividing by $B$.
+
+## Example: Fit tree to olive samples from the south
+
+```{r olives, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=3, fig.width=3}
+library(ggplot2)
+library(tourr)
+library(dplyr)
+library(tidyr)
+library(scales)
+library(rpart)
+library(rpart.plot)
+library(gridExtra)
+library(GGally)
+library(randomForest)
+library(ggthemes)
+
+data(olive)
+olive.sth <- filter(olive, region==1)
+olive.sth <- select(olive.sth, area:eicosenoic)
+olive.sth$area <- factor(olive.sth$area, labels=c("Cal","NthAp","Sic","SthAp"))
+
+olive.sth <- arrange(olive.sth, area)
+indx <- sort(c(sample(1:56,28), sample(57:81, 13), sample(82:117, 18), sample(118:323, 102)))
+olive.s.tr <- olive.sth[indx,]
+olive.s.ts <- olive.sth[-indx,]
+olive.rp <- rpart(area~., data=olive.s.tr, parms = list(split = "information"), 
+                 control = rpart.control(cp=0.0001, minsplit=5))
+olive.rp <- prune(olive.rp, cp=0.01)
+options(digits=4)
+x <- addmargins(table(olive.s.ts$area, predict(olive.rp, olive.s.ts, type="class")),2)
+x <- cbind(x, error=c(sum(x[1,-c(1,5)])/x[1,5], sum(x[2,-c(2,5)])/x[2,5], sum(x[3,-c(3,5)])/x[3,5], sum(x[4,-c(4,5)])/x[4,5]))
+x
+```
+
+Test error = `r round(1-sum(diag(x)[-5])/sum(x[,5]), 3)`
+
+## Example: Tree model
+
+```{r olives2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=6, fig.width=6}
+prp(olive.rp)
+```
+
+## Example: A look at the data
+
+```{r olives3, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=8, fig.width=10}
+ggscatmat(olive.sth, columns=c(3,4,6,7,8), color="area")
+```         
+
+## Example: Fit a random forest model
+
+```{r olives4, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=8, fig.width=10}
+olive.rf <- randomForest(area~., data=olive.sth, importance=TRUE, proximity=TRUE)
+olive.rf
+```    
+
+## Example: Think about it
+
+- Error rates: notice anything?
+- What were the input parameters?
+
+## Example: Variable importance, overall
+
+```{r olives5, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=8, fig.width=10}
+options(digits=2)
+imp <- data.frame(vars=rownames(olive.rf$importance), olive.rf$importance)
+arrange(imp[,c(1,6:7)], desc(MeanDecreaseGini))
+```    
+
+## Example: by class
+
+```{r olives6, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=8, fig.width=10}
+options(digits=2)
+imp <- data.frame(vars=rownames(olive.rf$importance), olive.rf$importance)
+arrange(imp[,c(1:5)], desc(Cal))
+```    
+
+## Example: Use to choose vars for scatmat
+
+```{r olives7, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=8, fig.width=10}
+ggscatmat(olive.sth, columns=c(5,4,6,3), col="area")
+```    
+
+## Example: Use to arrange par coords
+
+```{r olives8a, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=3, fig.width=6}
+ggparcoord(olive.sth, columns=c(5,4,6,3), groupColumn="area", alphaLines = 0.5) + theme_bw()
+```    
+
+## Example: Without the large group
+
+```{r olives8b, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=3, fig.width=6}
+ggparcoord(subset(olive.sth, area!= "SthAp"), columns=c(5,4,6,3), groupColumn="area") + theme_bw() 
+```    
+
+## Example: Without the trouble maker class
+
+```{r olives8c, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=3, fig.width=6}
+ggparcoord(subset(olive.sth, area!= "Sic"), columns=c(5,4,6,3), groupColumn="area", alphaLines = 0.5) + theme_bw()
+```    
+
+## Example: Vote matrix
+
+```{r olives9, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=6, fig.width=8}
+head(olive.rf$votes)
+vt <- data.frame(olive.rf$votes)
+vt$area <- olive.sth$area
+## Example: Vote matrix
+```
+
+## Example: Vote matrix
+
+```{r olives9b, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=6, fig.width=8}
+ggscatmat(vt, columns=1:4, col="area")
+```
+
+## Example: Vote matrix
+
+```{r olives10, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=6, fig.width=8}
+ggscatmat(subset(vt, area!="Sic"), columns=c(1,2,4), col="area")
+```
+
+## Example: Vote matrix
+
+```{r olives11, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=6, fig.width=8}
+f.helmert <- function(d)
+{
+  helmert <- rep(1/sqrt(d), d)
+  for(i in 1:(d-1))
+  {
+    x <- rep(1/sqrt(i*(i+1)), i)
+    x <- c(x, -i/sqrt(i*(i+1)))
+    x <- c(x, rep(0, d - i - 1))
+    helmert <- rbind(helmert, x)
+  }
+  rownames(helmert) <- paste("V", 1:d, sep="")
+  return(helmert)
+}
+proj <- t(f.helmert(4)[-1,])
+vtp <- as.matrix(vt[,-5])%*%proj
+vtp <- data.frame(vtp, area=vt$area)
+ggscatmat(vtp, columns=1:3, col="area")
+
+# Look at the vote matrix in 3D
+#library(tourr)
+#library(RColorBrewer)
+#x11()
+#pal <- brewer.pal(4, "Dark2")
+#col <- pal[as.numeric(vtp[, 4])]
+#animate_xy(vtp[,1:3], col=col, display=display_xy(axes = "bottomleft"))
+```    
+
+## Videos explaining exploring trees and forests
+
+- [Trees](http://www.ggobi.org/book/chap-class/Trees.mov)
+- [Forests](http://www.ggobi.org/book/chap-class/Forests.mov)
+
+## Proximity matrix
+
+- $323 \times 323$ matrix, effectively a distance matrix for all cases from each other
+- These distances can be passed to an unsupervised classification, clustering, to examine similarity between cases. 
+- You would expect cases in different classes to be further from each other, cases within the same class to be close to each other by this metric.
+- We will talk about clustering in the next section of the class.
+
+## Bagging algorithm
+
+1. Input: $L = \{(x_i, y_i), i=1, ..., n\}, y_i \in \{1, ..., g\}$
+2. Sample: $L^{*b} = \{(x_i^{*b}, y_i^{*b}), i=1, ..., n\}, b=1,...,B$ Sample with replacement, $p_i =1/n$. 
+3. Fit classifier $C_b$ to each $L^{*b}$ and predict $x_{ib}, y_{ib}$.
+4. Combine predictions, perhaps by majority rule, class which gets the most votes, to get predicted values for each case.
+
+## Bagged trees
+
+- Take bootstrap samples of 50% data set, examine the error for the cases left out
+- Fit one tree, calculate oob error, and mean/variance of this error for repeating many times
+- Fit many trees, combine predictions, calculate error, and mean/variance of error for many repetitions
+
+```{r bagging1, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.height=6, fig.width=8}
+olive.nth <- filter(olive, region==3, select=area:arachidic)
+olive.nth$area <- factor(olive.nth$area, labels=c("ELig", "Umbria", "Wlig"))
+olive.nth <- arrange(olive.nth, area)
+```
+
+## Bagged trees - 50 trees
+
+```{r bagging3, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.height=6, fig.width=8}
+mymode <- function(x) {
+  x <- x[!is.na(x)]
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+#sim <- NULL
+#for (k in c(10, 20, 30, 40, 50)) {
+#err <- NULL
+#for (i in 1:1000) {
+#  cl <- NULL
+#  for (j in 1:k) {
+#    indx <- sort(c(sample(1:50, 25, replace=T), sample(51:101, 25, replace=T), sample(102:151, 25, replace=T)))
+#    olive.nth.tr <- olive.nth[indx,]
+#    olive.rp <- rpart(area~., data=olive.nth.tr)
+#    olive.nth.ts <- olive.nth[-unique(indx),]
+#    y <- rep(NA, 151)
+#    y[-unique(indx)] <- predict(olive.rp, olive.nth.ts, type="class")
+#    cl <- cbind(cl, y)
+#  }
+#  pcl <- apply(cl, 1, mymode) 
+#  x <- table(olive.nth$area, pcl)
+#  err <- c(err, 1-sum(diag(x))/sum(x))
+#}
+#  cat(k,"\n")
+#  sim <- rbind(sim, c(k, mean(err), sd(err)))
+#}
+#colnames(sim) <- c("ntrees", "mean.err", "sd.err")
+sim <- read.csv("../data/bagging-trees.csv")
+qplot(ntrees, mean.err, data=sim) + 
+  geom_segment(aes(x=ntrees, xend=ntrees, y=mean.err-sd.err, yend=mean.err+sd.err)) +
+  xlab("Number of trees used") + ylab("Error")
+```
+
+## Bagged trees - boundaries
+
+```{r bagging4, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.height=6, fig.width=8}
+cl <- NULL
+g <- expand.grid(linoleic=seq(500, 1050, 10), arachidic=seq(0, 100, 1))
+for (i in 1:15) {
+  indx <- sample(1:151, 76)
+  olive.nth.tr <- olive.nth[indx,]
+  olive.rp <- rpart(area~linoleic+arachidic, data=olive.nth.tr)
+  cl <- cbind(cl, predict(olive.rp, olive.nth, type="class"))
+  g <- cbind(g, predict(olive.rp, g, type="class"))
+}
+colnames(cl) <- paste("t", 1:15, sep="")
+colnames(g)[3:17] <- paste("c", 1:15, sep="")
+p1 <- qplot(linoleic, arachidic, data=g, colour=c1, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p2 <- qplot(linoleic, arachidic, data=g, colour=c2, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p3 <- qplot(linoleic, arachidic, data=g, colour=c3, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p4 <- qplot(linoleic, arachidic, data=g, colour=c4, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p5 <- qplot(linoleic, arachidic, data=g, colour=c5, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p6 <- qplot(linoleic, arachidic, data=g, colour=c6, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p7 <- qplot(linoleic, arachidic, data=g, colour=c7, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p8 <- qplot(linoleic, arachidic, data=g, colour=c8, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p9 <- qplot(linoleic, arachidic, data=g, colour=c9, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p10 <- qplot(linoleic, arachidic, data=g, colour=c10, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p11 <- qplot(linoleic, arachidic, data=g, colour=c11, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p12 <- qplot(linoleic, arachidic, data=g, colour=c12, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p13 <- qplot(linoleic, arachidic, data=g, colour=c13, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p14 <- qplot(linoleic, arachidic, data=g, colour=c14, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+p15 <- qplot(linoleic, arachidic, data=g, colour=c15, alpha=I(0.5)) + 
+    theme_solid(fill="grey90") + 
+  theme(legend.position="None", panel.background=element_rect("white"), aspect.ratio=1)
+grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, ncol=5)
+```
+
+## Bagged trees - boundaries
+
+```{r bagging5, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.height=6, fig.width=6}
+g$area <- apply(g[,3:17], 1, mymode)
+qplot(linoleic, arachidic, data=g, colour=area, alpha=I(0.2)) + 
+  geom_point(data=olive.nth, aes(shape=area), size=3) +
+  theme_bw() + 
+  theme(aspect.ratio=1) 
+```
