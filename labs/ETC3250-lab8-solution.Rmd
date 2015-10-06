@@ -1,0 +1,67 @@
+---
+title: "ETC3250 Lab 8"
+author: "Di Cook"
+date: "15 September 2015"
+output: pdf_document
+---
+
+
+# Supervised classification, and data visualisation
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(GGally)
+```
+
+
+
+## Assignment
+
+Similarly examine, build a classifier and assess the model fit for the spam data from the ggobi web site. Here is some code to get you started.
+
+*The error rate from the logistic regression model is quite small. The most important error is real mail getting misclassified as spam, and this is about the same as the overall error rate. (The actual numbers will change depending on your split of training and test data.)*
+
+*The most important variables according to the model are weekends, nbox, nlocal and digits. Mail on the weekends is less likely to be spam. real mail is more likely to come from someone in the user's address book, and also from the same domain. Spam is more likely to come from someone with a lot of numbers in their email address.*
+
+```{r, message=FALSE, warning=FALSE, error=FALSE, fig.width=3, fig.height=3, fig.show='hold'}
+spam <- read.csv("http://www.ggobi.org/book/data/spam.csv", 
+                  stringsAsFactors = FALSE)
+spam$nbox <- ifelse(spam$box == "yes", 1, 0)
+spam$nlocal <- ifelse(spam$local == "yes", 1, 0)
+spam$cspam <- ifelse(spam$spam == "yes", 1, 0)
+spam$day.of.week <- factor(spam$day.of.week, 
+                           levels=c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+spam.sub <- select(spam, day.of.week, time.of.day, size.kb, nbox, 
+                   nlocal, digits, cappct, cspam)
+
+qplot(nbox, data=spam.sub, geom="bar") + facet_wrap(~cspam, ncol=1)
+qplot(nlocal, data=spam.sub, geom="bar") + facet_wrap(~cspam, ncol=1)
+qplot(day.of.week, data=spam.sub, geom="bar") + facet_wrap(~cspam, ncol=1)
+qplot(time.of.day, data=spam.sub, geom="histogram", binwidth=1) + 
+  facet_wrap(~cspam, ncol=1)
+qplot(size.kb, data=spam.sub, geom="histogram", binwidth=1) + 
+  facet_wrap(~cspam, ncol=1) + scale_x_log10()
+qplot(digits, data=spam.sub, geom="histogram", binwidth=1) + 
+  facet_wrap(~cspam, ncol=1) + scale_x_log10()
+qplot(cappct, data=spam.sub, geom="histogram", binwidth=0.1) + 
+  facet_wrap(~cspam, ncol=1) 
+
+spam.sub <- arrange(spam.sub, cspam)
+indx <- sort(c(sample(1:1461, 974), sample(1462:2171, 473)))
+spam.sub.tr <- spam.sub[indx,]
+spam.sub.ts <- spam.sub[-indx,]
+glm.fit <- glm(cspam~., data=spam.sub.tr, 
+               family=binomial)
+summary(glm.fit)
+spam.ts.p <- predict(glm.fit, spam.sub.ts, type="response")
+spam.sub.ts$pcspam <- 0
+spam.sub.ts$pcspam[spam.ts.p > 0.5] <- 1
+table(spam.sub.ts$cspam, spam.sub.ts$pcspam)
+x <- table(spam.sub.ts$cspam, spam.sub.ts$pcspam)
+1-sum(diag(x))/sum(x)
+x[2,1]/(x[2,1]+x[2,2])
+```
