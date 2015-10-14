@@ -414,10 +414,13 @@ qplot(x=X1, xend=X1, y=rep(0,nrow(x.lda.m)),yend=abs(value), data=x.lda.m, size=
 
 ## Penalized LDA
 
-$$maximize_{\beta_k}{\beta^T_k} \hat{\Sigma}^k_b\beta_k -P_k(\beta_k)$$ subject to $$\beta^T_k \hat{\Sigma}_w\beta_k \leq 1$$
+- Reference: [http://faculty.washington.edu/dwitten/Papers/JRSSBPenLDA.pdf](http://faculty.washington.edu/dwitten/Papers/JRSSBPenLDA.pdf)
+- LDA does an eigendecomposition of $W^{-1}B$, which creates an estimation problem if $<<p$
+- Instead compute regularised versions of $W, B$
 
-where $\hat{\Sigma}^k_b = \frac{1}{n}X^TY(Y^TY)^{-1/2}P^\bot_k(Y^TY)^{-1/2}Y^TX$, and
-$\hat{\Sigma}_w$ is within group sum of squares.
+$$maximize_{\beta_k}{\beta^T_k} \hat{\Sigma}^k_b\beta_k -\lambda_k\sum_{j=1}^p|\hat{\sigma_k}\beta_{kj}|$$ subject to $$\beta^T_k \hat{\Sigma}_w\beta_k \leq 1, $$
+
+where $\hat{\Sigma}^k_b = \frac{1}{n}X^TY(Y^TY)^{-1/2}P^\bot_k(Y^TY)^{-1/2}Y^TX$, $\hat{\Sigma}_w$ is a positive definite estimate of $\Sigma_w$.
 
 ## Penalized LDA
 
