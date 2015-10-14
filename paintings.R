@@ -205,7 +205,7 @@ paint2.ts <- paint2.ts[,c(1,2,1203,3:1202)]
 write.csv(paint2.tr, file="data/paintings-train.csv", row.names=F)
 write.csv(paint2.ts, file="data/paintings-test.csv", row.names=F)
 paint2.ts.unlabelled <- paint2.ts
-paint2.ts.unlabelled$id <- NA
+paint2.ts.unlabelled$id <- paint2.ts$id
 paint2.ts.unlabelled$name <- NA
 paint2.ts.unlabelled$class <- NA
 write.csv(paint2.ts.unlabelled, file="data/paintings-test-unlabelled.csv", row.names=F)
@@ -244,7 +244,7 @@ for (i in 1:8) {
 write.csv(paint2_long.tr, file="data/paintings-long-train.csv", row.names=F)
 write.csv(paint2_long.ts, file="data/paintings-long-test.csv", row.names=F)
 paint2_long.ts.unlabelled <- paint2_long.ts
-paint2_long.ts.unlabelled$id <- NA
+paint2_long.ts.unlabelled$id <- paint2_long.ts$id
 paint2_long.ts.unlabelled$name <- NA
 paint2_long.ts.unlabelled$class <- NA
 write.csv(paint2_long.ts.unlabelled, file="data/paintings-long-test-unlabelled.csv", row.names=F)
@@ -299,7 +299,7 @@ p_l.tr.av <- summarise(group_by(paint2_long.tr, id),
                        r=mean(r), g=mean(g), b=mean(b))
 p_l.tr.av <- merge(p_l.tr.av, paint2.tr[,1:3])
 
-qplot(class, r, data=p_l.tr.av, geom="boxplot")
+qplot(class, r, data=p_l.tr.av, geom="boxplot") + coord_flip()
 qplot(class, g, data=p_l.tr.av, geom="boxplot")
 qplot(class, b, data=p_l.tr.av, geom="boxplot")
 
