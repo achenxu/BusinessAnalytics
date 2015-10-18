@@ -1,0 +1,286 @@
+---
+title: 'ETC3250 Business Analytics: Unsupervised classification - k-means'
+author: "Souhaib Ben Taieb, Di Cook, Rob Hyndman"
+date: "October 19, 2015"
+output:
+  beamer_presentation: 
+    theme: Monash
+---
+
+## What is cluster analysis?
+
+- The aim of cluster analysis is to group cases (objects) according to their similarity on the variables. It is also often called unsupervised classification, meaning that classification is the ultimate goal, but the classes (groups) are not known ahead of time. 
+
+- Hence the first task in cluster analysis is to construct the class information. To determine closeness we start with measuring the interpoint distances.
+
+## Cluster this 
+
+```{r fleaplots, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+library(ggplot2)
+library(tourr)
+library(dplyr)
+
+data(flea)
+qplot(tars1, aede1, data=flea) + theme(aspect.ratio=1) + xlab("") + ylab("")
+```
+
+
+## k-means algorithm
+
+This is an iterative procedure. To use it the number of clusters, $k$, must be decided first.  The stages of the iteration are:
+
+- Initialize by either (a) partitioning the data into k groups, and compute the $k$ group means or (b) an initial set of $k$ points as the first estimate of the cluster means (seed points).
+- Loop over all observations reassigning them to the group with the closest mean.
+- Recompute group means.
+- Iterate steps 2 and 3 until convergence.
+
+## Example
+
+```{r eg1, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+df <- data.frame(l=letters[1:12], x1=rnorm(12), x2=rnorm(12))
+df[1:4,2] <- df[1:4,2] + 6
+df[5:8,3] <- df[5:8,3] + 6
+df$x1 <- round(scale(df$x1), digits=2)
+df$x2 <- round(scale(df$x2), digits=2)
+df
+```
+
+## Example
+
+```{r eg2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+qplot(x1, x2, data=df, label=l, geom="text") + theme(aspect.ratio=1) + xlab("") + ylab("") + theme_bw()
+```
+
+## Example
+
+Select $k=2$, and $\bar{x}_1=$ `r df[1,2:3]`, $\bar{x}_2=$ `r df[2,2:3]`
+
+```{r eg3, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+xb <- data.matrix(df[1:2,2:3])
+xb1 <- c(xb[1,1], xb[1,2]); xb2 <- c(xb[2,1], xb[2,2])
+d1 <- apply(df[,2:3], 1, function(x) sqrt(sum(x-xb1)^2))
+d2 <- apply(df[,2:3], 1, function(x) sqrt(sum(x-xb2)^2))
+df.km <- cbind(df, d1, d2)
+df.km
+```
+
+## Example
+
+```{r eg4, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+df.km$cl <- ifelse(d1 < d2, 1, 2)
+df.km$cl <- factor(df.km$cl)
+df.km
+```
+
+## Example
+
+```{r eg5, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+mn <- data.frame(cl=factor(c(1,2)), l=c("m1", "m2"), x1=c(xb1[1], xb2[1]), x2=c(xb1[2], xb2[2]))
+qplot(x1, x2, data=df.km, label=l, geom="text", color=cl) + 
+  geom_point(data=mn, shape=3, size=3) + xlab("") + ylab("") + theme_bw() +
+  theme(aspect.ratio=1, legend.position="None") 
+```
+
+## Example
+
+```{r eg6, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+library(dplyr)
+xb <- data.matrix(summarise(group_by(df.km, cl), x1=mean(x1), x2=mean(x2)))
+xb
+xb1 <- c(xb[1,2], xb[1,3]); xb2 <- c(xb[2,2], xb[2,3])
+d1 <- apply(df[,2:3], 1, function(x) sqrt(sum(x-xb1)^2))
+d2 <- apply(df[,2:3], 1, function(x) sqrt(sum(x-xb2)^2))
+df.km$d1 <- d1
+df.km$d2 <- d2
+df.km[,-6]
+```
+
+## Example
+
+```{r eg7, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+df.km$cl <- ifelse(d1 < d2, 1, 2)
+df.km$cl <- factor(df.km$cl)
+df.km
+```
+
+## Example
+
+```{r eg8, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+mn <- data.frame(cl=factor(c(1,2)), l=c("m1", "m2"), x1=c(xb1[1], xb2[1]), x2=c(xb1[2], xb2[2]))
+qplot(x1, x2, data=df.km, label=l, geom="text", color=cl) + 
+  geom_point(data=mn, shape=3, size=3) + xlab("") + ylab("") + theme_bw() +
+  theme(aspect.ratio=1, legend.position="None") 
+```
+
+## Example
+
+```{r eg9, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+xb <- data.matrix(summarise(group_by(df.km, cl), x1=mean(x1), x2=mean(x2)))
+xb
+xb1 <- c(xb[1,2], xb[1,3]); xb2 <- c(xb[2,2], xb[2,3])
+d1 <- apply(df[,2:3], 1, function(x) sqrt(sum(x-xb1)^2))
+d2 <- apply(df[,2:3], 1, function(x) sqrt(sum(x-xb2)^2))
+df.km$d1 <- d1
+df.km$d2 <- d2
+df.km[,-6]
+```
+
+## Example
+
+```{r eg10, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+df.km$cl <- ifelse(d1 < d2, 1, 2)
+df.km$cl <- factor(df.km$cl)
+df.km
+```
+
+## Example
+
+```{r eg11, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+mn <- data.frame(cl=factor(c(1,2)), l=c("m1", "m2"), x1=c(xb1[1], xb2[1]), x2=c(xb1[2], xb2[2]))
+qplot(x1, x2, data=df.km, label=l, geom="text", color=cl) + 
+  geom_point(data=mn, shape=3, size=3) + xlab("") + ylab("") + theme_bw() +
+  theme(aspect.ratio=1, legend.position="None") 
+```
+
+## Example
+
+```{r eg12, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+xb <- data.matrix(summarise(group_by(df.km, cl), x1=mean(x1), x2=mean(x2)))
+xb
+xb1 <- c(xb[1,2], xb[1,3]); xb2 <- c(xb[2,2], xb[2,3])
+d1 <- apply(df[,2:3], 1, function(x) sqrt(sum(x-xb1)^2))
+d2 <- apply(df[,2:3], 1, function(x) sqrt(sum(x-xb2)^2))
+df.km$d1 <- d1
+df.km$d2 <- d2
+df.km[,-6]
+```
+
+## Example
+
+```{r eg13, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+df.km$cl <- ifelse(d1 < d2, 1, 2)
+df.km$cl <- factor(df.km$cl)
+df.km
+```
+
+## Example
+
+```{r eg14, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+mn <- data.frame(cl=factor(c(1,2)), l=c("m1", "m2"), x1=c(xb1[1], xb2[1]), x2=c(xb1[2], xb2[2]))
+qplot(x1, x2, data=df.km, label=l, geom="text", color=cl) + 
+  geom_point(data=mn, shape=3, size=3) + xlab("") + ylab("") + theme_bw() +
+  theme(aspect.ratio=1, legend.position="None") 
+```
+
+## Cluster this 
+
+```{r fleacl1, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+qplot(tars1, aede1, data=flea) + theme(aspect.ratio=1) + xlab("") + ylab("")
+```
+
+## Two clusters 
+
+```{r fleacl2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+set.seed(31)
+flea$km2 <- kmeans(scale(flea[,c(1,4)]), 2, nstart=5)$cluster
+qplot(tars1, aede1, data=flea, colour=factor(km2)) + 
+  theme(aspect.ratio=1, legend.position="None") + xlab("") + ylab("")
+```
+
+## Three clusters 
+
+```{r fleacl3, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+flea$km3 <- kmeans(scale(flea[,c(1,4)]), 3, nstart=5)$cluster
+qplot(tars1, aede1, data=flea, colour=factor(km3)) + 
+  theme(aspect.ratio=1, legend.position="None") + xlab("") + ylab("")
+```
+
+## Four clusters 
+
+```{r fleacl4, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+flea$km4 <- kmeans(scale(flea[,c(1,4)]), 4, nstart=5)$cluster
+qplot(tars1, aede1, data=flea, colour=factor(km4)) + 
+  theme(aspect.ratio=1, legend.position="None") + xlab("") + ylab("")
+```
+
+## Five clusters 
+
+```{r fleacl5, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+flea$km5 <- kmeans(scale(flea[,c(1,4)]), 5, nstart=5)$cluster
+qplot(tars1, aede1, data=flea, colour=factor(km5)) + 
+  theme(aspect.ratio=1, legend.position="None") + xlab("") + ylab("")
+```
+
+## Compare results 
+
+```{r stats, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=3, fig.width=5}
+library(fpc)
+library(tidyr)
+set.seed(31)
+f.km <- NULL; f.km.stats <- NULL
+for (i in 2:10) {
+  cl <- kmeans(scale(flea[,c(1,4)]), i, nstart=5)$cluster
+  x <- cluster.stats(dist(scale(flea[,c(1,4)])), cl)
+  f.km <- cbind(f.km, cl)
+  f.km.stats <- rbind(f.km.stats, c(x$within.cluster.ss, x$wb.ratio, x$ch,
+                                    x$pearsongamma, x$dunn, x$dunn2))
+}
+colnames(f.km.stats) <- c("within.cluster.ss","wb.ratio", "ch", "pearsongamma", "dunn", "dunn2")
+f.km.stats <- data.frame(f.km.stats)
+f.km.stats$cl <- 2:10
+f.km.stats.m <- gather(f.km.stats, key=stat, value=value, -cl)
+qplot(cl, value, data=f.km.stats.m) + geom_line() + xlab("# clusters") + ylab("") +
+  facet_wrap(~stat, ncol=3, scales = "free_y") + theme_bw()
+```
+
+## Cluster stats
+
+- WBRatio: average within/average between want it to be low, but always drops for each additional cluster so look for large drops
+- Hubert Gamma: (s+ - s-)/(s+ + s-) where s+=sum of number of within < between, s- = sum of number within > between, want this to be high
+- Dunn: smallest distance between points from different clusters/maximum distance of points within any cluster, want this to be high
+- Calinski-Harabasz Index, $\frac{\sum_{i=1}^p B_{ii}/(k-1)}{\sum_{i=1}^p W_{ii}/(n-k)}$ want this to be high
+
+## Effect of seed
+
+- The k-means algorithm can yield quite different results depending on the initial seed.
+- We ran all the previous runs using 5 random starts, and using the within.cluster.ss metric to decide on the best solution
+
+## Distance metrics
+
+- Cluster analysis depends on the interpoint distances, points close together should be grouped together
+- Euclidean distance was used for the example. Let $A=(x_{a1}, x_{a2}, ..., x_{ap}), B=(x_{b1}, x_{b2}, ..., x_{bp})$
+
+$$d_{EUC}(A, B) = \sqrt{\sum_{j=1}^p (x_{aj}-x_{bj})^2} = ((X_A-X_B)^T (X_A-X_B))$$
+
+## Other distance metrics
+
+- Mahalanobis (or statistical) distance
+
+$$d_{MAH}(A, B) = sqrt{((X_A-X_B)^TS^{-1} (X_A-X_B))}$$
+
+- Manhattan: 
+
+$$d_{MAN}(A, B) =  \sum_{j=1}^p|(X_{aj}-X_{bj})|$$
+
+- Minkowski: 
+
+$$d_{MIN}(A, B) =  (\sum_{j=1}^p|(X_{aj}-X_{bj})|^m)^{1/m}$$
+
+## Distances for count data
+
+- Canberra: 
+
+$$d_{CAN}(A, B) =  \frac{1}{n_z}\sum_{j=1}^p(X_{aj}-X_{bj})/(X_{aj}+X_{bj})$$
+
+- Bray-Curtis: 
+
+$$d_{BRA}(A, B) = \sum_{j=1}^p|X_{aj}-X_{bj}|/\sum_{j=1}^p(X_{aj}+X_{bj}) $$
+
+## Rules for metric to be a distance
+
+1. $d(A, B) \geq 0$
+2. $d(A, A) = 0$
+3. $d(A, B) = d(B, A)$
+4. Metric dissimilarity satisfies 
+$d(A, B) \geq d(A, C) + d(C, B)$, and an ultrametric dissimilarity satisfies
+$d(A, B) \geq max\{d(A, C), d(C, B)\}$
