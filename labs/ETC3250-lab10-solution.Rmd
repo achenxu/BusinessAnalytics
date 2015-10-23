@@ -1,0 +1,106 @@
+---
+title: "ETC3250 Lab 10"
+author: "Di Cook"
+date: "6 October 2015"
+output: pdf_document
+---
+
+
+# Trees and Forests
+
+## Task 1
+
+Read in the chocolates data, from the class web site. Fit a default tree to the tennis data. Print the tree, write the decision rule, compute the error, and make a plot that shows the boundary.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(GGally)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+
+choc <- read.csv("../data/chocolates.csv", 
+                  stringsAsFactors = FALSE)
+
+choc$Type <- factor(choc$Type)
+choc.sub <- select(choc, Type:Protein)
+rownames(choc.sub) <- paste(choc$MFR, choc$Name, choc$Country)
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.height=3.5, fig.width=3.5, fig.show='hold'}
+choc.rp <- rpart(Type~., data=choc.sub)
+prp(choc.rp)
+qplot(Fiber, CalFat, data=choc.sub, colour=Type) + 
+  geom_vline(xintercept=4.8256, colour="black") + 
+  geom_segment(aes(x=0, xend=4.8256, y=337.7, yend=337.7), colour="black") + 
+  theme(aspect.ratio=1, legend.position="bottom")
+table(choc.sub$Type, predict(choc.rp, choc.sub, type="class"))
+```
+
+*The rule is "Assign to Milk if Fiber is less than 4.83, and Calories from Fat is less than 337.7, otherwise assign to Dark."*
+
+
+## Task 2
+
+Fit a random forest to the chocolates data. Report the error, and use a parallel coordinate plot to display the data using the importance to order the variables. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.height=4, fig.width=8}
+choc.rf <- randomForest(Type~., data=choc.sub, importance=TRUE, ntree=500, mtry=4)
+choc.rf
+ord <- order(choc.rf$importance[,4], decreasing=T) + 1
+choc.rf$importance[ord-1,]
+ggparcoord(choc.sub, columns=ord[1:5], groupColumn="Type")
+```
+
+## Task 3
+
+Find the labels of the dark chocolates that were misclassified by the forest. Are they the same for both classifiers? Explain why these were misclassified. For example, are they dark chocolates with unusually low fiber?
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, error=FALSE, fig.height=4, fig.width=8}
+choc.sub$pred <- choc.rf$predicted
+subset(choc.sub, Type != pred & Type == "Dark")[,1:2]
+choc.sub$pD <- choc.sub$Type != choc.sub$pred & choc.sub$Type == "Dark"
+ggparcoord(choc.sub, columns=ord[1:5], groupColumn="pD", alphaLines=0.3) +
+  scale_color_manual(values=c("FALSE"="grey", "TRUE"="red"))
+summary(choc.sub[choc.sub$Type=="Dark",1:11])
+summary(choc.sub[choc.sub$Type=="Milk",1:11])
+options(digits=2)
+subset(choc.sub, Type != pred & Type == "Dark")[,2:11]
+```
+
+*Merci and Lindt both have 0 Fiber. The others have low calories from fat. Mars Dark Chocolate bas has low Fiber and low calories from fat, low fat, and are at the low end of Sugars for a dark chocolate. It really looks like a milk chocolate.*
+
+## Task 4
+
+There are a number of zeros in the data. Do you think these are really zeros? How might you fix this?
+
+*There are too many zeros. It makes us suspicious that when the information was missing on the nutrition label that the data curators substituted a 0, at least for some of the values. A few of the zeros are believable. We would suggest substituting in a mean or median value for the type of chocolate would help make the classification cleaner.*
+
+## Assignment
+
+Using the best model that you, tree, forest, lda, svm, ... predict the type of chocolate of the `chocolates-new.csv` data provided on the web. 
+
+*The true labels of the 15 new chocolates are*
+
+```
+                                  Name             MFR    Country  Type
+1                           Royal Dark         Cadbury         UK  Dark
+2                  Rich Dark Chocolate     Darrell Lea  Australia  Dark
+3                  Fine Milk Chocolate     Darrell Lea  Australia  Milk
+4                Divine Milk Chocolate          Divine        USA  Milk
+5                   85% Dark Chocolate          Divine        USA  Dark
+6                    365 Organic Swiss     Whole Foods        USA  Milk
+7           365 Organic Swiss 52% Dark     Whole Foods        USA  Dark
+8                Dagoba Milk Chocolate         Hershey        USA  Milk
+9          Organic Very Dark Chocolate  Equal Exchange        USA  Dark
+10              Organic Milk Chocolate  Equal Exchange        USA  Milk
+11 Organic Panama Extra Dark Chocolate  Equal Exchange        USA  Dark
+12                            Chocozoo            Amul      India  Milk
+13                              Fundoo            Amul      India  Milk
+14      Chocolaterie Bernard Callebaut       Callebaut     France  Milk
+15     Callebaut Bittersweet Chocolate       Callebaut     France  Dark
+```
