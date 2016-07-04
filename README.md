@@ -1,13 +1,11 @@
 # Business Analytics
 This is a repository to organize the teaching material for [Business analytics (ETC3250)](https://www.monash.edu.au/pubs/handbooks/units/ETC3250.html), to be jointly taught by Souhaib Ben Taieb and Di Cook.
 
-Lectures
-
+# Lectures
 Monday  11:00-12:00 at CL_46 Exhibition Walk, Room R6 - Rotunda Lecture Theatre (Bldg 8)
 Tuesday 10:00-11:00 at CL_21 Rainforest Walk, Room S7 - Theatre (Bldg 21)
 
-Labs
-
+# Labs
 Monday  14:00-16:00 at CL_20 Chancellors Walk, Room E160, Computer Lab 2 (Building 11)
 Tuesday 12:30-14:30 at CL_20 Chancellors Walk, Room E160, Computer Lab 2 (Building 11)
 
@@ -27,69 +25,65 @@ Tuesday 12:30-14:30 at CL_20 Chancellors Walk, Room E160, Computer Lab 2 (Buildi
 
 ## Tentative agenda
 
-* Week 1. (Jul 27) Introduction to business analytics and R (Souhaib)
+* Week 1. (Jul 25) Introduction to business analytics and R (Souhaib)
   - Lecture 1:  What is Business Analytics? 
   - Lab 1: R exercises
   - Lecture 2: Show case of R.
 
-* Week 2. (Aug 3) Statistical Learning. Ch2. (Rob & Souhaib)
+* Week 2. (Aug 1) Statistical Learning. Ch2. (Souhaib)
   - Lecture 3: More on R and statistical learning. 
   - Lab 2: 
   - Lecture 4: Assessing model accuracy. Bias-variance tradeoff
 
-* Week 3. (Aug 10) Regression for prediction. Ch3 (Rob)
+* Week 3. (Aug 8) Regression for prediction. Ch3 (Souhaib)
   [Souhaib away]
   - Lecture 5: Review of linear regression, matrix formulation
   - Lab 3:
   - Lecture 6: Subset selection, LOOCV 
 
-* Week 4. (Aug 17) Resampling. Ch5 (Rob)
+* Week 4. (Aug 15) Resampling. Ch5 (Souhaib)
   - Lecture 7: Cross-validation
   - Lab 4: 
   - Lecture 8: Bootstrap
 
-* Week 5. (Aug 24) Dimension reduction. Ch6,10. (Rob and Souhaib)
+* Week 5. (Aug 22) Dimension reduction. Ch6,10. (Souhaib)
   - Lecture 9: PCA
   - Lab 5:
   - Lecture 10: PLS
 
-* Week 6. (Aug 31) Visualization. Own lecture notes. (Di)
+* Week 6. (Aug 29) Visualization. Own lecture notes. (Di)
   - Lecture 15: Basic data plots, categorical/numeric variables, facetting
   - Lab 8:
   - Lecture 16: Data cleaning
   
-* Week 7. (Sep 7) Visualization. Own lecture notes. (Di)
+* Week 7. (Sep 5) Visualization. Own lecture notes. (Di)
   - Lecture 17: Plotting geographic data
   - Lab 9:
   - Lecture 18: Plotting multivariate data
 
-* Week 8. (Sep 14) Classification. Ch4,8 (Souhaib & Di)
+* Week 8. (Sep 12) Classification. Ch4,8 (Di)
   - Lecture 11: LDA
   - Lab 6:
   - Lecture 12: Trees
 
-* Week 9. (Sep 21) Classification. Ch4,9. (Souhaib)
-  [Di away Sep 23-25]
+* Week 9. (Sep 19) Classification. Ch4,9. (Di)
   - Lecture 13: SVM
   - Lab 7:
   - Lecture 14: k-NN
 
-* [Break Sep 28-Oct 4]
+* [Break Sep 26-Oct 2]
 
-* Week 10. (Oct 5) Advanced classification. Ch8. (Di)
-  [Rob and Souhaib away]
+* Week 10. (Oct 3) Advanced classification. Ch8. (Souhaib)
   - Lecture 19: Bagging, random forests
   - Lab 10:
   - Lecture 20: Boosting
 
-* Week 11. (Oct 12) Advanced regression. Ch6. (Di & Souhaib)
-[Souhaib away?]
+* Week 11. (Oct 10) Advanced regression. Ch6. (Souhaib)
   - Lecture 21: Regularization
   - Lab 11:
   - Lecture 22: Shrinkage
 
-* Week 12. (Oct 19) Clustering. Ch10. (Souhaib & Di)
- [Souhaib away?, Rob away Oct 22-]
+* Week 12. (Oct 17) Clustering. Ch10. (Souhaib)
   - Lecture 23: k-means
   - Lab 12:
   - Lecture 24: hierarchical clustering
