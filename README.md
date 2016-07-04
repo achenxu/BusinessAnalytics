@@ -36,7 +36,6 @@ Tuesday 12:30-14:30 at CL_20 Chancellors Walk, Room E160, Computer Lab 2 (Buildi
   - Lecture 4: Assessing model accuracy. Bias-variance tradeoff
 
 * Week 3. (Aug 8) Regression for prediction. Ch3 (Souhaib)
-  [Souhaib away]
   - Lecture 5: Review of linear regression, matrix formulation
   - Lab 3:
   - Lecture 6: Subset selection, LOOCV 
