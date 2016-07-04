@@ -1,13 +1,13 @@
 # Business Analytics
 This is a repository to organize the teaching material for [Business analytics (ETC3250)](https://www.monash.edu.au/pubs/handbooks/units/ETC3250.html), to be jointly taught by Souhaib Ben Taieb and Di Cook.
 
-* Lectures:
-- Monday  11:00-12:00 at CL_46 Exhibition Walk, Room R6 - Rotunda Lecture Theatre (Bldg 8)
-- Tuesday 10:00-11:00 at CL_21 Rainforest Walk, Room S7 - Theatre (Bldg 21)
 
-* Labs
-- Monday  14:00-16:00 at CL_20 Chancellors Walk, Room E160, Computer Lab 2 (Building 11)
-- Tuesday 12:30-14:30 at CL_20 Chancellors Walk, Room E160, Computer Lab 2 (Building 11)
+1. Lectures
+ 1. Monday  11:00-12:00 at CL_46 Exhibition Walk, Room R6 - Rotunda Lecture Theatre (Bldg 8)
+ 2. Tuesday 10:00-11:00 at CL_21 Rainforest Walk, Room S7 - Theatre (Bldg 21)
+2. Labs
+ 1. Monday  14:00-16:00 at CL_20 Chancellors Walk, Room E160, Computer Lab 2 (Building 11)
+ 2. Tuesday 12:30-14:30 at CL_20 Chancellors Walk, Room E160, Computer Lab 2 (Building 11)
 
 
 ##  Topics
