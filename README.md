@@ -1,7 +1,14 @@
-# BusinessAnalyticsCourse
-This is a repository to organize the teaching material for a new course at Monash University, to be jointly taught by Di Cook, Rob Hyndman and Souhaib Ben Taieb.
+# Business Analytics
+This is a repository to organize the teaching material for [Business analytics (ETC3250)](https://www.monash.edu.au/pubs/handbooks/units/ETC3250.html), to be jointly taught by Souhaib Ben Taieb and Di Cook.
 
-M 1-2 E365; T 4-6 E157; Th 11-12 H7
+Lectures
+Monday  11:00-12:00 at CL_46 Exhibition Walk, Room R6 - Rotunda Lecture Theatre (Bldg 8)
+Tuesday 10:00-11:00 at CL_21 Rainforest Walk, Room S7 - Theatre (Bldg 21)
+
+Labs
+Monday  14:00-16:00 at CL_20 Chancellors Walk, Room E160, Computer Lab 2 (Building 11)
+Tuesday 12:30-14:30 at CL_20 Chancellors Walk, Room E160, Computer Lab 2 (Building 11)
+
 
 ##  Topics
 
@@ -18,7 +25,7 @@ M 1-2 E365; T 4-6 E157; Th 11-12 H7
 
 ## Tentative agenda
 
-* Week 1. (Jul 27) Introduction to business analytics and R (Rob & Souhaib)
+* Week 1. (Jul 27) Introduction to business analytics and R (Souhaib)
   - Lecture 1:  What is Business Analytics? 
   - Lab 1: R exercises
   - Lecture 2: Show case of R.
@@ -27,10 +34,6 @@ M 1-2 E365; T 4-6 E157; Th 11-12 H7
   - Lecture 3: More on R and statistical learning. 
   - Lab 2: 
   - Lecture 4: Assessing model accuracy. Bias-variance tradeoff
-
-  Content: 
-    - The four V’s of big data/data science
-    - Analytics and data science jobs: “By 2018, the US could face a shortage of up to 190.000 workers with analytical skills” McKinsey
 
 * Week 3. (Aug 10) Regression for prediction. Ch3 (Rob)
   [Souhaib away]
