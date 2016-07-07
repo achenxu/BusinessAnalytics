@@ -130,11 +130,14 @@ James, Witten, Hastie, Tibshirani, An Introduction to Statistical Learning and A
       .... 
 
 ## Software:
-* R/RStudio (these packages with all the dependencies)
-  - ggplot2, scales, stringr, plyr, dplyr, tidyr, reshape2, GGally, dichromat, magrittr, munsell, RColorBrewer, colorspace, wordcloud, vcd, gridExtra, hexbin, ggdendro, shiny, ggvis, ggsubplot
-  - MASS, e1071, caret, randomForest, kohonen, cluster, fpc, mclust, rpart, nnet, nlme, vegan, penalizedLDA, PPTree, class, FNN, RSNNS, DMwR
+
+* R  R-3.3.1 (2016-06-21, Bug in Your Hair)
+* RStudio 0.99.902 
+* and these packages with all the dependencies
+  - ggplot2, scales, stringr, dplyr, tidyr, reshape2, GGally, dichromat, magrittr, munsell, RColorBrewer, colorspace, wordcloud, vcd, gridExtra, hexbin, ggdendro, shiny, ggvis, ggsubplot, purrr, broom, readr, haven, ggthemes, viridis, plotly, htmlwidgets
+  - MASS, e1071, caret, randomForest, kohonen, cluster, fpc, mclust, rpart, rpart.plot, nnet, nlme, vegan, penalizedLDA, PPTree, class, FNN, RSNNS, DMwR, splines, ISLR, fda, lme4, nlme, HLMdiag, boot
   - mvtnorm, mvnormtest, HH, ICSNP, matrixStats, schoRsch, Matrix, psych
-  - lubridate, tm, tuneR, caTools, maps, ggmap, maptools, shapefiles, sp, rworldmap
+  - lubridate, tm, tuneR, caTools, maps, ggmap, maptools, shapefiles, sp, rworldmap, timeDate
   - rmarkdown, knitr, devtools, roxygen2, profr
   - gwidgets, RGtk2, MissingDataGUI
   - foreign, jsonlite, curl, RCurl, rvest, Rcpp, XML, twitteR
@@ -142,16 +145,3 @@ James, Witten, Hastie, Tibshirani, An Introduction to Statistical Learning and A
   - classifly, clusterfly, meifly, LCA, LDAvis, nullabor
   - rggobi (requires ggobi software installed on the computer): installation should be easy on Windows machines
 
-* Weka ? -- perhaps just mention that software other than R exists. It is too much to get them to learn more than one language in this unit.
-      
-## Approach to teaching R? 
-
-Use Rmarkdown lecture notes like http://dicook.github.io/stat585/, and this should help students get comfortable with R themselves. (Ignore the ugly web site design!)
-
-and material at this site: http://www.stat.iastate.edu/ccgs/short-courses/
-        
-## Rmarkdown slides
-
-Use RStudio, create a new project in your git directory (BusinessAnalyticsCourse), and open the slides/1-intro.Rmd. 
-
-On the interface you should see a "knitHTML" button. Click this to compile and preview the slides.
