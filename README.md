@@ -26,7 +26,7 @@ This is a repository to organize the teaching material for [Business analytics (
 
 ## Tentative agenda
 
-* Week 1. (Jul 25) Introduction to business analytics and R (Souhaib)
+* Week 1. (Jul 25) Introduction to business analytics and R (*Souhaib*)
   - Lecture 1:  What is Business Analytics? 
   - Lab 1: R exercises
   - Lecture 2: Show case of R.
