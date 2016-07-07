@@ -26,64 +26,64 @@ This is a repository to organize the teaching material for [Business analytics (
 
 ## Tentative agenda
 
-* Week 1. (Jul 25) Introduction to business analytics and R (*Souhaib*)
+* Week 1. (Jul 25) Introduction to business analytics and R (**Souhaib**)
   - Lecture 1:  What is Business Analytics? 
   - Lab 1: R exercises
   - Lecture 2: Show case of R.
 
-* Week 2. (Aug 1) Statistical Learning. Ch2. (Souhaib)
+* Week 2. (Aug 1) Statistical Learning. Ch2. (**Souhaib**)
   - Lecture 3: More on R and statistical learning. 
   - Lab 2: 
   - Lecture 4: Assessing model accuracy. Bias-variance tradeoff
 
-* Week 3. (Aug 8) Regression for prediction. Ch3 (Souhaib)
+* Week 3. (Aug 8) Regression for prediction. Ch3 (**Souhaib**)
   - Lecture 5: Review of linear regression, matrix formulation
   - Lab 3:
   - Lecture 6: Subset selection, LOOCV 
 
-* Week 4. (Aug 15) Resampling. Ch5 (Souhaib)
+* Week 4. (Aug 15) Resampling. Ch5 (**Souhaib**)
   - Lecture 7: Cross-validation
   - Lab 4: 
   - Lecture 8: Bootstrap
 
-* Week 5. (Aug 22) Dimension reduction. Ch6,10. (Souhaib)
+* Week 5. (Aug 22) Dimension reduction. Ch6,10. (**Souhaib**)
   - Lecture 9: PCA
   - Lab 5:
   - Lecture 10: PLS
 
-* Week 6. (Aug 29) Visualization. Own lecture notes. (Di)
+* Week 6. (Aug 29) Visualization. (**Di**)
   - Lecture 15: Basic data plots, categorical/numeric variables, facetting
   - Lab 8:
   - Lecture 16: Data cleaning
   
-* Week 7. (Sep 5) Visualization. Own lecture notes. (Di)
+* Week 7. (Sep 5) Visualization. (**Di**)
   - Lecture 17: Plotting geographic data
   - Lab 9:
   - Lecture 18: Plotting multivariate data
 
-* Week 8. (Sep 12) Classification. Ch4,8 (Di)
+* Week 8. (Sep 12) Classification. Ch4,8 (**Di**)
   - Lecture 11: LDA
   - Lab 6:
   - Lecture 12: Trees
 
-* Week 9. (Sep 19) Classification. Ch4,9. (Di)
+* Week 9. (Sep 19) Classification. Ch4,9. (**Di**)
   - Lecture 13: SVM
   - Lab 7:
   - Lecture 14: k-NN
 
 * [Break Sep 26-Oct 2]
 
-* Week 10. (Oct 3) Advanced classification. Ch8. (Souhaib)
+* Week 10. (Oct 3) Advanced classification. Ch8. (**Souhaib**)
   - Lecture 19: Bagging, random forests
   - Lab 10:
   - Lecture 20: Boosting
 
-* Week 11. (Oct 10) Advanced regression. Ch6. (Souhaib)
+* Week 11. (Oct 10) Advanced regression. Ch6. (**Souhaib**)
   - Lecture 21: Regularization
   - Lab 11:
   - Lecture 22: Shrinkage
 
-* Week 12. (Oct 17) Clustering. Ch10. (Souhaib)
+* Week 12. (Oct 17) Clustering. Ch10. (**Souhaib**)
   - Lecture 23: k-means
   - Lab 12:
   - Lecture 24: hierarchical clustering
