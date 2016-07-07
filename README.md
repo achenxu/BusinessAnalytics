@@ -1,5 +1,5 @@
 # Business Analytics
-This is a repository to organize the teaching material for [Business analytics (ETC3250)](https://www.monash.edu.au/pubs/handbooks/units/ETC3250.html), to be jointly taught by [Souhaib Ben Taieb](www.souhaib-bentaieb.com) and Di Cook.
+This is a repository to organize the teaching material for [Business analytics (ETC3250)](https://www.monash.edu.au/pubs/handbooks/units/ETC3250.html), to be jointly taught by [Souhaib Ben Taieb](www.souhaib-bentaieb.com) and [Di Cook](www.dicook.github.io/).
 
 
 1. Lectures
