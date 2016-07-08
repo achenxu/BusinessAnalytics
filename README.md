@@ -131,7 +131,7 @@ James, Witten, Hastie, Tibshirani, An Introduction to Statistical Learning and A
 
 ## Software:
 
-* R  R-3.3.1 (2016-06-21, Bug in Your Hair)
+* R-3.3.1 (2016-06-21, Bug in Your Hair)
 * RStudio 0.99.902 
 * and these packages with all the dependencies
   - ggplot2, scales, stringr, dplyr, tidyr, reshape2, GGally, dichromat, magrittr, munsell, RColorBrewer, colorspace, wordcloud, vcd, gridExtra, hexbin, ggdendro, shiny, ggvis, ggsubplot, purrr, broom, readr, haven, ggthemes, viridis, plotly, htmlwidgets
