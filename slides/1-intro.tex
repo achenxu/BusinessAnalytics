@@ -21,6 +21,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage{media9}
 
+\usepackage{comment}
+\usepackage{array}
+
 \usepackage{verbatim}
 
 \definecolor{Orange}{RGB}{255,140,0}
@@ -72,12 +75,13 @@
 
 \end{frame}
 
+	
 \begin{frame}{Who are we?}\Large
 
-\begin{tabular}{ll}
-\raisebox{-1cm}{\includegraphics[width=2.5cm]{souhaib}} & Souhaib Ben Taieb \\
-\raisebox{-1cm}{\includegraphics[width=2.5cm]{di}}& Di Cook \\
-\raisebox{-1cm}{\includegraphics[width=2.5cm]{rob}}& Rob Hyndman
+\begin{tabular}{l >{\centering\arraybackslash}m{3in}}
+\raisebox{-1cm}{\includegraphics[width=2.5cm]{souhaib-new}} & Souhaib BenTaieb (Chief examiner) \\
+\raisebox{-1cm}{\includegraphics[width=2.5cm]{di}}& Di Cook (Co-lecturer)   \\
+\raisebox{-1cm}{\includegraphics[width=2.5cm]{shin}}& Shin Tan (Teaching Associate)
 \end{tabular}
 
 \end{frame}
@@ -108,28 +112,31 @@
 \begin{frame}{Outline}\fontsize{11}{14}\sf\tabcolsep=0.1cm
 \centerline{\begin{tabular}{rlll}
 \hline
-\bf Week& \textbf{Topic} & \bf Chapter & \bf Lecturers\\
+\bf Week& \textbf{Topic} & \bf Chapter & \bf Lecturer\\
 \hline
-1  & Introduction to business analytics \& R     & 1    & Rob,Souhaib   \\
-2  & Statistical learning                        & 2    & Rob,Souhaib\\
-3  & Regression for prediction                   & 3    & Rob \\
-4  & Resampling                                  & 5    & Rob \\
-5  & Dimension reduction                         & 6,10 & Rob, Souhaib\\
+1  & Introduction to business analytics \& R     & 1    & Souhaib   \\
+2  & Statistical learning                        & 2    & Souhaib\\
+3  & Regression for prediction                   & 3    & Souhaib \\
+4  & Resampling                                  & 5    & Souhaib \\
+5  & Dimension reduction                         & 6,10 & Souhaib\\
 6  & Visualization                               &      & Di \\
 7  & Visualization                               &      & Di \\
-8  & Classification                              & 4,8  & Souhaib, Di\\
-9  & Classification                              & 4,9  & Souhaib\\
-10 & Advanced classification                     & 8    & Di \\
-11 & Advanced regression                         & 6    & Di, Souhaib\\
-12 & Clustering                                  & 10   & Souhaib, Di
+8  & Classification                              & 4,8  & Di \\
+9  & Classification                              & 4,9  & Di \\
+   &  & & \\
+10 & Advanced classification                     & 8    & Souhaib \\
+11 & Advanced regression                         & 6    & Souhaib\\
+12 & Clustering                                  & 10   & Souhaib
 \end{tabular}}
 \end{frame}
 
 \begin{frame}{Assessment}
 
 \begin{itemize}
-\item
-Ten short weekly assignments, worth 2\% each.
+\item Ten short weekly assignments, worth 2\% each.
+\begin{itemize}
+\item Different groups of four students for each assignment
+\end{itemize}
 \item One project due at the end of the semester, worth 20\%.
 \item Exam in a computer lab (2 hours): 60\%.
 \end{itemize}
@@ -137,7 +144,7 @@ Ten short weekly assignments, worth 2\% each.
 \begin{block}{}{\tabcolsep=0.1cm\begin{tabular}{lll}
   \textbf{Task}     & \textbf{Due Date}     & \textbf{Value} \\ \midrule
   Assignments 1--10 & Wed 11:55pm each wk & 2\% each\\
-  Project           & Fri 23 October        & 20\%           \\
+  Project           & Fri 21 October        & 20\%           \\
   Final exam        & Official exam period  & 60\%          
 \end{tabular}}
 \end{block}
@@ -238,7 +245,7 @@ downface=\color{red}{\fbox{\strut Play/Pause}}
 \end{center}
 
 
-false discoveries / wrong conclusions from data
+%false discoveries / wrong conclusions from data
 
 \end{frame}
 
@@ -274,22 +281,50 @@ downface=\color{red}{\fbox{\strut Play/Pause}}
 \begin{alertblock}{}
 By 2018, the US could face a shortage of up to 190.000 workers with analytical skills ---McKinsey
 \end{alertblock}
-\pause
 
-\begin{block}{Top-ranked jobs: CareerCast}\fontsize{11}{11}\sf
+\begin{block}{Top-ranked jobs 2015: CareerCast}
+\fontsize{10}{10}\sf
 \begin{enumerate}
-\item \only<3>{\alert}{Actuary}
-\item Audiologist
-\item \only<3>{\alert}{Mathematician}
-\item \only<3>{\alert}{Statistician}
-\item Biomedical Engineer
-\item \only<3>{\alert}{Data Scientist}
-\item Dental Hygienist
-\item Software Engineer
-\item Occupational Therapist
-\item Computer Systems Analyst
+\item \only<1>{\alert}{Actuary} 
+\item Audiologist  
+\item \only<1>{\alert}{Mathematician}  
+\item \only<1>{\alert}{Statistician}  
+\item Biomedical Engineer  
+\item \only<1>{\alert}{Data Scientist}  
+\item Dental Hygienist 
+\item Software Engineer 
+\item Occupational Therapist 
+\item Computer Systems Analyst 
 \end{enumerate}
 \end{block}
+
+
+
+\end{frame}
+
+\begin{frame}{Some quotes}
+\begin{alertblock}{}
+By 2018, the US could face a shortage of up to 190.000 workers with analytical skills ---McKinsey
+\end{alertblock}
+
+
+\begin{block}{Top-ranked jobs 2016: CareerCast}
+\fontsize{10}{10}\sf
+\begin{enumerate}
+\item \only<1>{\alert}{Data Scientist}
+\item \only<1>{\alert}{Statistician}
+\item Information Security Analyst
+\item Audiologist
+\item Diagnostic Medical Sonographer
+\item \only<1>{\alert}{Mathematician}
+\item Software Engineer
+\item Computer Systems Analyst
+\item Speech Pathologist
+\item \only<1>{\alert}{Actuary}
+\end{enumerate}
+\end{block}
+
+
 \end{frame}
 
 \begin{frame}{Some quotes}
@@ -402,9 +437,9 @@ Source: \url{http://www.stern.nyu.edu/programs-admissions/executive-education/sh
 
 \begin{enumerate}
 \item Select and develop appropriate models for clustering, prediction or classification
-\item Estimate and simulate from a variety of statistical models measure the uncertainty of a prediction or classification using resampling methods
+\item Estimate and simulate from a variety of statistical models, and measure the uncertainty of a prediction or classification using resampling methods
 \item Apply business analytic tools to produce innovative solutions in finance, marketing, economics and related areas
-\item Manage very large data sets in a modern software environment explain and interpret the analyses undertaken clearly and effectively.
+\item Manage very large data sets in a modern software environment, and explain and interpret the analyses undertaken clearly and effectively.
 \end{enumerate}
 
 \pause
