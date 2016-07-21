@@ -36,7 +36,8 @@ qplot(Enclosure, data=bds) + coord_flip()
 
 qplot(YearMade, SalePrice, data=bds)
 #Add jittering
-qplot(YearMade, SalePrice, data=bds, position="jitter")
+qplot(YearMade, SalePrice, data=bds, position="jitter") # position is deprecated
+
 #Add transparency
 ggplot(bds, aes(YearMade, SalePrice)) + geom_point(alpha=1/100)
 #Plot hexbins

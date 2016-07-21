@@ -29,7 +29,7 @@ This is a repository to organize the teaching material for [Business analytics (
 * Week 1. (Jul 25) Introduction to business analytics and R (**Souhaib**)
   - Lecture 1:  What is Business Analytics? 
   - Lab 1: R exercises
-  - Lecture 2: Show case of R.
+  - Lecture 2: Business Analytics examples.
 
 * Week 2. (Aug 1) Statistical Learning. Ch2. (**Souhaib**)
   - Lecture 3: More on R and statistical learning. 
