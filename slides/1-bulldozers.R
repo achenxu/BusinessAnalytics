@@ -15,41 +15,46 @@ head(bds)
 tail(bds)
 
 # Simple plots of each variable
-qplot(SalePrice, data=bds, binwidth=1)
+ggplot(data=bds, aes(x=SalePrice)) + geom_histogram(binwidth=1)
 # Take logs of SalePrice to reduce skewness
-qplot(log(SalePrice), data=bds, binwidth=.04)
+ggplot(data=bds, aes(x=SalePrice)) + geom_histogram(binwidth=.04) +
+  scale_x_log10()
 
-qplot(YearMade, data=bds, binwidth=1)
+ggplot(data=bds, aes(x=YearMade)) + geom_histogram(binwidth=1)
 
-qplot(MachineHours, data=bds, binwidth=10)
-qplot(log(MachineHours), data=subset(bds, MachineHours>0), binwidth=.2)
+ggplot(data=bds, aes(x=MachineHours)) + geom_histogram(binwidth=10)
+ggplot(data=MachineHours, aes(x=MachineHours)) +
+  geom_histogram(binwidth=.2) + scale_x_log10()
 
-qplot(SaleDate, data=bds, binwidth=1)
+ggplot(data=bds, aes(x=SaleDate)) + geom_histogram(binwidth=1)
 
-qplot(ProductGroup, data=bds)
+ggplot(data=bds, aes(x=ProductGroup)) + geom_bar()
 
-qplot(ProductGroup, data=bds) + coord_flip()
+ggplot(data=bds, aes(x=ProductGroup)) + geom_bar() + coord_flip()
 
-qplot(Enclosure, data=bds) + coord_flip()
+ggplot(data=bds, aes(x=Enclosure)) + geom_bar() + coord_flip()
 
 # Plots of Sale price against each variable
 
-qplot(YearMade, SalePrice, data=bds)
+ggplot(data=bds, aes(x=YearMade, y=SalePrice)) + geom_point()
 #Add jittering
-qplot(YearMade, SalePrice, data=bds, position="jitter")
+ggplot(data=bds, aes(x=YearMade, y=SalePrice)) + geom_jitter()
+
 #Add transparency
 ggplot(bds, aes(YearMade, SalePrice)) + geom_point(alpha=1/100)
 #Plot hexbins
 ggplot(bds, aes(YearMade, SalePrice)) + stat_binhex(bins=90)
 
-qplot(MachineHours, SalePrice, data=bds)
-qplot(log(MachineHours), SalePrice, data=subset(bds, MachineHours>0))
+ggplot(data=bds, aes(x=MachineHours, y=SalePrice)) + geom_point()
+ggplot(data=bds, aes(x=MachineHours, y=SalePrice)) +
+  scale_x_log10()
 
-qplot(SaleDate, SalePrice, data=bds, position="jitter")
+ggplot(data=bds, aes(x=SaleDate, y=SalePrice)) + geom_jitter()
 
-qplot(ProductGroup, SalePrice, data=bds, geom="boxplot") + coord_flip()
+ggplot(data=bds, aes(x=ProductGroup, y=SalePrice)) +
+  geom_boxplot() + coord_flip()
 
-qplot(Enclosure, SalePrice, data=bds, geom="boxplot") + coord_flip()
+ggplot(data=bds, aes(x=Enclosure, y=SalePrice)) + geom_boxplot() + coord_flip()
 
 # Split bds1 data set int training and test sets
 nTest <- 50000
@@ -67,26 +72,29 @@ fit = lm(log(SalePrice) ~ log(MachineHours+1) +
 summary(fit)
 
 train$res <- residuals(fit)
-qplot(train$res, binwidth=.1)
+train$fit <- fitted(fit)
+ggplot(data=train, aes(x=res)) + geom_histogram(binwidth=.1)
 
-p1 <- qplot(log(MachineHours+1), res, data=train)
-p2 <- qplot(YearMade, res, data=train)
-p3 <- qplot(SaleDate, res, data=train)
-p4 <- qplot(ProductGroup, res, data=train, geom='boxplot')
-p5 <- qplot(Enclosure, res, data=train, geom="boxplot")
-p6 <- qplot(fitted(fit), res, data=train)
+p1 <- ggplot(data=train, aes(x=MachineHours, y=res)) +
+  geom_point() + scale_x_log10()
+p2 <- ggplot(data=train, aes(x=YearMade, y=res)) + geom_point()
+p3 <- ggplot(data=train, aes(x=SaleDate, y=res)) + geom_point()
+p4 <- ggplot(data=train, aes(x=ProductGroup, y=res)) + geom_boxplot()
+p5 <- ggplot(data=train, aes(x=Enclosure, y=res)) + geom_boxplot()
+p6 <- ggplot(data=train, aes(x=fit, y=res)) + geom_point()
 
 marrangeGrob(list(p1,p2,p3,p4,p5,p6), ncol=3, nrow=2, top="Residual plots")
 
 
 # Prediction
-fcast <- exp(predict(fit, newdata = test))
-errors <- fcast-test[,"SalePrice"]
-e <- log(fcast)-log(test[,"SalePrice"])
+test$fcast <- exp(predict(fit, newdata = test))
+errors <- test$fcast-test[,"SalePrice"]
+e <- log(test$fcast)-log(test[,"SalePrice"])
 
-qplot(log(fcast), e)
+ggplot(test, aes(x=fcast, y=e)) + geom_point() + scale_x_log10()
 
-qplot(SalePrice, fcast, data=test) + geom_abline(intercept=0, slope=1, col='blue')
+ggplot(data=test, aes(x=SalePrice, y=fcast)) +
+  geom_abline(intercept=0, slope=1, col='blue')
 
 
 # Check for overfitting
