@@ -1,11 +1,17 @@
 library(ggplot2)
 library(gridExtra)
+library(readr)
+library(dplyr)
 
 # Reading the data
-bds <- read.csv("../data/bds.csv")
+bds <- read_csv("../data/bds.csv")
+
+system.time(bds <- read_csv("../data/bds.csv"))
+system.time(bds <- read.csv("../data/bds.csv"))
 
 # Numerical summaries of all variables
 summary(bds)
+glimpse(bds)
 
 # Number of observations and variables in the dataset
 dim(bds)
@@ -14,8 +20,12 @@ dim(bds)
 head(bds)
 tail(bds)
 
+bds <- head(bds, 100000)
+
 # Simple plots of each variable
 ggplot(data=bds, aes(x=SalePrice)) + geom_histogram(binwidth=1)
+
+
 # Take logs of SalePrice to reduce skewness
 ggplot(data=bds, aes(x=SalePrice)) + geom_histogram(binwidth=.04) +
   scale_x_log10()
@@ -23,7 +33,8 @@ ggplot(data=bds, aes(x=SalePrice)) + geom_histogram(binwidth=.04) +
 ggplot(data=bds, aes(x=YearMade)) + geom_histogram(binwidth=1)
 
 ggplot(data=bds, aes(x=MachineHours)) + geom_histogram(binwidth=10)
-ggplot(data=MachineHours, aes(x=MachineHours)) +
+
+ggplot(data=bds, aes(x=MachineHours)) +
   geom_histogram(binwidth=.2) + scale_x_log10()
 
 ggplot(data=bds, aes(x=SaleDate)) + geom_histogram(binwidth=1)
@@ -46,8 +57,8 @@ ggplot(bds, aes(YearMade, SalePrice)) + geom_point(alpha=1/100)
 ggplot(bds, aes(YearMade, SalePrice)) + stat_binhex(bins=90)
 
 ggplot(data=bds, aes(x=MachineHours, y=SalePrice)) + geom_point()
-ggplot(data=bds, aes(x=MachineHours, y=SalePrice)) +
-  scale_x_log10()
+
+ggplot(data=bds, aes(x=MachineHours, y=SalePrice)) + scale_x_log10()
 
 ggplot(data=bds, aes(x=SaleDate, y=SalePrice)) + geom_jitter()
 
@@ -65,9 +76,8 @@ train <- bds[-testInds,]
 View(train)
 
 # Fit regression model
-fit = lm(log(SalePrice) ~ log(MachineHours+1) +
-    YearMade + SaleDate + ProductGroup + Enclosure ,
-  data = train, na.action=na.exclude)
+fit = lm(log(SalePrice) ~ log(MachineHours+1) + YearMade + SaleDate + ProductGroup + Enclosure, 
+         data = train, na.action=na.exclude)
 
 summary(fit)
 
@@ -77,6 +87,7 @@ ggplot(data=train, aes(x=res)) + geom_histogram(binwidth=.1)
 
 p1 <- ggplot(data=train, aes(x=MachineHours, y=res)) +
   geom_point() + scale_x_log10()
+
 p2 <- ggplot(data=train, aes(x=YearMade, y=res)) + geom_point()
 p3 <- ggplot(data=train, aes(x=SaleDate, y=res)) + geom_point()
 p4 <- ggplot(data=train, aes(x=ProductGroup, y=res)) + geom_boxplot()
@@ -99,7 +110,7 @@ ggplot(data=test, aes(x=SalePrice, y=fcast)) +
 
 # Check for overfitting
 # Training data:
-mean(res^2, na.rm=TRUE)
+mean(train$res^2, na.rm=TRUE)
 # Test data:
 mean(e^2, na.rm=TRUE)
 
