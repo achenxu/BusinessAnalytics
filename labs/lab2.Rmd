@@ -21,6 +21,8 @@ knitr::opts_chunk$set(
 
 ## Conceptual exercises
 
+An Introduction to Statistical Learning with Applications in R (ISLR): http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf
+
 ### Exercise 1
 
 Do the exercise 1 in chapter 2.4 of ISLR.
