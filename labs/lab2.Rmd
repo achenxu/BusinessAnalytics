@@ -79,5 +79,5 @@ Write two other interesting observations using this data set.
 
 - Your `.Rmd` file (which should knit without errors and without assuming any packages have been pre-loaded)
 - Your Word (or pdf) file that results from knitting the Rmd.
-- DUE: 8 August 10:00 (no late submissions allowed), loaded into moodle
+- DUE: 8 August 10:00 (late submissions not allowed), loaded into moodle
 
