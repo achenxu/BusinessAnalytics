@@ -306,3 +306,27 @@ qplot(class, b, data=p_l.tr.av, geom="boxplot")
 qplot(r, g, data=p_l.tr.av) + facet_wrap(~class) + theme_bw() + theme(aspect.ratio=1)
 qplot(r, b, data=p_l.tr.av) + facet_wrap(~class) + theme_bw() + theme(aspect.ratio=1)
 qplot(g, b, data=p_l.tr.av) + facet_wrap(~class) + theme_bw() + theme(aspect.ratio=1)
+
+t1 <- read.csv("data/paintings-test.csv")
+t2 <- read.csv("data/paintings-test-unlabelled.csv")
+t3 <- read.csv("data/paintings-test-solution.csv")
+
+# Manually calculate public/private error
+kaggle <- read.csv(file.choose()) #paintings-test-kaggle-public-private.csv
+elle <- read.csv(file.choose())
+x <- as.matrix(table(kaggle$class[kaggle$Usage=="Public"], elle$class[kaggle$Usage=="Public"]))
+sum(diag(x))/sum(x)
+x <- as.matrix(table(kaggle$class[kaggle$Usage=="Private"], elle$class[kaggle$Usage=="Private"]))
+sum(diag(x))/sum(x)
+
+mitch <- read.csv(file.choose())
+x <- as.matrix(table(kaggle$class[kaggle$Usage=="Public"], mitch$class[kaggle$Usage=="Public"]))
+sum(diag(x))/sum(x)
+x <- as.matrix(table(kaggle$class[kaggle$Usage=="Private"], mitch$class[kaggle$Usage=="Private"]))
+sum(diag(x))/sum(x)
+
+jin <- read.csv(file.choose())
+x <- as.matrix(table(kaggle$class[kaggle$Usage=="Public"], jin$class[kaggle$Usage=="Public"]))
+sum(diag(x))/sum(x)
+x <- as.matrix(table(kaggle$class[kaggle$Usage=="Private"], jin$class[kaggle$Usage=="Private"]))
+sum(diag(x))/sum(x)
