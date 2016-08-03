@@ -1,0 +1,80 @@
+\RequirePackage[l2tabu, orthodox]{nag}
+\documentclass[11pt]{article}
+\usepackage{mathpazo,titling,hyperref,amsmath,bm,microtype,setspace,eukdate}
+\usepackage[a4paper,text={16.5cm,25.2cm},centering]{geometry}
+
+\usepackage[compact,small]{titlesec}
+%%% Change section headers
+\titleformat*{\section}{\sffamily\Large\bfseries}
+\titleformat*{\subsection}{\sffamily\large\bfseries}
+%\titlespacing{\section}{0pt}{3ex}{1ex}
+%\titlespacing{\subsection}{0pt}{2ex}{1ex}
+%\titlespacing{\subsubsection}{0pt}{1ex}{0ex}
+%\titlelabel{\thetitle~}
+\setlength{\parskip}{1.2ex}
+\setlength{\parindent}{0em}
+\clubpenalty = 10000
+\widowpenalty = 10000
+%%% Change title format
+\pretitle{\vspace*{-2cm}\LARGE\bfseries\sffamily}
+\posttitle{\vspace*{0.2cm}\par}
+\preauthor{\large\sffamily}
+\postauthor{\hfill}
+\predate{\sffamily}
+\postdate{\break\vspace*{-0.9cm}\par\rule{\textwidth}{1pt}\par}
+
+\def\E{\text{E}}
+\def\var{\text{Var}}
+\def\bias{\text{Bias}}
+
+\title{Bias variance decomposition}
+\author{Rob J Hyndman}
+\begin{document}\setstretch{1.1}
+
+\maketitle
+
+Let $y_i = f(x_i) + \varepsilon_i$ where $\varepsilon$ is iid noise with zero mean and variance $\sigma^2$.
+
+We estimate $f$ using $\hat{f}$. Then the expected MSE for a new $y$ at $x_0$ will be equal to
+\[
+\E[(y-\hat{f}(x_0))^2] = [\bias(\hat{f}(x_0))]^2 + \var(\hat{f}(x_0)) + \sigma^2
+\]
+where
+\begin{align*}
+\bias(\hat{f}(x_0)) &= \E[\hat{f}(x_0)] - f(x_0)\\
+\text{and}\qquad
+ \var(\hat{f}(x_0)) &= \E\left[\left(\hat{f}(x_0) - \E[\hat{f}(x_0)]\right)^2\right].
+\end{align*}
+
+
+\subsection*{Proof}
+We will abbreviate $f=f(x_0)$ and $\hat{f}=\hat{f}(x_0)$.
+
+Since $f$ is deterministic, $\E[f]=f$ and $\text{Var}[f]=0$.
+
+\begin{align*}
+\E[(y-\hat{f})^2] &= \E[(y - f + f - \hat{f} )^2] \\
+  &= \E[(y - f)^2 + (f - \hat{f} )^2 + 2(y-f)(f-\hat{f})] \\
+  &= \sigma^2 + \E[(\hat{f} - f)^2] + 2\E[(y-f)(f-\hat{f})] 
+\end{align*}
+Now
+\begin{align*}
+\E[(\hat{f}-f)^2] &= \E[(\hat{f} - \E[\hat{f}] + \E[\hat{f}] - f)^2] \\
+  &= \E[(\hat{f} - \E[\hat{f}])^2] + (\E[\hat{f}] - f)^2 + 2\E[(\hat{f} - \E[\hat{f}])(\E[\hat{f}] - f)] \\
+  &= \var[\hat{f}] + \bias^2[\hat{f}] + 2\E[(\hat{f} - \E[\hat{f}])(\E[\hat{f}] - f)] 
+\end{align*}
+Both cross-product terms are equal to zero as can be shown by expansion:
+\begin{align*}
+\E[(y-f)(f-\hat{f})] &= \E[yf - f^2 -y\hat{f} + f\hat{f}] \\
+  &= f^2 - f^2 - \E[y\hat{f}] + f\E[\hat{f}] \\
+  &= - \E[(f+\varepsilon)\hat{f}] + f\E[\hat{f}] \\
+  &= -\E[f\hat{f}] -\E[\varepsilon\hat{f}] + f\E[\hat{f}] \\
+  &= 0
+\end{align*}
+\begin{align*}
+\E[(\hat{f} - \E[\hat{f}])(\E[\hat{f}] - f)] 
+  &= \E\left[\hat{f}\E[\hat{f}] - \E[\hat{f}]\E[\hat{f}] - \hat{f}f + \E[\hat{f}]f\right]\\
+  &= \E[\hat{f}]\E[\hat{f}] - \E[\hat{f}]\E[\hat{f}] - \E[\hat{f}]f + \E[\hat{f}]f\\
+  &= 0
+\end{align*}
+\end{document}
