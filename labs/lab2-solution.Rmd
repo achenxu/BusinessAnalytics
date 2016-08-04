@@ -1,7 +1,7 @@
 ---
-title: "ETC 3250 Lab 2 2016"
-author: ''
-output: pdf_document
+title: "Business Analytics 2016; Lab 2 solution"
+author: "Souhaib Ben Taieb and Shin Tan"
+output: html_document
 ---
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
