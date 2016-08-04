@@ -1,0 +1,187 @@
+---
+title: "ETC 3250 Lab 2 2016"
+author: ''
+output: pdf_document
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+# Import dataset 
+```{r}
+library(readr)
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(ggplot2)  # for graphics
+library(gridExtra)
+
+
+dataset <- tbl_df(read_csv("speed-dating-data.csv"))
+
+DT <- select(dataset, one_of(c("wave", "iid", "id", "gender", "idg", 
+                               "match", "samerace", "age_o","race_o",
+                               "field_cd", "race", "imprace", "imprelig",
+                               "goal", "date", "go_out", "attr1_1",
+                               "sinc1_1","intel1_1", "fun1_1", 
+                               "amb1_1", "shar1_1")))
+```
+
+# Recode Variable
+```{r}
+# Method 1 : Recode Variable 'Gender'
+DT$gender[which(DT$gender == 0)] <- "Female"
+DT$gender[which(DT$gender == 1)] <- "Male"
+DT$gender <- as.factor(DT$gender)
+
+# Method 2 : Recode Variable 'Match'
+DT$match <- as.factor(DT$match)
+DT$match <- revalue(DT$match, c("0" = "No", "1" = "Yes"))
+```
+
+# Exploring Data
+```{r}
+glimpse(DT)
+dim(DT)
+head(DT)
+# tail(DT)
+# str(DT)
+summary(DT)
+
+# Tabulating Variable
+table(Gender = DT$gender, Match = DT$match)
+table(Gender = DT$gender, Same_Race = DT$samerace)
+table(Go_Out = DT$go_out, Match = DT$match)
+table(Race = DT$race, Partner_Race = DT$race_o)
+
+```
+
+## Data Wrangling
+```{r}
+
+p1 <- ggplot(aes(attr1_1), data = DT) + geom_histogram()
+p2 <- ggplot(aes(sinc1_1), data = DT) + geom_histogram()
+p3 <- ggplot(aes(intel1_1), data = DT) + geom_histogram()
+p4 <- ggplot(aes(fun1_1), data = DT) + geom_histogram()
+p5 <- ggplot(aes(amb1_1), data = DT) + geom_histogram()
+p6 <- ggplot(aes(shar1_1), data = DT) + geom_histogram()
+grid.arrange(p1,p2,p3,p4,p5,p6,nrow=2, ncol=3) #put multiple plots together using grid.arrange() from library(gridExtra)
+
+```
+
+You can use the %>% operator with standard R functions as well as your own functions. The rules are simple: the object on the left hand side is passed as the first argument to the function on the right hand side.
+
++ **data %>% function** is the same as **function(my.data)**
++ **data %>% function(arg = value)** is the same as **function(data, arg = value)**
+```{r}
+# Example 1
+DT %>% dim
+dim(DT)
+
+# Example 2
+s1 <- subset(DT, gender == "Male")
+s1[1:5,1:6]
+
+s2 <- DT %>% subset(gender == "Male")
+s2[1:5, 1:6]
+```
+
+```{r}
+# Example 1 : (same as function table() )
+DT %>% select(imprace) %>% group_by(imprace) %>% tally()
+table(DT$imprace)
+
+d1 <- select(DT,imprace)
+d2 <- group_by(d1,imprace)
+
+# Example 2 : Compute the average and standard deviation of particular group 
+DT %>% filter(race %in% c("2", "3")) %>%
+  group_by(race) %>%
+  summarise(m=mean(attr1_1, na.rm = TRUE), s = sd(attr1_1, na.rm = TRUE)) %>% kable(digits = 1)
+
+```
+
+
+
+##  Confirm the number of males and females in each wave given in the documentation is correct
++ To compute some statistic for each group individually, rather than for the data set as a whole, we can use **aggregate** function from library **dplyr** 
++ **aggregate(y~x,data,function)**
++  function(x) length(unique(x)) : defining new function that comes from R
++ y ~ x : y is numeric data to be split into groups according to x variable
+
+
+```{r}
+
+
+aggregate(id ~ gender + wave , DT, function(x) length(unique(x)))
+# function(x) length(unique(x)) : defining new function that comes from R
+# y ~ x : y is numeric data to be split into groups according to x variable
+
+```
+
+
+## How many people have participated to the speed dating experiment?
+```{r}
+length(unique(DT$iid))
+```
+
+
+## How many dates each person has participated to? Compute a summary of these numbers
+```{r}
+
+ DT.date <- dataset[,c("wave","iid","id","order","pid")]
+
+DT.date.tally <- DT.date %>% 
+        select(wave, iid, order) %>% 
+        group_by(wave, iid) %>% 
+        tally(order)
+
+DT.date.tally
+
+DT.date.summary <- DT.date %>% 
+        select(wave,iid,order) %>% 
+        group_by(wave,iid) %>% 
+  summarise(m=mean(order,na.rm=TRUE), s=sd(order,na.rm=TRUE))
+
+DT.date.summary
+
+```
+
+## Visualization
+```{r}
+
+##  Field of Study , Gender
+p1 <- ggplot(data = DT,aes(x = factor(field_cd), fill = gender))+
+  geom_bar(stat="count", position = position_dodge())
+
+p2 <- ggplot(data = subset(DT, as.character(DT$match) == "Yes"), aes(x = factor(field_cd), fill = gender))+
+  geom_bar(stat = "count", position = position_dodge())
+
+grid.arrange(p1, p2, nrow=2, ncol=1)
+
+
+## Frequency of Going Out, Gender, Race
+p1 <- ggplot(data=subset(DT,as.character(DT$match)=="Yes"),
+             aes(x=factor(go_out),fill=gender)) +
+  geom_bar(stat="count",position = position_dodge()) 
+
+p2 <- ggplot(data=subset(DT,as.character(DT$match)=="Yes"),
+             aes(x=factor(go_out),fill=gender)) +
+  geom_bar(stat="count",position = position_dodge())  +
+  facet_wrap(~ race)
+
+grid.arrange(p1, p2, nrow = 2, ncol = 1)
+```
+
