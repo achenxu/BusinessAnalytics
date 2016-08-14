@@ -1,0 +1,118 @@
+---
+title: "Business Analytics; Lab 4"
+author: "Souhaib Ben Taieb and Shin Tan"
+date: "15 and 16 August 2016"
+output: html_document
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+## Conceptual exercises
+
+### Exercise 1
+
+Read Section 7.5 of ISLR and do the exercise 5 in Section 7.9 of ISLR.
+
+### Assignment - Question 1
+
+Do the exercise 1 in Section 7.9 of ISLR.
+
+### Assignment - Question 2
+
+- Understand all the steps in the proof of the leave-one-out cross-validation (LOOCV) statistic for linear models available at http://bsouhaib.github.io/BusinessAnalytics/slides/4-loocv.pdf
+- How many operations are saved using the computational trick? Briefly explain.
+
+## Applied exercises
+
+### Exercise 2
+
+We will build a regression model using the `Boston` data set from the `MASS` package. The aim is to predict `medv` (median value of owner-occupied homes in each town) using characteristics of each town.
+
+Find the best model you can using the available predictors. Consider dropping predictors, using transformations of predictors, adding interaction terms, using splines, etc.
+
+You will determine which model is "best" based on the LOOCV statistic. For linear models, it can be computed using the following function.
+
+```{r}
+CV <- function(object)
+{
+  cv <- mean((residuals(object)/(1 - hatvalues(object)))^2, na.rm = TRUE)
+  return(cv)
+}
+```
+
+You can apply this function to the output from the `lm()` function.
+
+Hints:
+
+  * Regression plots can help you decide if a variable has a nonlinear effect on the response variable.
+  * P-values can suggest potential variables to drop, but remember that p-values are misleading when predictors are correlated.
+
+Try to work systematically, and keep track of the various models you have tried to avoid wasting time by re-fitting old models.
+
+### Assignment - Question 3
+
+In the previous exercise, we used a function `CV()` that computed the LOOCV statistic using the neat computational trick available for linear models based on the hat-matrix (see Question 2).
+
+Now you will write your own function `myCV()` that will compute the same statistic, but do it the long way by fitting models to different sets of training data.
+
+myCV() should work for linear regression models and take two arguments:
+
+```{r eval=FALSE}
+myCV <- function(formula, data)
+{
+
+}
+```
+
+You can apply the model `formula` to the data set leaving out the $i$th observation like this:
+```{r eval=FALSE}
+fit <- lm(formula, data=data[-i,])
+```
+
+To get the prediction of the omitted observation, use the predict function:
+```{r eval=FALSE}
+pred <- predict(fit, newdata=data[i,])
+```
+
+The response value for the omitted observation can be found as follows.
+```{r eval=FALSE}
+responsevar <- as.character(formula(fit))[2]
+data[i,responsevar]
+```
+
+You will need to use a `for` loop to cycle through all the values of `i`.
+
+To test you have done it correctly, check that `myCV()` and `CV()` return the same value.
+
+Now add a new argument to your `myCV()` function to allow it to do k-fold cross-validation. 
+
+```{r eval=FALSE}
+myCV <- function(formula, data, k)
+{
+
+}
+```
+
+The `k` argument can take values between 2 and `n` where `n=nrow(data)`. For example `myCV(formula, data, k=5)` will do a 5-fold cross-validation. When `k=n`, the function should do leave-one-out cross-validation. 
+
+You should shuffle your data frame before doing the division of data into folds.
+
+You can check that your updated function works correctly by comparing the results against `CV()` for different values of `k`. When `k=n`, the results should be identical. For other values of `k`, the results should be close but not identical.
+
+## TURN IN 
+
+- Your `.Rmd` file (which should knit without errors and without assuming any packages have been pre-loaded)
+- Your Word (or pdf) file that results from knitting the Rmd.
+- DUE: 22 August 10am (late submissions not allowed), loaded into moodle
