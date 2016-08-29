@@ -1,0 +1,269 @@
+---
+title: "ETC3250 Lab 6"
+author: "Di Cook"
+date: "Week 6"
+output: pdf_document
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+## Purpose
+
+This lab will be the first on exploring data using plots, using the grammar of graphics approch to constructing plots with the  `ggplot2` R package. 
+
+## Data examples
+
+- Publicly available data on the zika virus was announced just this week. We will take a look at it. 
+
+- The PISA education data is one that we looked at last week, and we will revisit this data. 
+
+## Zika
+
+The zika virus has been prominent in the news for more than a year now, as the gravity of its impacts became clear. A new R package makes the incidence data available. This first exercise is to explore the data. To install the data and analysis package you would need to run these commands:
+
+```{r eval=FALSE, echo=TRUE}
+library(devtools)
+devtools::install_github("cpsievert/zikar")
+```
+
+If the install does not work for you it is possible to download the data only from the web site: [https://github.com/cpsievert/zikar](https://github.com/cpsievert/zikar).
+
+There are three data sets. We want the `zika` and `latLonDat` R data frames.
+
+```{r}
+library(zikar)
+library(dplyr)
+glimpse(zika)
+glimpse(latLonDat)
+glimpse(municipalities)
+```
+
+### What would we like to know?
+
+1. Where are the zika incidences around the globe?
+2. What is the trend of incidences?
+3. Is the trend different at different locations? Are there emerging areas of incidence? Are some areas past the worst?
+
+For each of these questions we need to work out how to make plots to address them: 
+
+1. Take the spatial coordinates and plot them on a map. 
+2. Aggregate counts by day, examine temporal trend by locations, and find the locations of the biggest outbreaks.
+3. Find differences in the temporal trends over locations. Are some locations past the peak of the outbreak? Are some still in the main throes of zika? 
+
+Quick plot, to show an issue with data:
+
+```{r}
+library(ggplot2)
+ggplot(zika, aes(x=report_date, y=value)) + 
+  geom_line(aes(group=location)) + facet_wrap(~report_type)
+```
+
+An explanation from Carson Sievert, "If you go to the Colombia tab in the shiny app, it looks like Colombia reclassified basically everyone from confirmed to suspected, nationwide. Not sure why, but the folks at the CDC (which I'll be presenting this to next week) might know ;)"
+
+We are going to handle this discrepancy by considering everything to be confirmed case, for today.
+
+
+## Exercise 1 Map locations
+
+- Make a map of the world with the locations of zika incidence overlaid, using the code below. 
+
+```{r}
+world <- map_data("world")
+worldmap <- ggplot(world, aes(x=long, y=lat)) +
+  geom_path(aes(group=group)) +
+  scale_y_continuous(breaks = (-2:2) * 30) +
+  scale_x_continuous(breaks = (-4:4) * 45) + 
+  coord_quickmap()
+worldmap + geom_point(data=latLonDat, aes(x=lng, y=lat), colour="red")
+```
+
+- What do you learn about the locations of zika? Does this match what is in the news? 
+
+Since the incidence in this data is localised we could use google maps as the background to the locations.
+
+```{r}
+library(ggmap)
+map <- get_googlemap(center=c(lon=-76, lat=7.8), zoom=2)
+ggmap(map) + geom_point(data=latLonDat, aes(x=lng, y=lat), colour="red")
+```
+
+## Exercise 2 Examine temporal trend in counts Where are the biggest outbreaks? 
+
+We are going to use the `dplyr` package to aggregate the counts for each location by day. 
+
+```{r}
+zika_smry <- zika %>% group_by(location, report_date) %>%
+  summarise(n=sum(value, na.rm=T))
+p <- ggplot(zika_smry, aes(x=report_date, y=n)) + 
+  geom_point() +
+  geom_line(aes(group=location)) 
+p
+```
+
+Make it interactive so that we can see the locations of the largest
+outbreaks. 
+
+```{r eval = FALSE}
+library(plotly)
+ggplotly(p)
+```
+
+- What do you learn about the incidence in different locations over time?
+
+## Exercise 3 What are the different patterns of outbreaks?
+
+We are going to examine the trends in zika incidence. 
+
+- The very first few measurements and the most recent look problematic. We will need to remove them before computing stats for each curve. 
+First look at the temporal support, by adding a rug plot to the date axis. Are the measurements equidistant in time?
+
+```{r}
+zika_smry <- zika %>% 
+  group_by(location, report_date) %>%
+  summarise(n=sum(value, na.rm=T))
+p <- ggplot(zika_smry, aes(x=report_date, y=n)) + 
+  geom_point() +
+  geom_line(aes(group=location)) + geom_rug(sides="b")
+p
+```
+
+- Trim off the early measurements
+
+```{r}
+zika_smry <- zika %>% filter(report_date > "2016-01-09") %>%
+  group_by(location, report_date) %>%
+  summarise(n=sum(value, na.rm=T))
+p <- ggplot(zika_smry, aes(x=report_date, y=n)) + 
+  geom_point() +
+  geom_line(aes(group=location)) + geom_rug(sides="b")
+p
+```
+
+- Compute the highest daily count for every location. What do we learn about incidence for each location?
+
+```{r}
+zika_smry_stats <- zika_smry %>% 
+  group_by(location) %>%
+  summarise(maxn = max(n)) %>%
+  arrange(desc(maxn))
+ggplot(zika_smry_stats, aes(x=maxn)) + geom_histogram()
+summary(zika_smry_stats$maxn)
+```
+
+- Drop the locations with less than 33 incidences, and plot the hot spots.
+
+```{r}
+keep <- zika_smry_stats %>% filter(maxn>=33) 
+zika_sub <- zika_smry %>% filter(location %in% keep$location)
+p <- ggplot(zika_sub, aes(x=report_date, y=n)) + 
+  geom_point() +
+  geom_line(aes(group=location)) + geom_rug(sides="b")
+p
+keep <- merge(keep, latLonDat, by="location")
+map <- get_googlemap(center=c(lon=-79, lat=8), zoom=5)
+ggmap(map) + geom_point(
+  data=keep, aes(x=lng, y=lat, colour=maxn, size=maxn), alpha=0.8) + scale_colour_gradient(low="#d95f0e", high="#fec44f")
+```
+
+- Compute more statistics for each location
+
+```{r}
+library(purrr)
+library(tidyr)
+library(broom)
+by_location <- zika_sub %>%
+  mutate(time=as.numeric(report_date-min(report_date))) %>%
+  select(location, time, n) %>%
+  group_by(location) %>%
+  nest()
+by_location <- by_location %>%   
+  mutate(
+    model = purrr::map(data, ~ lm(n ~ time, 
+                                  data = .))
+  )
+location_coefs <- by_location %>% 
+  unnest(model %>% purrr::map(broom::tidy))
+location_coefs <- location_coefs %>% 
+  select(location, term, estimate) %>% 
+  spread(term, estimate)
+location_stats <- merge(keep, location_coefs)
+location_peak <- zika_sub %>% 
+  mutate(time=as.numeric(report_date-min(report_date))) %>%
+  group_by(location)  %>%
+  mutate(dif=c(0,n[2:length(n)]-n[1:(length(n)-1)])) 
+location_peak_time <- location_peak %>% group_by(location) %>%
+  summarise(time_peak=which(dif<0)[1])
+location_peak_time$time_peak[is.na(location_peak_time$time_peak)] <- 196
+location_stats <- merge(location_stats, location_peak_time)
+ggplot(location_stats, aes(x=time_peak, y=time)) + geom_point()
+```
+
+```{r eval=FALSE}
+p <- ggplot(location_stats, 
+            aes(x=time_peak, y=time, label=location)) + geom_point()
+ggplotly(p)
+```
+
+- Look at the top locations based on trend. Which locations are still in the state of zika epidemic?
+
+```{r}
+keep <- location_stats %>% filter(time>20)
+zika_sub <- zika_smry %>% filter(location %in% keep$location)
+p <- ggplot(zika_sub, aes(x=report_date, y=n)) + 
+  geom_point() +
+  geom_line(aes(group=location)) +
+  facet_wrap(~location, ncol=3, scales="free_y")
+p
+```
+
+- Find the locations with the earliest peaks (the earliest 12). In which locations is the zika outbreak declining? Is this what you expected to find?
+
+```{r}
+keep <- location_stats %>% dplyr::arrange(time_peak) %>% head(12)
+zika_sub <- zika_smry %>% filter(location %in% keep$location)
+p <- ggplot(zika_sub, aes(x=report_date, y=n)) + 
+  geom_point() +
+  geom_line(aes(group=location)) +
+  facet_wrap(~location, ncol=4, scales="free_y")
+p
+```
+
+## Exercise 4 Education
+
+On the PISA data from last week. Make a plot to answer this question:
+
+- Does truancy affect math score, on average?
+
+- Explain your choices in the plot design. And answer the question.
+- Pick one other interesting question based on the data dictionary description information to answer using a plot. Make the plot, and summarise what you learn.
+
+## Coding exercises
+
+- For the first map in exercise 1: Using your cheat sheet for `ggplot2` change the transparency of the points to examine the density, make the background of the map white, remove the axes and axis labels so that it looks more like a conventional map. Report your code for doing this.
+
+- For the longitudinal plot in exercise 2: Change the axis labels to be more meaningful, change the date axis to show all months with the labels being a single letter, first letter of the month.
+
+- Change the plots in the plot of the 12 locations with the earliest peaks to have a fitted smoother to the data, and remove the lines that currenctly connect the dots. 
+
+## WHAT TO TURN IN
+
+Turn in two items: a `.Rmd` document, and the output `.pdf` or `.docx` from running it. No need to include the R output and plots in your pdf, but the code should be in the Rmd file. 
+
+## Resources
+
+- [RStudio cheat sheets](https://www.rstudio.com/resources/cheatsheets/)
+- [ggplot2: Elegant Graphics for Data Analysis, Hadley Wickham](http://ggplot2.org/book/), [web site](http://ggplot2.org)
+- [R Graphics Cookbook, Winston Chang](http://www.cookbook-r.com/Graphs/)
+
