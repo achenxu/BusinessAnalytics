@@ -1,0 +1,107 @@
+---
+title: "Vis Quiz 1"
+date: "SOLUTION"
+output: pdf_document
+---
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+```{r echo=FALSE}
+library(ggplot2)
+library(tidyr)
+library(stringr)
+library(dplyr)
+library(lubridate)
+library(scales)
+library(readr)
+library(ggmap)
+library(HLMdiag)
+library(RColorBrewer)
+library(gridExtra)
+library(dichromat)
+library(xkcd)
+library(maps)
+library(ggmap)
+library(htmltools)
+library(rworldmap)
+library(boot)
+```
+
+## Question 1
+
+
+```{r echo=FALSE, fig.align='center', fig.width=9, fig.height=4}
+pedestrian <- read_csv("../data/Pedestrian_Counts.csv",
+      col_names=c("DateTime","SensorID","SensorName","Counts"), skip=1)
+pedestrian$Date <- as.Date(substr(pedestrian$DateTime, 1, 11), format="%d-%b-%Y")
+pedestrian$Year <- year(pedestrian$Date)
+pedestrian$Month <- month(pedestrian$Date, label=TRUE, abbr=TRUE)
+pedestrian$Day <- wday(pedestrian$Date, label=TRUE) # and re-order days
+pedestrian$Day <- factor(pedestrian$Day, levels = levels(pedestrian$Day)[c(2:7, 1)])
+pedestrian$Hour <- as.numeric(substr(pedestrian$DateTime, 13, 14))
+pedestrian <- pedestrian %>% group_by(SensorID) %>% 
+  mutate(Time=as.numeric(Date - min(Date))*24 + Hour)
+pedestrian <- pedestrian %>% filter(Date >= as.Date("2013-01-01"))
+ggplot(data=filter(pedestrian, SensorID==1), aes(factor(Hour), Counts)) +   geom_boxplot() +
+  xlab("Hour") + ylab("Count") + 
+  xkcdaxis(c(0,24), c(0,6000)) + theme_xkcd()
+```
+
+a. Data: Melbourne pedestrian sensor counts, Bourke St Mall, 2015
+b. Aesthetics: `hour is mapped to x position, count is mapped to y position`
+c. Geom: `boxplot`
+d. (Extra credit) Theme: `xkcd`
+
+## Question 2
+
+- In the hierarchy of mappings position along a common scale yields the most accurate reading of the data values from a plot. `TRUE` 
+
+## Question 3
+
+Fill in the blank
+
+- A `diverging` colour scale should be used when both negative (low) and positive (high) values of a quantitative variable are important. 
+
+## Question 4
+
+Both of these map use colour to display different levels of a categorical variable, but only one actually maps the variable to the colour aesthetic. Which one is it?  `B`
+
+```{r echo=FALSE}
+library(ggplot2)
+library(reshape2)
+french_sub <- french_fries[french_fries$time == 10,]
+french_fries_long <- gather(french_fries, key = variable, value = rating, potato:painty)
+french_fries_long_sub <- french_fries_long[
+  french_fries_long$time == 10,]
+```
+
+A
+```{r fig.width=4, fig.height=3}
+ggplot(data = french_sub, aes(x="1_potato", y=potato)) +
+  geom_boxplot(fill = I("red")) +
+    geom_boxplot(aes(x = "2_buttery", y = buttery), fill = I("orange")) +
+    geom_boxplot(aes(x = "3_grassy", y = grassy), fill = I("yellow")) +
+    geom_boxplot(aes(x = "4_rancid", y = rancid), fill = I("green")) +
+    geom_boxplot(aes(x = "5_painty", y = painty), fill = I("blue")) +
+    xlab("variable") + ylab("rating") + ggtitle("A")
+```
+
+B
+
+```{r fig.width=5, fig.height=3}
+ggplot(data = french_fries_long_sub, 
+       aes(x=variable, y=rating, fill = variable)) + geom_boxplot() + ggtitle("B")
+```
+
