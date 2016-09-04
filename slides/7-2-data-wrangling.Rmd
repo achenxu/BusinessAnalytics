@@ -1,0 +1,265 @@
+---
+title: 'ETC3250 Business Analytics: Data Wrangling'
+author: "Souhaib Ben Taieb, Di Cook"
+date: "Week 7, class 2"
+output:
+  beamer_presentation: 
+    theme: Monash
+---
+
+```{r echo = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+```{r echo=FALSE}
+library(knitr)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(scales)
+library(readr)
+library(ggmap)
+library(gridExtra)
+```
+
+## Web scraping data
+
+- Example: NBA salaries
+
+- ESPN provides basketball players' salaries for the 2013-2014 season at [http://espn.go.com/nba/salaries](http://espn.go.com/nba/salaries)
+
+##
+
+```{r}
+library(XML)
+nba <- NULL
+for (i in 1:11) {
+  temp <- readHTMLTable(
+    sprintf("http://espn.go.com/nba/salaries/_/page/%d",i))[[1]]
+  nba <- rbind(nba, temp)
+}
+```
+
+##
+
+```{r}
+glimpse(nba)
+```
+
+## Working with strings
+
+```
+head(nba$SALARY)
+
+# get rid of $ and , in salaries and convert to numeric:
+gsub("[$,]", "", head(as.character(nba$SALARY)))
+nba$SALARY <- as.numeric(gsub("[$,]", "", 
+  as.character(nba$SALARY)))
+```
+
+```{r, echo=FALSE, warning=TRUE}
+head(nba$SALARY)
+
+# get rid of $ and , in salaries and convert to numeric:
+gsub("[$,]", "", head(as.character(nba$SALARY)))
+nba$SALARY <- as.numeric(gsub("[$,]", "", 
+                                as.character(nba$SALARY)))
+```
+
+- Where does the warning come from?
+
+## Cleaning NBA salaries data: hunting the warning
+
+```
+nba %>% filter(is.na(SALARY)) %>% head()
+```
+
+```{r, echo=FALSE}
+nba %>% filter(is.na(SALARY)) %>% head()
+```
+
+##
+
+- We don't need these rows - delete all of them
+
+```
+dim(nba)
+nba <- nba[-which(nba$RK=="RK"),]
+dim(nba)
+```
+
+```{r, echo=FALSE}
+dim(nba)
+nba <- nba[-which(nba$RK=="RK"),]
+dim(nba)
+```
+
+## Cleaning NBA data
+
+- Separate names into first, last, and position
+
+```
+nba <- nba %>% 
+  mutate(NAME = as.character(nba$NAME)) %>% 
+  separate(NAME, c("full_name", "position"), ",") %>% 
+  separate(full_name, c("first", "last"), " ") 
+```
+
+##
+
+```{r echo=FALSE}
+nba <- nba %>% 
+  mutate(NAME = as.character(nba$NAME)) %>% 
+  separate(NAME, c("full_name", "position"), ",") %>% 
+  separate(full_name, c("first", "last"), " ") 
+head(nba)
+```
+
+## Cleaned data ...?
+
+- Numbers might still be wrong, but now we are in a position to check for that.
+
+```
+ggplot(data=nba, aes(x=SALARY)) + geom_histogram()
+```
+
+```{r, echo=FALSE, message=FALSE, error=FALSE, fig.width=3, fig.height=2}
+ggplot(data=nba, aes(x=SALARY)) + geom_histogram()
+```
+
+## Reading different file formats: shapefiles
+
+The Australian Electorate Commission publishes the boundaries of the electorates on their website at [http://www.aec.gov.au/Electorates/gis/gis_datadownload.htm](http://www.aec.gov.au/Electorates/gis/gis_datadownload.htm).
+
+Once the files (preferably the national files) are downloaded, unzip the file (it will build a folder with a set of files). We want to read the shapes contained in the `shp` file into R.
+
+##
+
+```{r message=FALSE}
+library(maptools)
+
+# shapeFile contains the path to the shp file:
+shapeFile <- "../data/vic-esri-24122010/vic 24122010.shp"
+sF <- readShapeSpatial(shapeFile)
+class(sF)
+```
+
+##
+
+`sF` is a spatial data frame containing all of the polygons. 
+We use the `rmapshaper` package available from ateucher's github page to thin the polygons while preserving the geography:
+
+```{r message=FALSE}
+library(rmapshaper)
+```
+
+```{r, message=FALSE}
+sFsmall <- ms_simplify(sF, keep=0.05) # use instead of thinnedSpatialPoly
+```
+
+##
+
+`keep` indicates the percentage of points we want to keep in the polygons. 5% makes the electorate boundary still quite recognizable, but reduce the overall size of the map considerably, making it faster to plot.
+
+##
+
+We can use base graphics to plot this map:
+
+```{r, cache=TRUE, message=FALSE, fig.width=6, fig.height=4}
+plot(sFsmall)
+```
+
+## Extracting the electorate information 
+
+A spatial polygons data frame consists of both a data set with information on each of the entities (in this case, electorates), and a set of polygons for each electorate (sometimes multiple polygons are needed, e.g. if the electorate has islands). We want to extract both of these parts.
+
+##
+
+```{r, message=FALSE}
+nat_data <- sF@data
+head(nat_data)
+```
+
+##
+
+The row names of the data file are identifiers corresponding to the polygons - we want to make them a separate variable:
+
+```{r, message=FALSE}
+nat_data$id <- row.names(nat_data)
+```
+
+## Extracting the polygon information 
+
+The `fortify` function in the `ggplot2` package extracts the polygons into a data frame. 
+```{r}
+nat_map <- ggplot2::fortify(sFsmall)
+head(nat_map)
+```
+
+##
+
+We need to make sure that `group` and `piece` are kept as factor variables - if they are allowed to be converted to numeric values, it messes things up, because as factor levels `9` and `9.0` are distinct, whereas they are not when interpreted as numbers ...
+
+```{r}
+nat_map$group <- paste("g",nat_map$group,sep=".")
+nat_map$piece <- paste("p",nat_map$piece,sep=".")
+head(nat_map)
+```
+
+## Plot it
+
+```{r fig.width=4, fig.height=3}
+ggplot(nat_map, aes(x=long, y=lat, group=group)) + 
+  geom_polygon(fill="white", colour="black") 
+```
+
+## Handling missing values
+
+- Need to know how the missings are coded, hopefully clearly missing, treated as NA in R, not 0, or -9, or -9999, or . Recode as need be.
+
+- Study the distribution of missing vs not missing, which will help determine how to handle them.
+
+## What ways can these affect analysis?
+
+- If missings happen when conditions are special, eg sensor tends to stop when temperature drops below 3 degrees Celsius, estimation of model parameters may not reflect the population parameters
+
+- Some techniques, particularly multivariate methods like many used in data mining require complete records over many variables. Just a few missing numbers can mean a lot of cases that cannot be used. 
+
+## Terminology
+
+- missing completely at random (MCAR) means that values that are missing appaear to be independent of everything else, just sporadically occur
+- missing at random (MAR) means that missings can dependent on other known information, eg temperature, and this information can be used to help estimate values to substitute the missing values
+- missing not at random (MNAR) means that the missings are dependent on something else, but we may not have that information, which makes it impossible to appropriately estimate substitute values.
+
+## Making it Easy - MissingDataGUI
+
+- Methods for summarising missings in a data set
+
+- Ways to plot to examine dependence between missing vs not missing
+
+- Imputation methods to substitute missings
+
+```
+library(MissingDataGUI)
+data(tao)
+MissingDataGUI(tao)
+```
+
+## References
+
+- [eechida package vignettes](https://cran.r-project.org/web/packages/eechidna/index.html)
+- [AEC electorate polygons](http://www.aec.gov.au/Electorates/gis/gis_datadownload.htm)
+- [Paper on the MissingDataGUI](https://www.jstatsoft.org/article/view/v068i06/v68i06.pdf)
+
+## Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

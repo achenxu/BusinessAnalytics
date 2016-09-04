@@ -1,0 +1,552 @@
+---
+title: 'ETC3250 Business Analytics: Data Wrangling'
+author: "Souhaib Ben Taieb, Di Cook"
+date: "Week 7, Class 1"
+output:
+  beamer_presentation: 
+    theme: Monash
+---
+
+```{r echo = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+```{r echo=FALSE}
+library(knitr)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(stringr)
+library(scales)
+library(readr)
+library(ggmap)
+library(HLMdiag)
+library(RColorBrewer)
+library(gridExtra)
+library(broom)
+```
+
+## Outline
+
+- What is `tidy data`? Why do you want tidy data? Getting your data into tidy form using tidyr.
+- Writing readable code using `pipes`
+- Wrangling verbs: `filter`, `arrange`, `select`, `mutate`, `summarise`, with dplyr
+- Date and time with lubridate
+- String operations, working with `text`
+- Reading different `data formats`
+
+## Your turn 1
+
+What are the variables?
+
+```{r echo=FALSE}
+grad <- read_csv("../data/graduate-programs.csv")
+kable(head(grad[c(2,3,4,6)]))
+```
+
+```{r echo=FALSE, eval=FALSE}
+in the columns, subject, Inst, AvNumPubs, ...
+```
+
+## Your turn 2
+
+What's in the column names of this data? What are the experimental units? What are the measured variables?
+
+```{r, echo=FALSE}
+genes <- read_csv("../data/genes.csv")
+kable(genes)
+```
+
+```{r echo=FALSE, eval=FALSE}
+the experimental design is coded into the variable names, genotype:WI/WM, time:6/12, rep:1/2/4
+```
+
+## Your turn 3
+
+What are the variables? What are the records?
+
+```{r}
+melbtemp <- read.fwf("../data/ASN00086282.dly", 
+   c(11, 4, 2, 4, rep(c(5, 1, 1, 1), 31)), fill=T)
+kable(head(melbtemp[,c(1,2,3,4,seq(5,128,4))]))
+```
+
+```{r echo=FALSE, eval=FALSE}
+variables are TMAX, TMIN, PRCP, year, month, day, stationid. Each row contains the values for one month!
+```
+
+## Your turn 4
+
+What are the variables? What are the experimental units?
+
+```{r}
+tb <- read_csv("../data/tb.csv")
+#tail(tb)
+colnames(tb)
+```
+
+## Your turn 5 
+
+What are the variables? What are the experimental units?
+
+```{r}
+pew <- read.delim(
+  file = "http://stat405.had.co.nz/data/pew.txt",
+  header = TRUE,
+  stringsAsFactors = FALSE,
+  check.names = F
+)
+kable(pew[1:5, 1:5])
+```
+
+## Your turn 6
+
+10 week sensory experiment, 12 individuals assessed taste of french fries on several scales (how potato-y, buttery, grassy, rancid, paint-y do they taste?), fried in one of 3 different oils, replicated twice. First few rows:
+
+```{r, echo = FALSE}
+data(french_fries, package = "reshape2")
+kable(head(french_fries, 4), format = "markdown", row.names = F)
+```
+
+What is the experimental unit? What are the factors of the experiment? What was measured? What do you want to know?
+
+## Messy Data Patterns
+
+There are various features of messy data that one can observe in practice. Here are some of the more commonly observed patterns.
+
+- Column headers are values, not variable names
+- Variables are stored in both rows and columns, contingency table format
+- One type of experimental unit stored in multiple tables
+- Dates in many different formats
+
+## What is Tidy Data?
+
+- Each observation forms a row
+- Each variable forms a column
+- Contained in a single table
+- Long form makes it easier to reshape in many different ways
+- Wide form is common for analysis
+
+## Tidy Data {.flexbox .vcenter #myImagePage1}
+
+![](lego.pdf)
+
+## Messy Data {.flexbox .vcenter #myImagePage1}
+
+![](playmobile.pdf)
+
+## Tidy Verbs
+
+- `gather`: specify the `keys` (identifiers) and the `values` (measures) to make long form (used to be called melting)
+- `spread`: variables in columns (used to be called casting)
+- nest/unnest: working with lists
+- separate/unite: split and combine columns
+
+## French fries example
+
+During a ten week sensory experiment, 12 individuals were asked to assess taste of french fries (HOT CHIPS!) on several scales (how potato-y, buttery, grassy, rancid, paint-y do the fries taste?)
+
+French fries were fried in one of three different oils, and each week individuals had to assess six batches of french fries (all three oils, replicated twice)
+
+```{r, echo = FALSE}
+library(reshape2)
+library(tidyr)
+
+kable(head(french_fries))
+```
+
+## This format is not ideal for data analysis
+
+What code would be needed to plot each of the ratings over time as a different color?
+
+```
+library(ggplot2)
+french_sub <- french_fries[french_fries$time == 10,]
+ggplot(data = french_sub) + 
+  geom_boxplot(aes(x="1_potato", y=potato), fill = I("red")) +
+ geom_boxplot(aes(x = "2_buttery", y = buttery), fill = I("orange")) +
+ geom_boxplot(aes(x = "3_grassy", y = grassy), fill = I("yellow")) +
+ geom_boxplot(aes(x = "4_rancid", y = rancid), fill = I("green")) +
+ geom_boxplot(aes(x = "5_painty", y = painty), fill = I("blue")) +
+    xlab("variable") + ylab("rating")
+```
+
+## The Plot
+
+```{r, echo=FALSE}
+library(ggplot2)
+
+french_sub <- french_fries[french_fries$time == 10,]
+
+ggplot(data = french_sub) + 
+  geom_boxplot(aes(x="1_potato", y=potato), fill = I("red")) +
+ geom_boxplot(aes(x = "2_buttery", y = buttery), fill = I("orange")) +
+ geom_boxplot(aes(x = "3_grassy", y = grassy), fill = I("yellow")) +
+ geom_boxplot(aes(x = "4_rancid", y = rancid), fill = I("green")) +
+ geom_boxplot(aes(x = "5_painty", y = painty), fill = I("blue")) +
+    xlab("variable") + ylab("rating")
+```
+
+## What we have ..
+
+We want to change this **wide format**:
+
+![wide](tableoverview.png)
+
+## and what we want
+
+to this **long format**:
+
+![long](tablelong.png)
+
+## Gathering
+
++ When gathering, you need to specify the **keys** (identifiers) and the **values** (measures).
+
++ Keys/Identifiers:
+-- Identify a record (must be unique)
+-- Example: Indices on an random variable
+-- Fixed by design of experiment (known in advance)
+-- May be single or composite (may have one or more variables)
+
++ Values/Measures:
+-- Collected during the experiment (not known in advance)
+-- Usually numeric quantities
+
+## Gathering the French Fry Data
+
+```
+french_fries_long <- gather(french_fries, key = variable, 
+  value = rating, potato:painty)
+
+head(french_fries_long)
+```
+
+```{r, echo=F}
+french_fries_long <- gather(french_fries, key = variable, 
+                            value = rating, potato:painty)
+
+head(french_fries_long)
+```
+
+## Let's Re-write the code for our Plot
+
+```
+french_fries_long_sub <- french_fries_long[
+  french_fries_long$time == 10,]
+
+ggplot(data = french_fries_long_sub, 
+  aes(x=variable, y=rating,  fill = variable)) +
+   geom_boxplot()
+```
+
+## And plot it
+
+```{r, echo=FALSE}
+french_fries_long_sub <- french_fries_long[
+  french_fries_long$time == 10,]
+
+ggplot(data = french_fries_long_sub, 
+       aes(x=variable, y=rating,  fill = variable)) +
+   geom_boxplot()
+```
+
+## Long to Wide
+
+In certain applications, we may wish to take a long dataset and convert it to a wide dataset (Perhaps displaying in a table).
+
+```{r echo=FALSE}
+head(french_fries_long)
+```
+
+## Spread
+
+We use the **spread** function from tidyr to do this:
+
+```
+french_fries_wide <- spread(french_fries_long, 
+  key = variable, value = rating)
+head(french_fries_wide)
+```
+
+```{r echo=FALSE}
+french_fries_wide <- spread(french_fries_long, 
+                            key = variable, value = rating)
+
+head(french_fries_wide)
+```
+
+## The Split-Apply-Combine Approach
+
+- *Split* a dataset into many smaller sub-datasets
+- *Apply* some function to each sub-dataset to compute a result
+- *Combine* the results of the function calls into a one dataset
+
+## The Split-Apply-Combine Approach
+
+![SAC](sac.png)
+
+## Split-Apply-Combine in dplyr
+
+```
+library(dplyr)
+french_fries_split <- group_by(french_fries_long, 
+  variable) # SPLIT
+french_fries_apply <- summarise(french_fries_split, 
+  m = mean(rating, na.rm = TRUE), 
+  s=sd(rating, na.rm=TRUE)) 
+# APPLY + COMBINE
+french_fries_apply
+```
+
+```{r echo=FALSE, message=FALSE, error=FALSE}
+library(dplyr)
+french_fries_split <- group_by(french_fries_long, variable) # SPLIT
+french_fries_apply <- summarise(french_fries_split, 
+                                m = mean(rating, na.rm = TRUE), 
+                                s=sd(rating, na.rm=TRUE)) # APPLY + COMBINE
+french_fries_apply
+```
+
+## The pipe operator
+
+- Pipes allow the code to be *read* like a sequence of operations
+- dplyr allows us to chain together these data analysis tasks using the `%>%` (pipe) operator
+- `x %>% f(y)` is shorthand for `f(x, y)`
+- Example:
+
+```{r echo=TRUE}
+student2012.sub <- readRDS("../data/student_sub.rds")
+student2012.sub %>% 
+  group_by(CNT) %>% 
+  tally()
+```
+
+## dplyr verbs
+
+There are five primary dplyr **verbs**, representing distinct data analysis tasks:
+
+- Filter: Remove the rows of a data frame, producing subsets
+- Arrange: Reorder the rows of a data frame
+- Select: Select particular columns of a data frame
+- Mutate: Add new columns that are functions of existing columns
+- Summarise: Create collapsed summaries of a data frame
+ 
+## Filter
+
+```
+french_fries %>%
+    filter(subject == 3, time == 1)
+```
+
+```{r echo=FALSE}
+french_fries %>%
+    filter(subject == 3, time == 1)
+```
+
+```{r echo=FALSE}
+french_fries %>%
+    gather(key = variable, value = rating, potato:painty) %>%
+    group_by(variable) %>%
+    summarise(rating = mean(rating, na.rm = TRUE))
+```
+
+## Arrange
+
+```
+french_fries %>%
+    arrange(desc(rancid)) %>%
+    head
+```
+
+```{r echo=FALSE}
+french_fries %>%
+    arrange(desc(rancid)) %>%
+    head
+```
+
+## Select
+
+```
+french_fries %>%
+    select(time, treatment, subject, rep, potato) %>%
+    head
+```
+
+```{r echo=FALSE}
+french_fries %>%
+    select(time, treatment, subject, rep, potato) %>%
+    head
+```
+
+## Summarise
+
+```
+french_fries %>%
+    group_by(time, treatment) %>%
+    summarise(mean_rancid = mean(rancid), 
+    sd_rancid = sd(rancid))
+```
+
+```{r echo=FALSE}
+french_fries %>%
+    group_by(time, treatment) %>%
+    summarise(mean_rancid = mean(rancid), 
+              sd_rancid = sd(rancid))
+```
+
+## Dates and Times
+
+- Dates are deceptively hard to work with in R.
+
+**Example**: 02/05/2012. Is it February 5th, or May 2nd?
+
+Other things are difficult too:
+
+- Time zones
+- POSIXct format in base R is challenging
+
+The **lubridate** package helps tackle some of these issues.
+
+## Basic Lubridate Use
+
+```
+library(lubridate)
+
+now()
+today()
+now() + hours(4)
+today() - days(2)
+```
+
+```{r, echo=FALSE, results='hold'}
+library(lubridate)
+
+now()
+today()
+now() + hours(4)
+today() - days(2)
+```
+
+## Parsing Dates
+
+```
+ymd("2013-05-14")
+mdy("05/14/2013")
+dmy("14052013")
+ymd_hms("2015:05:14 14:50:30", tz = "America/Chicago")
+ymd_hms("2015:05:14 14:50:30", tz = "Australia/Melbourne")
+today(tzone = "America/Chicago")
+today(tzone = "Australia/Melbourne")
+```
+
+```{r, echo=FALSE, results='hold'}
+ymd("2013-05-14")
+mdy("05/14/2013")
+dmy("14052013")
+ymd_hms("2015:05:14 14:50:30", tz = "America/Chicago")
+ymd_hms("2015:05:14 14:50:30", tz = "Australia/Melbourne")
+today(tzone = "America/Chicago")
+today(tzone = "Australia/Melbourne")
+```
+
+## Dates example: Oscars date of birth
+
+```
+oscars <- read.csv("../data/oscars.csv", stringsAsFactors=FALSE)
+summary(oscars$DOB)
+head(oscars$DOB)
+oscars$DOB <- as.Date(oscars$DOB, format="%m/%d/%Y")
+summary(oscars$DOB)
+```
+
+```{r, echo=F}
+oscars <- read.csv("../data/oscars.csv", stringsAsFactors=FALSE)
+summary(oscars$DOB)
+head(oscars$DOB)
+oscars$DOB <- as.Date(oscars$DOB, format="%m/%d/%Y")
+summary(oscars$DOB)
+```
+
+## Calculating on dates
+
+- You should never ask a woman her age, but ... really!
+
+```
+oscars$DOByr <- year(oscars$DOB)
+summary(oscars$DOByr)
+oscars %>% filter(DOByr == "2029") %>% select(Name, Sex, DOB)
+oscars %>% filter(DOByr < 1950) %>% select(Name, Sex, DOB)
+oscars %>% filter(DOByr > 2015) %>% select(Name, Sex, DOB)
+```
+
+```{r, echo=F, fig.width=3, fig.height=2, message=FALSE, error=FALSE}
+oscars$DOByr <- year(oscars$DOB)
+summary(oscars$DOByr)
+oscars %>% filter(DOByr == "2029") %>% 
+  select(Name, Sex, DOB)
+```
+
+## Months
+
+```
+oscars$DOBmth <- month(oscars$DOB, )
+table(oscars$DOBmth)
+oscars$DOBmth <- factor(oscars$DOBmth, levels=1:12, 
+  labels=month.abb)
+```
+
+```{r, echo=F, fig.width=3, fig.height=2, message=FALSE, error=FALSE}
+oscars$DOBmth <- month(oscars$DOB)
+table(oscars$DOBmth)
+oscars$DOBmth <- factor(oscars$DOBmth, levels=1:12, 
+  labels=month.abb)
+```
+
+## Now plot it
+
+```
+ggplot(data=oscars, aes(DOBmth)) + geom_bar()
+```
+
+```{r, echo=F, fig.width=4, fig.height=2.5}
+ggplot(data=oscars, aes(DOBmth)) + geom_bar()
+```
+
+## Should you be born in April?
+
+```
+df <- data.frame(m=sample(1:12, 423, replace=TRUE))
+df$m2 <- factor(df$m, levels=1:12, 
+  labels=month.abb)
+ggplot(data=df, aes(x=m2)) + geom_bar()
+```
+
+```{r, echo=F, fig.width=4, fig.height=2.5}
+df <- data.frame(m=sample(1:12, 423, replace=TRUE))
+df$m2 <- factor(df$m, levels=1:12, 
+  labels=month.abb)
+ggplot(data=df, aes(x=m2)) + geom_bar()
+```
+
+
+## References
+
+- [tidy data concepts](https://www.jstatsoft.org/article/view/v021i12/v21i12.pdf)
+- [Split-apply-combine concepts](https://www.jstatsoft.org/v40/i01/)
+- [Working with dates and times](https://www.jstatsoft.org/article/view/v040i03)
+- [RStudio cheatsheets](https://www.rstudio.com/resources/cheatsheets/)
+
+## Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
