@@ -44,6 +44,7 @@ library(broom)
 - Date and time with lubridate
 - String operations, working with `text`
 - Reading different `data formats`
+- Handling missing data
 
 ## Your turn 1
 
