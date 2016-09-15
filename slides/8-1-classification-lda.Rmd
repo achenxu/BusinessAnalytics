@@ -22,9 +22,11 @@ library(tourr)
 library(dplyr)
 
 data(flea)
-qplot(tars1, aede1, data=flea, color=species) + 
+ggplot(data=flea, aes(x=tars1, y=aede1, color=species)) + 
+  geom_point() +
   theme(aspect.ratio=1, legend.position="none") + xlab("") + ylab("")
-qplot(tars1, aede1, data=flea) + theme(aspect.ratio=1) + xlab("") + ylab("")
+ggplot(data=flea, aes(x=tars1, y=aede1)) + geom_point() + 
+  theme(aspect.ratio=1) + xlab("") + ylab("")
 ```
 
 ## Example 1: Olive oils
@@ -44,10 +46,11 @@ qplot(tars1, aede1, data=flea) + theme(aspect.ratio=1) + xlab("") + ylab("")
 
 - Two variables shown. How would you draw boundaries, so that if you received a new assayed sample you would be able to confidently predict which region produced the oil? 
 
-```{r olives, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4.5, fig.width=4.5}
+```{r olives, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4}
 data(olive)
 olive$region <- factor(olive$region, labels=c("South", "Sardinia", "North"))
-qplot(eicosenoic, linoleic, data=olive, color=region, shape=region, alpha=I(0.8)) +
+ggplot(data=olive, aes(x=eicosenoic, y=linoleic, color=region, shape=region)) + 
+  geom_point(alpha=I(0.8)) +
   theme(aspect.ratio=1)
 ```
 
@@ -71,7 +74,8 @@ qplot(eicosenoic, linoleic, data=olive, color=region, shape=region, alpha=I(0.8)
 - Two variables shown. How would you draw boundaries, so that if you found a new specimen you would be able to confidently predict the species? 
 
 ```{r flea, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4.5, fig.width=4.5}
-qplot(tars1, aede1, data=flea, color=species, shape=species) + 
+ggplot(data=flea, aes(x=tars1, y=aede1, color=species, shape=species)) + 
+  geom_point() + 
   theme(aspect.ratio=1) 
 ```
 
@@ -97,7 +101,8 @@ qplot(tars1, aede1, data=flea, color=species, shape=species) +
 ```{r crab, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4.5, fig.width=4.5}
 crab <- read.csv("http://www.ggobi.org/book/data/australian-crabs.csv")
 crab <- subset(crab, species=="Blue", select=c("sex", "FL", "RW"))
-qplot(FL, RW, data=crab, color=sex, shape=sex) + 
+ggplot(data=crab, aes(x=FL, y=RW, color=sex, shape=sex)) + 
+  geom_point() + 
   theme(aspect.ratio=1) 
 ```
 
@@ -117,7 +122,8 @@ olive.lda <- lda(region~eicosenoic+linoleic, data=olive,
 olive.p$region <- predict(olive.lda, olive.p)$class
 ol.m <- summarise(group_by(olive, region), eicosenoic=mean(eicosenoic),
                   linoleic=mean(linoleic))
-qplot(eicosenoic, linoleic, data=olive.p, color=region, alpha=I(0.2)) +
+ggplot(data=olive.p, aes(x=eicosenoic, y=linoleic, color=region)) +
+  geom_point(alpha=I(0.2)) +
   geom_point(data=olive, aes(shape=region)) + 
   geom_point(data=ol.m, shape=3, size=5, color="black") +
   theme_bw() + theme(aspect.ratio=1)
@@ -132,7 +138,7 @@ flea.lda <- lda(species~tars1+aede1, data=flea,
 flea.p$species <- predict(flea.lda, flea.p)$class
 fl.m <- summarise(group_by(flea, species), tars1=mean(tars1),
                   aede1=mean(aede1))
-qplot(tars1, aede1, data=flea.p, color=species, alpha=I(0.2)) +
+ggplot(data=flea.p, aes(x=tars1, y=aede1, color=species)) + geom_point(alpha=I(0.2)) +
   geom_point(data=flea, aes(shape=species)) + 
   geom_point(data=fl.m, shape=3, size=5, color="black") +
   theme_bw() + theme(aspect.ratio=1)
@@ -147,7 +153,7 @@ crab.lda <- lda(sex~FL+RW, data=crab,
 crab.p$sex <- predict(crab.lda, crab.p)$class
 cr.m <- summarise(group_by(crab, sex), FL=mean(FL),
                   RW=mean(RW))
-qplot(FL, RW, data=crab.p, color=sex, alpha=I(0.2)) +
+ggplot(data=crab.p, aes(x=FL, y=RW, color=sex)) + geom_point(alpha=I(0.2)) +
   geom_point(data=crab, aes(shape=sex)) + 
   geom_point(data=cr.m, shape=3, size=5, color="black") +
   theme_bw() + theme(aspect.ratio=1)
@@ -184,8 +190,8 @@ This assumes that group 1 has the smaller mean.
 ```{r lda-olive, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4, fig.align="right"}
 olive.sub <- subset(olive, region != "South")
 olive.sub$region <- factor(olive.sub$region)
-qplot(linoleic, data=olive.sub, fill=region, color=region, 
-      geom="density", alpha=I(0.5)) +
+ggplot(data=olive.sub, aes(x=linoleic, fill=region, color=region)) +
+      geom_density(alpha=I(0.5)) +
   theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
 ```
 
@@ -206,8 +212,8 @@ $\frac{\bar{x}_1 + \bar{x}_2}{2}$ = `r sum(olive.lda$means)/2`
 ## LDA Boundary
 
 ```{r lda-olive3, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4}
-qplot(linoleic, data=olive.sub, fill=region, color=region, 
-      geom="density", alpha=I(0.5)) +
+ggplot(data=olive.sub, aes(x=linoleic, fill=region, color=region)) + 
+      geom_density(alpha=I(0.5)) +
   geom_vline(xintercept=961.78) +
   theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
 ```
@@ -220,17 +226,17 @@ qplot(linoleic, data=olive.sub, fill=region, color=region,
 \end{itemize}
 
 ```{r lda-crab, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4, fig.align="right"}
-#crab$FL.RW <- 3.01*crab$FL -3.86*crab$RW
-crab$FL.RW <- crab$FL/crab$RW
-qplot(FL.RW, data=crab, fill=sex, color=sex, 
-      geom="density", alpha=I(0.5)) +
+#crab$FL_RW <- 3.01*crab$FL -3.86*crab$RW
+crab$FL_RW <- crab$FL/crab$RW
+ggplot(data=crab, aes(x=FL_RW, fill=sex, color=sex)) +
+      geom_density(alpha=I(0.5)) +
   theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
 ```
 
 ## LDA Rule
 
 ```{r lda-crab2, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE}
-crab.lda <- lda(sex~FL.RW, data=crab, 
+crab.lda <- lda(sex~FL_RW, data=crab, 
                  prior=c(0.5, 0.5))
 crab.lda$means
 ```
@@ -242,9 +248,9 @@ $\frac{\bar{x}_1 + \bar{x}_2}{2}$ = `r sum(crab.lda$means)/2`
 ## LDA Boundary
 
 ```{r lda-crab3, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=4, fig.width=4}
-qplot(FL.RW, data=crab, fill=sex, color=sex, 
-      geom="density", alpha=I(0.5)) +
-  geom_vline(xintercept=1.22) +
+ggplot(data=crab, aes(x=FL_RW, fill=sex, color=sex)) +
+      geom_density(alpha=I(0.5)) +
+  geom_vline(xintercept=1.17) +
   theme_bw() + theme(legend.position="bottom", aspect.ratio=1)
 ```
 
@@ -257,7 +263,7 @@ library(mvtnorm)
 df <- data.frame(x=c(seq(-5, 5, 0.1), seq(-5, 5, 0.1)), 
   y=c(dnorm(seq(-5, 5, 0.1), mean=-2), dnorm(seq(-5, 5, 0.1), mean=2)), 
       cl=c(rep("A", 101), rep("B",101)))
-qplot(x, y, data=df, geom="line", colour=cl) +
+ggplot(data=df, aes(x=x, y=y, colour=cl)) + geom_line() +
   geom_vline(xintercept=0) +
   theme_bw()
 ```
@@ -281,7 +287,8 @@ $S_p$ is the pooled variance-covariance matrix.
 ```{r crab-calc1, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
 crab <- crab[,-4]
 crab$sex <- factor(crab$sex, levels=c("Male", "Female"))
-qplot(FL, RW, data=crab, color=sex, shape=sex) + 
+ggplot(data=crab, aes(x=FL, y=RW, color=sex, shape=sex)) + 
+  geom_point() + 
   theme(aspect.ratio=1) 
 ```
 
@@ -328,7 +335,8 @@ Low-dimensional space (discriminant space): `r proj[1]`xFL`r proj[2]`xRW=0
 ## Plot it - discriminant space
 
 ```{r crab-calc6, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
-qplot(FL, RW, data=crab, color=sex, shape=sex) + 
+ggplot(data=crab, aes(x=FL, y=RW, color=sex, shape=sex)) + 
+  geom_point() +
   geom_abline(intercept=30, slope=-1.26) + 
   theme(aspect.ratio=1) 
 ```
@@ -337,13 +345,14 @@ qplot(FL, RW, data=crab, color=sex, shape=sex) +
 
 ```{r crab-calc6b, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
 crab$d1 <- 3.07*crab$FL - 3.86*crab$RW
-qplot(d1, data=crab, geom="histogram", fill=sex) + facet_wrap(~sex, ncol=1) 
+ggplot(data=crab, aes(x=d1, fill=sex)) + geom_histogram() + facet_wrap(~sex, ncol=1) 
 ```
 
 ## Plot it - boundary
 
 ```{r crab-calc7, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
-qplot(FL, RW, data=crab, color=sex, shape=sex) + 
+ggplot(data=crab, aes(x=FL, y=RW, color=sex, shape=sex)) + 
+  geom_point() +
   geom_abline(intercept=30, slope=-1.26, linetype=2) + 
   geom_abline(intercept=0.753, slope=0.795) + 
   theme(aspect.ratio=1) 
@@ -356,7 +365,8 @@ These lines are orthogonal !!!
 ## Plot it - boundary
 
 ```{r crab-calc7b, cache=FALSE, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.height=5, fig.width=5}
-qplot(FL, RW, data=crab, color=sex, shape=sex) + ylim(c(2,22)) + xlim(c(2,22)) + 
+ggplot(data=crab, aes(x=FL, y=RW, color=sex, shape=sex)) + geom_point() + 
+  ylim(c(2,22)) + xlim(c(2,22)) + 
   geom_abline(intercept=30, slope=-1.26, linetype=2) + 
   geom_abline(intercept=0.753, slope=0.795) + 
   theme(aspect.ratio=1) 
@@ -461,11 +471,11 @@ $$
 $$
 
 $$
-\bar{x}_1^TS_p^{-1}x_0 + \bar{x}_1^TS_p^{-1}\bar{x}_1 -(\bar{x}_2^TS_p^{-1}x_0 - \bar{x}_2^TS_p^{-1}\bar{x}_2 \geq (ln(p_2)-ln(p_1))/2
+\bar{x}_1^TS_p^{-1}x_0 + \bar{x}_1^TS_p^{-1}\bar{x}_1/2 -(\bar{x}_2^TS_p^{-1}x_0 - \bar{x}_2^TS_p^{-1}\bar{x}_2/2 \geq ln(p_2)-ln(p_1)
 $$
 
 $$
-\bar{x}_1^TS_p^{-1}x_0 + \bar{x}_1^TS_p^{-1}\bar{x}_1 - ln(p_2) \geq \bar{x}_2^TS_p^{-1}x_0 - \bar{x}_2^TS_p^{-1}\bar{x}_2 -ln(p_1)/2
+\bar{x}_1^TS_p^{-1}x_0 + \bar{x}_1^TS_p^{-1}\bar{x}_1 + ln(p_1) \geq \bar{x}_2^TS_p^{-1}x_0 - \bar{x}_2^TS_p^{-1}\bar{x}_2 + ln(p_2)
 $$
 
 ## Discriminant equations/functions
@@ -473,7 +483,7 @@ $$
 For $j=1, ..., g$
 
 $$
-\bar{x}_j^TS_p^{-1}x_0 + \bar{x}_j^TS_p^{-1}\bar{x}_j - ln(p_2)
+\bar{x}_j^TS_p^{-1}x_0 + \bar{x}_j^TS_p^{-1}\bar{x}_j + ln(p_j)
 $$
 
 Calculate this for every group and allocate the new observation to the group which yields the largest value.
@@ -497,7 +507,7 @@ Compute an eigendecomposition of $W^{-1}B$ to get the discriminant space.
 olive.lda <- lda(region~., data=olive[,-2], 
                  prior=c(0.34, 0.33, 0.33))
 o.p <- data.frame(predict(olive.lda, olive)$x, region=factor(olive$region))
-qplot(LD1, LD2, data=o.p, color=region) + theme(aspect.ratio=1)
+ggplot(data=o.p, aes(x=LD1, y=LD2, color=region)) + geom_point() + theme(aspect.ratio=1)
 ```
 
 ## Example: flea
@@ -508,7 +518,7 @@ qplot(LD1, LD2, data=o.p, color=region) + theme(aspect.ratio=1)
 flea.lda <- lda(species~., data=flea, 
                  prior=c(0.34, 0.33, 0.33))
 f.p <- data.frame(predict(flea.lda, flea)$x, species=flea$species)
-qplot(LD1, LD2, data=f.p, color=species) + theme(aspect.ratio=1)
+ggplot(data=f.p, aes(x=LD1, y=LD2, color=species)) + geom_point() + theme(aspect.ratio=1)
 ```
 
 ## Example: crab
@@ -521,7 +531,7 @@ crab$sp.sex <- factor(paste(crab$species, crab$sex))
 crab.lda <- lda(sp.sex~., data=crab[,-c(1,2)], 
                  prior=c(0.25, 0.25, 0.25, 0.25))
 c.p <- data.frame(predict(crab.lda, crab)$x, sp.sex=crab$sp.sex)
-qplot(LD1, LD2, data=c.p, color=sp.sex) + theme(aspect.ratio=1)
+ggplot(data=c.p, aes(x=LD1, y=LD2, color=sp.sex)) + geom_point() + theme(aspect.ratio=1)
 ```
 
 ## Assumptions for LDA
