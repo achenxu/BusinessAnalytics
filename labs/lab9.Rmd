@@ -1,0 +1,202 @@
+---
+title: "ETC3250 Lab 9"
+author: "Di Cook"
+date: "Week 9"
+output: pdf_document
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  echo=FALSE,
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+```{r}
+library(readr)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(GGally)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(e1071)
+library(caret)
+library(gridExtra)
+```
+
+## Purpose
+
+This lab will fit a variety of classifiers (support vector machines, trees and forests) to two different data sets, and compare results. 
+
+## Data
+
+- chocolates data used in the previous lab
+- Bob Ross paintings
+
+## Question 1
+
+```{r}
+choc <- read.csv("../data/chocolates.csv", 
+                  stringsAsFactors = FALSE)
+
+choc$Type <- factor(choc$Type)
+choc_sub <- select(choc, Type:Protein)
+rownames(choc_sub) <- paste(choc$MFR, choc$Name, choc$Country)
+
+choc_new <- read.csv("../data/chocolates-new.csv", 
+                  stringsAsFactors = FALSE)
+```
+
+a. Read in the chocolates data, from the class web site. 
+b. Fit a linear kernel support vector machine. Report the equation of the separating hyperplane.
+c. Compute the error.
+d. Does the error get smaller if you use a different kernel?
+e. Predict the new data.
+
+```{r results='hide'}
+choc_svm <- svm(Type~., data=choc_sub, kernel="linear")
+t(as.matrix(choc_svm$coefs))%*%choc_svm$SV
+choc_svm$rho
+table(choc_sub$Type, predict(choc_svm, choc_sub))
+choc_pred_svm <- predict(choc_svm, choc_new)
+```
+
+## Question 2
+
+a. Fit a tree classifier to the data, using the default settings. Print the tree and write down the decision rule.
+b. Compute the error.
+c. Make a plot that shows the boundary.
+d. Plot (on the training data) and predict the new data. 
+e. Try adjusting the controls (e.e. minimum split), to get a lower error. 
+
+```{r fig.show='hide', results='hide'}
+choc_rp <- rpart(Type~., data=choc_sub)
+prp(choc_rp)
+ggplot(data=choc_sub, aes(x=Fiber, y=CalFat, colour=Type)) + 
+  geom_point() +
+  geom_vline(xintercept=4.8256, colour="black") + 
+  geom_segment(aes(x=0, xend=4.8256, y=337.7, yend=337.7), colour="black") + 
+  theme(aspect.ratio=1, legend.position="bottom")
+table(choc_sub$Type, predict(choc_rp, choc_sub, type="class"))
+choc_pred_rp <- predict(choc_rp, choc_new, type="class")
+```
+
+## Question 3
+
+a. Fit a random forest to the chocolates data. 
+b. Report the error.
+c. Use a parallel coordinate plot to display the data using the importance to order the variables. 
+d. Predict the new data.
+
+```{r fig.show='hide', results='hide'}
+choc_rf <- randomForest(Type~., data=choc_sub, importance=TRUE, ntree=500, mtry=4)
+choc_rf
+data.frame(Var=rownames(choc_rf$importance), choc_rf$importance) %>%
+  arrange(desc(MeanDecreaseAccuracy))
+ord <- order(choc_rf$importance[,4], decreasing=T) + 1
+ggparcoord(choc_sub, columns=ord[1:5], groupColumn="Type")
+choc_pred_rf <- predict(choc_rf, choc_new)
+```
+
+## Question 4
+
+a. Which of the new cases do the methods all agree on? On which ones is there disagreement?
+b. Plot the cases where there is disagreement on the full data, in a parallel coordinate plot (as used in Q3). 
+
+```{r fig.show='hide', results='hide'}
+choc_pred_svm
+choc_pred_rp
+choc_pred_rf
+choc_sub_plus <- bind_rows(choc_sub, choc_new[1,])
+choc_sub_plus$Type <- as.character(choc_sub_plus$Type)
+choc_sub_plus$Type[88] <- "Uncertain"
+ggparcoord(choc_sub_plus, columns=ord[1:5], groupColumn="Type") + theme_bw()
+```
+
+## Question 5
+
+This last question is to analyse the happy paintings by Bob Ross. This was the subject of the [538 post](http://fivethirtyeight.com/features/a-statistical-analysis-of-the-work-of-bob-ross/), "A Statistical Analysis of the Work of Bob Ross".
+
+We have taken the painting images from the [sales site](http://www.saleoilpaintings.com/paintings/bob-ross/bob-ross-sale-3_1.html), read the images into R, and resized them all to be 20 by 20 pixels. Each painting has been classified into one of 8 classes based on the title of the painting. This is the data that you will work with.
+
+It is provided in wide and long form. Long form is good for making pictures of the original painting, and the wide form is what you will need to use for fitting the classification models. In wide form, each row corresponds to one painting, and the rgb color values at each pixel are in each column. With a $20\times20$ image, this leads to $400\times3=1200$ columns.
+
+Here are three of the original paintings in the collection, labelled as "scene", "water", "flowers":
+
+![bobross5](../data/bobross5.jpg)
+![bobross41](../data/bobross140.jpg)
+![bobross140](../data/bobross167.jpg)
+
+```{r fig.width=8, fig.height=2.5}
+paintings <- read_csv("../data/paintings-train.csv")
+paintings_long <- read_csv("../data/paintings-long-train.csv")
+df <- filter(paintings_long, id == 5)
+p1 <- ggplot(data=df, aes(x, -y, fill=h)) + geom_tile() + 
+  scale_fill_identity(labels=df$h) + theme_bw() +
+    theme(axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank())
+df <- filter(paintings_long, id == 140)
+p2 <- ggplot(data=df, aes(x, -y, fill=h)) + geom_tile() + 
+  scale_fill_identity(labels=df$h) + theme_bw() +
+    theme(axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank())
+df <- filter(paintings_long, id == 167)
+p3 <- ggplot(data=df, aes(x, -y, fill=h)) + geom_tile() + 
+  scale_fill_identity(labels=df$h) + theme_bw() +
+    theme(axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank())
+grid.arrange(p1, p2, p3, ncol=3)
+```
+
+a. Explain the difference between the long and the wide format of the data.
+b. Subset the data to focus on two classes, `flowers` and `cold`.
+c. Build a random forest for the training data. 
+d. Predict the class of test set, report the error.
+e. Which pixels are the most important for distinguishing these two types of paintings? 
+f. Plot one of the `flower` paintings that was misclassified as `cold`. Can you see any reasons why this might be?
+
+```{r results='hide', fig.show='hide'}
+p_sub <- paintings %>% 
+  filter(class %in% c("flowers", "cold")) %>% 
+  arrange(class)
+p_sub$class <- factor(p_sub$class)
+p_rf <- randomForest(class~., data=p_sub[,-c(1,2)], ntree=10000,
+                     importance=TRUE)
+p_rf
+data.frame(Var=rownames(p_rf$importance), p_rf$importance) %>%
+  arrange(desc(MeanDecreaseAccuracy)) %>% head
+p_sub$class; p_rf$predicted
+p_sub[41,1:5]
+df <- filter(paintings_long, id == 188)
+ggplot(data=df, aes(x, -y, fill=h)) + geom_tile() + 
+  scale_fill_identity(labels=df$h) + theme_bw() +
+    theme(axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank())
+```
+
+## WHAT TO TURN IN
+
+Turn in two items: a `.Rmd` document, and the output `.pdf` or `.docx` from running it. No need to include the R output in your output, but the code should be in the Rmd file. Include your plots in your output.
