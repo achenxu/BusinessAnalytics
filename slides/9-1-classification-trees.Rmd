@@ -1,0 +1,535 @@
+---
+title: 'ETC3250:  Classification with Trees & Forests'
+author: "Professor Di Cook, Econometrics and Business Statistics"
+date: "Week 9, class 1"
+output:
+  beamer_presentation: 
+    theme: Monash
+---
+
+## Decision trees
+
+- Recursive binary splitting 
+- Compute all possible splits $(n-1)$ on every variable ($p$)
+- Choose the best split of the data, the one that separates it into two groups which are the most "pure"
+- Continue to operate on each of the subsets until a stopping criteria is satisfied (e.g. all cases in the subset are of one class, there are less than $m$ cases in a subset, ...)
+
+## Example: olive oils
+
+```{r cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=3, fig.width=3}
+library(ggplot2)
+library(tourr)
+library(dplyr)
+library(tidyr)
+library(scales)
+library(rpart)
+library(rpart.plot)
+library(gridExtra)
+library(GGally)
+library(randomForest)
+library(ggthemes)
+
+data(olive)
+olive$region <- factor(olive$region, labels=c("South", "Sardinia", "North"))
+#qplot(eicosenoic, linoleic, data=olive, color=region, shape=region, 
+#      alpha=I(0.8)) +
+#  theme(aspect.ratio=1, legend.position="None")
+
+olive.rp <- rpart(region~eicosenoic + linoleic, data=olive)
+options(digits=2)
+print(olive.rp)
+table(olive$region, predict(olive.rp, olive, type="class"))
+```
+
+## Example: olive oils
+
+```{r olive-fit, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.height=2.5, fig.width=2.5}
+prp(olive.rp, varlen=5)
+```
+
+## Example: olive oils
+
+```{r olive-splits, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, fig.height=3.5, fig.width=3.5}
+qplot(eicosenoic, linoleic, data=olive, color=region, shape=region, 
+      alpha=I(0.8)) +
+  geom_vline(xintercept=6.5, color="black") +
+  geom_segment(aes(x=0, xend=6.5, y=1054, yend=1054), color="black") + 
+  theme(aspect.ratio=1, legend.position="None")
+```
+
+## Measuring the quality of splits
+
+- Explanation for two classes (0,1), and $p$=proportion in class 0
+- Entropy: $-p(log_e p)-(1-p)log_e(1-p)$
+- Gini: $2p(1-p)$
+- Misclassification: $1-2|p-0.5|$
+
+## What these look like
+
+```{r impurity, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, fig.height=2.5, fig.width=3.5}
+p <- seq(0, 1, 0.01)
+ent <- scales::rescale(-p*log(p)-(1-p)*log(1-p))
+gini <- scales::rescale(2*p*(1-p))
+misc <- scales::rescale(1-2*abs(p-0.5))
+df <- data.frame(p, ent, gini, misc)
+df.m <- gather(df, impurity, value, -p)
+qplot(p, value, data=df.m, color=impurity, geom="line")
+```
+
+## Choosing the best split
+
+```{r splits, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, fig.height=2.5, fig.width=3.5}
+x <- sort(rnorm(9)*100)
+y <- c(0,0,0,1,0,1,1,1,1)
+df <- data.frame(x, y)
+spl <- (x[1:8] + x[2:9])/2
+qplot(x, y, data=df, color=factor(y), shape=factor(y)) + 
+  geom_vline(xintercept=spl, linetype=2) +
+  theme(legend.position="None") 
+```
+
+## Choosing the best split
+
+- Calculate the impurity for each subset, and combine
+- $p^L$ impurity $_L + p^R$ impurity$_R$
+
+```{r splits2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, fig.height=2.5, fig.width=3.5}
+calc.entropy <- function(x, cl) {
+  ox <- order(x)
+  n <- length(x)
+  impurity <- NULL
+  for (i in 1:(n-1)) {
+    imp <- 0
+    cnt <- 0
+    cntL <- 0
+    for (k in 1:i) {
+      if (cl[ox[k]]==1) cntL <- cntL+1
+    }
+    cntR <- 0
+    for (k in (i+1):n) {
+      if (cl[ox[k]]==1) cntR <- cntR+1
+    }
+    pclL <- cntL/i
+    pclR <- cntR/(n-i)
+    if (pclL>0 & pclL<1)
+      imp <- (i/n)*(-pclL*log(pclL) - (1-pclL)*log(1-pclL))
+    if (pclR>0 & pclR<1)
+      imp <- imp + ((n-i)/n)*(-pclR*log(pclR) - (1-pclR)*log(1-pclR))
+#   cat(i,cntL,cntR,pclL,pclR,imp,i/n,(n-i)/n,"\n")
+#    impurity<-rbind(impurity,c((x[ox[i]]+x[ox[i]+1])/2,imp,
+#      (cl[ox[i]]+cl[ox[i]+1])/2))
+    impurity <- rbind(impurity,c((x[ox[i]]+x[ox[i+1]])/2,imp))
+  }     
+  return(data.frame(x=impurity[,1], ent=impurity[,2]))
+}
+imp <- calc.entropy(df$x, df$y)
+imp
+```
+
+## Choosing the best split
+
+```{r splits3, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, fig.height=2.5, fig.width=3.5}
+df$yb <- 0
+bestspl <- data.frame(x=imp$x[5], ent=imp$ent[5])
+ggplot(data=df) + 
+  geom_point(aes(x, yb, colour=factor(y), shape=factor(y))) + 
+  geom_point(data=imp, mapping=aes(x=x, y=ent), colour=I("black"), 
+             shape=I(1), size=3) + ylab("entropy") + 
+  geom_vline(xintercept=spl, linetype=2) +
+  geom_point(data=bestspl, aes(x=x, y=ent), colour="red") +
+  geom_vline(xintercept=spl[5], colour="red") +
+  theme(legend.position="None") 
+```
+
+## Example: olive oils
+
+```{r olivesplits, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, fig.height=2.5, fig.width=3.5}
+olive.sub <- subset(olive, region != "South")
+olive.sub$region <- factor(olive.sub$region, labels=c(0,1))
+imp <- calc.entropy(olive.sub$linoleic, olive.sub$region)
+qplot(x, ent, data=imp, geom="line") +
+  geom_point(data=olive.sub, aes(x=linoleic, y=0, colour=region), alpha=0.4) +
+  geom_vline(xintercept=1054, color="red") + ylab("entropy") + xlab("linoleic") +
+  ylim(0, 0.7)
+```
+
+## Example: olive oils
+
+```{r olivesplits2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, fig.height=5, fig.width=9}
+imp <- calc.entropy(olive.sub$palmitic, olive.sub$region)
+p1 <- qplot(x, ent, data=imp, geom="line") +  xlab("palmitic") +
+  geom_point(data=olive.sub, aes(x=palmitic, y=0, colour=region), alpha=0.4) +
+  ylab("") + ylim(0, 0.7) + theme(legend.position="None")
+imp <- calc.entropy(olive.sub$palmitoleic, olive.sub$region)
+p2 <- qplot(x, ent, data=imp, geom="line") +  xlab("palmitoleic") +
+  geom_point(data=olive.sub, aes(x=palmitoleic, y=0, colour=region), alpha=0.4) +
+  ylab("") + ylim(0, 0.7) + theme(legend.position="None")
+imp <- calc.entropy(olive.sub$stearic, olive.sub$region)
+p3 <- qplot(x, ent, data=imp, geom="line") +  xlab("stearic") +
+  geom_point(data=olive.sub, aes(x=stearic, y=0, colour=region), alpha=0.4) +
+  ylab("") + ylim(0, 0.7) + theme(legend.position="None")
+imp <- calc.entropy(olive.sub$oleic, olive.sub$region)
+p4 <- qplot(x, ent, data=imp, geom="line") +  xlab("oleic") +
+  geom_point(data=olive.sub, aes(x=oleic, y=0, colour=region), alpha=0.4) +
+  ylab("") + ylim(0, 0.7) + theme(legend.position="None")
+imp <- calc.entropy(olive.sub$linoleic, olive.sub$region)
+p5 <- qplot(x, ent, data=imp, geom="line") +  xlab("linoleic") +
+  geom_point(data=olive.sub, aes(x=linoleic, y=0, colour=region), alpha=0.4) +
+  ylab("") + ylim(0, 0.7) + theme(legend.position="None")
+imp <- calc.entropy(olive.sub$linolenic, olive.sub$region)
+p6 <- qplot(x, ent, data=imp, geom="line") +  xlab("linolenic") +
+  geom_point(data=olive.sub, aes(x=linolenic, y=0, colour=region), alpha=0.4) +
+  ylab("") + ylim(0, 0.7) + theme(legend.position="None")
+imp <- calc.entropy(olive.sub$arachidic, olive.sub$region)
+p7 <- qplot(x, ent, data=imp, geom="line") +  xlab("arachidic") +
+  geom_point(data=olive.sub, aes(x=arachidic, y=0, colour=region), alpha=0.4) +
+  ylab("") + ylim(0, 0.7) + theme(legend.position="None")
+grid.arrange(p1, p2, p3, p4, p5, p6, p7, nrow=2, ncol=4)
+```
+
+## Stopping rules
+
+- *minsplit:* minimum number of observations allowed in order to consider splitting
+- *minbucket:* minimum number of observations in a terminal node
+- *cp (0.01):* complexity parameter. The decrease in impurity cannot be less than this.
+
+## Overfitting
+
+- It is possible to force a tree to fit the training sample very closely, by tweaking these stopping rules.
+- This could lead to overfitting, really small error with the training data and much higher error with validation data, and hence test data.
+- Tuning the algorithm control parameters with the validation set is really important.
+
+## Overfitting example
+
+![figures/overfit1.pdf](overfit1.png)
+
+## Overfitting example
+
+![figures/overfit2.pdf](overfit2.png)
+
+## Overfitting example
+
+![figures/overfit3.pdf](overfit3.png)
+
+## Overfitting example
+
+![figures/overfit4.pdf](overfit4.png)
+
+## Overfitting example
+
+![figures/overfit5.pdf](overfit5.png)
+
+## Overfitting example
+
+![figures/overfit6.pdf](overfit6.png)
+
+## Overfitting example
+
+![figures/overfit7.pdf](overfit7.png)
+
+## Overfitting example
+
+![figures/overfit8.pdf](overfit8.png)
+
+## Overfitting example
+
+![figures/overfit9.pdf](overfit9.png)
+
+## Overfitting example
+
+![figures/overfit10.pdf](overfit10.png)
+
+## Overfitting example
+
+![figures/overfit11.pdf](overfit11.png)
+
+## Overfitting example
+
+![figures/overfit12.pdf](overfit12.png)
+
+## Pruning
+
+- Grow an overly complex tree
+- Prune back the weakest branches, using the cost complexity, or cross-validation to get the lowest validation error
+
+## Example: crabs
+
+```{r crab, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, fig.height=5, fig.width=9}
+crab <- read.csv("http://www.ggobi.org/book/data/australian-crabs.csv")
+crab <- subset(crab, species=="Blue", select=c("sex", "FL", "RW"))
+crab.rp <- rpart(sex~FL+RW, data=crab, parms = list(split = "information"), 
+                 control = rpart.control(minsplit=8))
+crab.rp
+```
+
+## Example: crabs
+
+```{r crab2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, fig.height=5, fig.width=9}
+prp(crab.rp, varlen=6)
+```
+
+## Example: crabs
+
+```{r crab3, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, fig.height=5, fig.width=9}
+qplot(FL, RW, data=crab, color=sex, shape=sex) + 
+  theme(aspect.ratio=1) + 
+  geom_vline(xintercept=16, linetype=3) + 
+  geom_segment(aes(x=7, xend=16, y=12, yend=12), color="black", linetype=3) +
+  geom_segment(aes(x=12, xend=12, y=12, yend=17), color="black", linetype=3) + 
+  geom_segment(aes(x=7, xend=16, y=8.1, yend=8.1), color="black", linetype=3) +
+  geom_segment(aes(x=11, xend=11, y=8.1, yend=12), color="black", linetype=3) +
+  geom_segment(aes(x=11, xend=16, y=11, yend=11), color="black", linetype=3) +
+  geom_segment(aes(x=11, xend=11, y=8.1, yend=11), color="black", linetype=3) +
+  geom_segment(aes(x=12, xend=16, y=11, yend=11), color="black", linetype=3) +
+  geom_segment(aes(x=14, xend=14, y=11, yend=12), color="black", linetype=3) +
+  geom_segment(aes(x=16, xend=21.3, y=16, yend=16), color="black", linetype=3)
+```
+
+## Example: crabs
+
+Complex tree
+
+```{r crab-unpruned, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, fig.height=5, fig.width=9}
+crab.rp <- rpart(sex~FL+RW, data=crab, parms = list(split = "information"), 
+                 control = rpart.control(minsplit=3))
+prp(crab.rp)
+```
+
+## Example: crabs
+
+Pruned tree
+
+```{r crab-pruned, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, fig.height=5, fig.width=9}
+crab.rp.prune <- prune(crab.rp, cp=0.05)
+prp(crab.rp.prune)
+```
+
+## Advantages and disadvantages
+
+- The decision rules provided by trees are very easy to explain, and follow. A simple classification model. 
+- Trees can handle a mix of predictor types, categorical, quantitative, ....
+- Trees efficiently operate when there are missing values in the predictors.
+- 
+- Algorithm is greedy, a better final solution might be obtained by taking a second best split earlier
+- When separation is in linear combinations of variables trees struggle to provide a good classification
+
+## Random forests - overview
+
+- Multiple trees, fit to samples
+- Sample cases, using bootstrapping (ones not chosen are called out-of-bag, used for testing purposes)
+- Sample variables
+- Lots of control parameters
+- Lots of diagnostics generated!
+
+## Bagging
+
+- Bagging stands for "bootstrap aggregation". Combine the results from multiple models built on different bootstrap samples.
+- Random forests are an example of bagging
+- Bagging can be used with almost any classifier
+- Bagging reduces variation in estimates
+
+## Forest algorithm
+
+1. Input: $L = {(x_i, y_i), i=1, ..., n}, y_i \in \{1, ..., g\}, m < p$, number of variables chosen for each tree, $B$ is the number of bootstrap samples.
+2. For $b =1, 2, ..., B$:
+  - Draw a bootstrap sample, $L^{*b}$ of size $n^{*b}$ from $L$.
+  - Grow tree classifier, $T^{*b}$. At each node use a random selection of $m$ variables, and grow to maximum depth without pruning.
+  - Predict the class of each case not drawn in $L^{*b}$.
+3. Combine the predictions for each case, by majority vote, to give predicted class.
+
+## Input defaults
+
+- $B$ is at least $1000$
+- $m = \sqrt(p)$
+- $n^{*b}$ is usually about $\frac{2}{3} n$
+
+## Error
+
+Compute the proportion of times the case is misclassified when it is out-of-bag (oob). Average these to give the predictive error.
+
+## Diagnostics
+
+- Variable importance: more complicated than one might think
+- Vote matrix, $n\times g$: Proportion of times a case is predicted to the class $k$.
+- Proximities, $n\times n$: Closeness of cases measured by how often they are in the same terminal node.
+
+## Variable importance
+
+1. For every tree predict the oob cases and count the number of votes cast for the correct class. 
+2. Randomly permute the values on a variable in the oob cases and predict the class for these cases. 
+3. Subtract the number of votes for the correct class in the variable-permuted oob cases from the number of votes for the correct class in the real oob cases. The average of this number over all trees in the forest is the raw importance score for that variable. If the value is small, then the variable is not very important. 
+
+## Gini importance
+
+- Gini importance adds up the difference in impurity value of the descendant nodes with the parent node. 
+- Quick to calculate, and usually consistent with the results of the permutation method.
+
+## Vote matrix
+
+- Proportion of trees the case is predicted to be each class, ranges between 0-1
+- Can be used to identify troublesome cases.
+- Used with plots of the actual data can help determine if it is the record itself that is the problem, or if it is a limitation of the method.
+- Understand the difference in accuracy of prediction for different classes.
+
+## Proximities
+
+- Run both in- and out-of-bag cases down the tree, and increase proximity value of cases $i, j$ by 1 each time they are in the same terminal node. 
+- Normalize by dividing by $B$.
+
+## Example: Fit tree to olive samples from the south
+
+```{r olives, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=3, fig.width=3}
+data(olive)
+olive.sth <- filter(olive, region==1)
+olive.sth <- select(olive.sth, area:eicosenoic)
+olive.sth$area <- factor(olive.sth$area, labels=c("Cal","NthAp","Sic","SthAp"))
+
+olive.sth <- arrange(olive.sth, area)
+indx <- sort(c(sample(1:56,28), sample(57:81, 13), sample(82:117, 18), sample(118:323, 102)))
+olive.s.tr <- olive.sth[indx,]
+olive.s.ts <- olive.sth[-indx,]
+olive.rp <- rpart(area~., data=olive.s.tr, parms = list(split = "information"), 
+                 control = rpart.control(cp=0.0001, minsplit=5))
+olive.rp <- prune(olive.rp, cp=0.01)
+options(digits=4)
+x <- addmargins(table(olive.s.ts$area, predict(olive.rp, olive.s.ts, type="class")),2)
+x <- cbind(x, error=c(sum(x[1,-c(1,5)])/x[1,5], sum(x[2,-c(2,5)])/x[2,5], sum(x[3,-c(3,5)])/x[3,5], sum(x[4,-c(4,5)])/x[4,5]))
+x
+```
+
+Test error = `r round(1-sum(diag(x)[-5])/sum(x[,5]), 3)`
+
+## Example: Tree model
+
+```{r olives2, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=6, fig.width=6}
+prp(olive.rp)
+```
+
+## Example: A look at the data
+
+```{r olives3, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=8, fig.width=10}
+ggscatmat(olive.sth, columns=c(3,4,6,7,8), color="area")
+```         
+
+## Example: Fit a random forest model
+
+```{r olives4, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=8, fig.width=10}
+olive.rf <- randomForest(area~., data=olive.sth, importance=TRUE, proximity=TRUE)
+olive.rf
+```    
+
+## Example: Think about it
+
+- Error rates: notice anything?
+- What were the input parameters?
+
+## Example: Variable importance, overall
+
+```{r olives5, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=8, fig.width=10}
+options(digits=2)
+imp <- data.frame(vars=rownames(olive.rf$importance), olive.rf$importance)
+arrange(imp[,c(1,6:7)], desc(MeanDecreaseGini))
+```    
+
+## Example: by class
+
+```{r olives6, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=8, fig.width=10}
+options(digits=2)
+imp <- data.frame(vars=rownames(olive.rf$importance), olive.rf$importance)
+arrange(imp[,c(1:5)], desc(Cal))
+```    
+
+## Example: Use to choose vars for scatmat
+
+```{r olives7, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=8, fig.width=10}
+ggscatmat(olive.sth, columns=c(5,4,6,3), col="area")
+```    
+
+## Example: Use to arrange par coords
+
+```{r olives8a, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=3, fig.width=6}
+ggparcoord(olive.sth, columns=c(5,4,6,3), groupColumn="area", alphaLines = 0.5) + theme_bw()
+```    
+
+## Example: Without the large group
+
+```{r olives8b, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=3, fig.width=6}
+ggparcoord(subset(olive.sth, area!= "SthAp"), columns=c(5,4,6,3), groupColumn="area") + theme_bw() 
+```    
+
+## Example: Without the trouble maker class
+
+```{r olives8c, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=3, fig.width=6}
+ggparcoord(subset(olive.sth, area!= "Sic"), columns=c(5,4,6,3), groupColumn="area", alphaLines = 0.5) + theme_bw()
+```    
+
+## Example: Vote matrix
+
+```{r olives9, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=6, fig.width=8}
+head(olive.rf$votes)
+vt <- data.frame(olive.rf$votes)
+vt$area <- olive.sth$area
+## Example: Vote matrix
+```
+
+## Example: Vote matrix
+
+```{r olives9b, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=6, fig.width=8}
+ggscatmat(vt, columns=1:4, col="area")
+```
+
+## Example: Vote matrix
+
+```{r olives10, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=6, fig.width=8}
+ggscatmat(subset(vt, area!="Sic"), columns=c(1,2,4), col="area")
+```
+
+## Example: Vote matrix
+
+```{r olives11, cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=6, fig.width=8}
+f.helmert <- function(d)
+{
+  helmert <- rep(1/sqrt(d), d)
+  for(i in 1:(d-1))
+  {
+    x <- rep(1/sqrt(i*(i+1)), i)
+    x <- c(x, -i/sqrt(i*(i+1)))
+    x <- c(x, rep(0, d - i - 1))
+    helmert <- rbind(helmert, x)
+  }
+  rownames(helmert) <- paste("V", 1:d, sep="")
+  return(helmert)
+}
+proj <- t(f.helmert(4)[-1,])
+vtp <- as.matrix(vt[,-5])%*%proj
+vtp <- data.frame(vtp, area=vt$area)
+ggscatmat(vtp, columns=1:3, col="area")
+
+# Look at the vote matrix in 3D
+#library(tourr)
+#library(RColorBrewer)
+#x11()
+#pal <- brewer.pal(4, "Dark2")
+#col <- pal[as.numeric(vtp[, 4])]
+#animate_xy(vtp[,1:3], col=col, display=display_xy(axes = "bottomleft"))
+```    
+
+## Videos explaining exploring trees and forests
+
+Cook & Swayne (2007) "Interactive and Dynamic Graphics for Data Analysis: With Examples Using R and GGobi" have several videos illustrating techniques for exploring high-dimensional data in association with trees and forest classifiers:
+
+- [Trees](http://www.ggobi.org/book/chap-class/Trees.mov)
+- [Forests](http://www.ggobi.org/book/chap-class/Forests.mov)
+
+And this paper ([Wickham, Cook and Hofmann, 2015](http://onlinelibrary.wiley.com/doi/10.1002/sam.11271/full)) contains links to  videos describing why and how of visualisaing models in high-dimensional spaces.
+
+## Proximity matrix
+
+- $323 \times 323$ matrix, effectively a distance matrix for all cases from each other
+- These distances can be passed to an unsupervised classification, clustering, to examine similarity between cases. 
+- You would expect cases in different classes to be further from each other, cases within the same class to be close to each other by this metric.
+- We will talk about clustering in the next section of the class.
+
+## Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
