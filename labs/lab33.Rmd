@@ -29,7 +29,7 @@ Understand all the steps in the proof of the bias-variance decomposition availab
 
 ### Assignment - Question 1
 
-Using the bias-variance decomposition, show that $E[(y - \hat f(x_0))]$ is minimum when $\hat f(x_0) = E[y | x = x_0]$.  What is this minimum value?
+Using the bias-variance decomposition, show that $E[(y - \hat f(x_0))^2]$ is minimum when $\hat f(x_0) = E[y | x = x_0]$.  What is this minimum value?
 
 ## Applied exercises
 
