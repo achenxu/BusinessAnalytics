@@ -1,0 +1,193 @@
+---
+title: "ETC3250 Lab 9"
+author: "Di Cook"
+date: "SOLUTION"
+output: pdf_document
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  echo=FALSE,
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+options(digits=2)
+```
+
+```{r}
+library(readr)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(GGally)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(e1071)
+library(caret)
+library(gridExtra)
+```
+
+## Purpose
+
+This lab will fit a variety of classifiers (support vector machines, trees and forests) to two different data sets, and compare results. 
+
+## Data
+
+- chocolates data used in the previous lab
+- Bob Ross paintings
+
+## Question 1
+
+```{r}
+choc <- read.csv("../data/chocolates.csv", 
+                  stringsAsFactors = FALSE)
+
+choc$Type <- factor(choc$Type)
+choc_sub <- select(choc, Type:Protein)
+rownames(choc_sub) <- paste(choc$MFR, choc$Name, choc$Country)
+
+choc_new <- read.csv("../data/chocolates-new.csv", 
+                  stringsAsFactors = FALSE)
+```
+
+```{r}
+choc_svm <- svm(Type~., data=choc_sub, kernel="linear")
+t(as.matrix(choc_svm$coefs))%*%choc_svm$SV
+choc_svm$rho
+table(choc_sub$Type, predict(choc_svm, choc_sub))
+choc_pred_svm <- predict(choc_svm, choc_new)
+choc_svm2 <- svm(Type~., data=choc_sub)
+table(choc_sub$Type, predict(choc_svm2, choc_sub))
+```
+
+a. Read in the chocolates data, from the class web site. 
+b. Fit a linear kernel support vector machine. Report the equation of the separating hyperplane. `The coefficients are` `r t(as.matrix(choc_svm$coefs))%*%choc_svm$SV` `and the contant is` `r choc_svm$rho`
+c. Compute the error. `6/87=0.069`
+d. Does the error get smaller if you use a different kernel?`Other kernels don't really improve predictions for this data. The error with the linear kernel is pretty small.`
+e. Predict the new data. 
+
+```{r}
+choc_pred_svm
+```
+
+## Question 2
+
+```{r}
+choc_rp <- rpart(Type~., data=choc_sub)
+prp(choc_rp)
+ggplot(data=choc_sub, aes(x=Fiber, y=CalFat, colour=Type)) + 
+  geom_point() +
+  geom_vline(xintercept=4.8256, colour="black") + 
+  geom_segment(aes(x=0, xend=4.8256, y=337.7, yend=337.7), colour="black") + 
+  theme(aspect.ratio=1, legend.position="bottom")
+table(choc_sub$Type, predict(choc_rp, choc_sub, type="class"))
+choc_pred_rp <- predict(choc_rp, choc_new, type="class")
+ggplot(data=choc_sub, aes(x=Fiber, y=CalFat, colour=Type)) + 
+  geom_point() +
+  geom_vline(xintercept=4.8256, colour="black") + 
+  geom_segment(aes(x=0, xend=4.8256, y=337.7, yend=337.7), colour="black") + 
+  theme(aspect.ratio=1, legend.position="bottom") +
+  geom_point(data=choc_new, colour="orange", size=5, shape=4)
+choc_rp2 <- rpart(Type~., data=choc_sub,
+              control = rpart.control(minsplit=2, cp = 0.0005))
+table(choc_sub$Type, predict(choc_rp2, choc_sub, type="class"))
+```
+
+a. Fit a tree classifier to the data, using the default settings. Print the tree and write down the decision rule.`The rule is: If Fiber is greater than 4.8 assign new observation to Dark, otherwise if CalFat is greater than or equal to 338 assign to Dark, else assign to Milk.`
+b. Compute the error.`5/87=0.057`
+c. Make a plot that shows the boundary.
+d. Plot (on the training data) and predict the new data. 
+
+```{r}
+choc_pred_rp
+```
+
+e. Try adjusting the controls (e.e. minimum split), to get a lower error. `By adjusting the controls we can get the model to perfectly fit this data. Not necessarily a good idea, because the model may not work well with future data.`
+
+
+## Question 3
+
+```{r}
+choc_rf <- randomForest(Type~., data=choc_sub, importance=TRUE, ntree=500, mtry=4)
+choc_rf
+data.frame(Var=rownames(choc_rf$importance), choc_rf$importance) %>%
+  arrange(desc(MeanDecreaseAccuracy))
+ord <- order(choc_rf$importance[,4], decreasing=T) + 1
+ggparcoord(choc_sub, columns=ord[1:5], groupColumn="Type")
+choc_pred_rf <- predict(choc_rf, choc_new)
+```
+
+a. Fit a random forest to the chocolates data. 
+b. Report the error.`About 13% depending on the sample of trees`
+c. Use a parallel coordinate plot to display the data using the importance to order the variables. 
+d. Predict the new data.
+
+```{r}
+choc_pred_rf
+```
+
+## Question 4
+
+a. Which of the new cases do the methods all agree on? On which ones is there disagreement?
+b. Plot the cases where there is disagreement on the full data, in a parallel coordinate plot (as used in Q3). 
+
+```{r fig.show='hide', results='hide'}
+choc_pred_svm
+choc_pred_rp
+choc_pred_rf
+choc_sub_plus <- bind_rows(choc_sub, choc_new[1,])
+choc_sub_plus$Type <- as.character(choc_sub_plus$Type)
+choc_sub_plus$Type[88] <- "Uncertain"
+ggparcoord(choc_sub_plus, columns=ord[1:5], groupColumn="Type") + theme_bw()
+```
+
+## Question 5
+
+
+```{r fig.width=8, fig.height=2.5}
+paintings <- read_csv("../data/paintings-train.csv")
+paintings_long <- read_csv("../data/paintings-long-train.csv")
+```
+
+```{r}
+p_sub <- paintings %>% 
+  filter(class %in% c("flowers", "cold")) %>% 
+  arrange(class)
+p_sub$class <- factor(p_sub$class)
+p_rf <- randomForest(class~., data=p_sub[,-c(1,2)], ntree=10000,
+                     importance=TRUE)
+p_rf
+data.frame(Var=rownames(p_rf$importance), p_rf$importance) %>%
+  arrange(desc(MeanDecreaseAccuracy)) %>% head
+p_sub$class; p_rf$predicted
+p_sub[41,1:5]
+df <- filter(paintings_long, id == 188)
+ggplot(data=df, aes(x, -y, fill=h)) + geom_tile() + 
+  scale_fill_identity(labels=df$h) + theme_bw() +
+    theme(axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_blank(), aspect.ratio=1) 
+```
+
+a. Explain the difference between the long and the wide format of the data.
+
+`The wide form has the r, g, b values for each pixel in a painting in a column of the matrix. One row corresponds to one painting. We need this for fitting the classifier. The long form has the pixel location in the painting, r, g, b and hex value for each pixel in columns, with one row corresponding to a pixel in a painting.`
+
+b. Subset the data to focus on two classes, `flowers` and `cold`.
+c. Build a random forest for the training data. 
+d. Predict the class of test set, report the error.`The error is around 25%`
+e. Which pixels are the most important for distinguishing these two types of paintings? `b317,b295,g373,... These should be pretty stable from one forest fit to another, if the model is a reliable classifier for future data. There are more variables than cases, which makes it possible that we are simply classifying noise.`
+f. Plot one of the `flower` paintings that was misclassified as `cold`. Can you see any reasons why this might be? `The one I've chosen to plot is simply a hodge podge of color, could be anything!`
+
+
