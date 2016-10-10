@@ -1,0 +1,139 @@
+---
+title: "ETC3250 Lab 10"
+author: "Di Cook"
+date: "SOLUTION"
+output: pdf_document
+---
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  echo=TRUE,
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+```{r echo=FALSE}
+library(readr)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(GGally)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(e1071)
+library(caret)
+library(gridExtra)
+```
+
+
+```{r}
+tr <- read_csv("../data/paintings_training_sub.csv")
+ts <- read_csv("../data/paintings_test_sub.csv")
+```
+
+## Question 1
+
+a. Build a linear discriminant analysis model to predict whether the painting is about flowers or cold theme. 
+b. Compute the error of the model for the test data.
+c. Summarise the coefficients of the LDA classifier.
+
+```{r eval=FALSE}
+library(MASS)
+tr_lda <- lda(class~., data=tr[,-c(1,2)], prior=c(0.5,0.5))
+```
+
+`You cannot run lda because it is not possible to estimate the covariance matrix. The function throws an error if you try to run it.`
+
+## Question 2
+
+a. Build a penalised linear discriminant analysis model to predict whether the painting is about flowers or cold theme. 
+b. Compute the error of the model for the test data. `Error is 0`
+c. Summarise the coefficients of the Penalised LDA classifier.
+`Only 84 of the 1200 are bigger than 0.05, in magnitude. Most coefficients are between -0.05 and 0.05. This is a bit surprising, as we would expect a lot to be really at zero.`
+d. Discuss how these differ fomr the LDA coefficients.`Can't do this becase the LDA model cannot be fitted.`
+
+```{r fig.width=3, fig.height=3, fig.align='center'}
+library(penalizedLDA)
+cls <- ifelse(tr[,3]=="flowers", 2, 1)
+set.seed(1)
+tr_plda <- PenalizedLDA(as.matrix(tr[,-c(1:3)]), cls, 
+                        as.matrix(ts[,-c(1:3)]), lambda=0.001, K=1)
+table(ts$class, tr_plda$ypred)
+length(tr_plda$discrim[tr_plda$discrim>0.05])
+df <- data.frame(num=1:1200, dc=sort(tr_plda$discrim, decreasing=TRUE))
+ggplot(df, aes(x=num, y=dc)) + geom_point() + ylim(c(-0.11, 0.11))
+```
+
+## Question 3
+
+a. Build a support vector machine to predict whether the painting is about flowers or cold theme. `35 of the 45 observations are support vectors. Each has a really small coefficient. It would be interesting to look at the coefficients of the separating hyperplane - its possible that many have non-zero values, which would indicate that it has been affected by high-d low sample size.`
+b. Compute the error of the model for the test data.`1/12=0.083`
+
+
+```{r}
+library(e1071)
+tr_svm <- svm(tr[,-c(1:3)], cls, kernel="linear")
+psvm <- round(predict(tr_svm, ts[,-c(1:3)]), 0)
+table(ts$class, psvm)
+tr_svm$index
+tr_svm$coefs
+```
+
+## Question 4
+
+a. Build a random forest classifier to predict whether the painting is about flowers or cold theme. 
+b. Compute the error of the model for the test data.`0`
+c. Compare the ten most important variables from random forest with that of penalizedLDA. Is there much overlap in the subset of variables?`Not a single common variable!`
+
+```{r fig.width=3, fig.height=3, fig.align='center'}
+library(randomForest)
+tr$class <- factor(tr$class)
+tr_rf <- randomForest(tr[,-c(1:3)], tr$class, ntree=1000, importance=TRUE)
+prf <- predict(tr_rf, ts, type="class")
+table(ts$class, prf)
+df <- data.frame(num=1:1200, imp=sort(tr_rf$importance[,3], decreasing=TRUE))
+ggplot(df, aes(x=num, y=imp)) + geom_point() 
+length(tr_rf$importance[tr_rf$importance[,3]>0.0007,3])
+tr_rf$importance[order(tr_rf$importance[,3])[1:10],]
+names(tr[order(tr_plda$discrim, decreasing=TRUE)[1:10]])
+```
+
+## Question 5
+
+a. Write a paragraph describing the xgboost algorithm, in your own words.
+
+`Boosting re-fits the classifier by re-weighting the observations. It is usually conducted using tree classifiers. The predictions for each weighted tree are combined to give final predictions for each class. XG is for extreme gradient boosting. This is a tweak to the weight calculations to get to the minimum error quickly using a gradient descent minimisation of the loss function.`
+
+b. Build an xgboost model to predict whether the painting is about flowers or cold theme. 
+c. Compute the error of the model for the test data.`The arror varies a lot depending on the inputs. The lowest I got was 1/12=0.083.`
+d. Tweak the inputs to predict the test as best as you can.`The best I got was using eta=0.5, nthread=20, nround=100.`
+
+```{r}
+library(xgboost)
+dtrain <- xgb.DMatrix(as.matrix(tr[,-c(1:3)]), label = cls)
+param <- list(max.depth = 2, eta = 0.5, silent = 1)
+tr_xgb <- xgb.train(param, dtrain, nthread = 20, nround = 100)
+pxgb <- round(predict(tr_xgb, as.matrix(ts[,-c(1:3)])), 0)
+table(ts$class, pxgb)
+```
+
+## Question 6
+
+Write a couple of paragraphs to compare and contrast the different classifiers for building a model on the paintings data.
+
+`This should be a discussion containing these pieces: LDA, we can't do. SVM doesn't need to estimate the variance-covariance matrix, so the model can be computed, but there are symptoms of an ill-specified model due to the many support vectors needed. The test error is low, though. This is similarly the case for penalizedLDA, the test error is perfect, but many variables have fairly high coefficients. XGBoost is fiddly to fit to get a low test error. Random forests is the easiest to explain, and has zero test error.`
+
+`It should be noted that the training error for random forests is 0.24. That perhaps the test data was easy to perfectly separate was a lucky partition of the two groups. XGBoost is interesting, because the training error is 0, and the test error was low. It is difficult to tease apart the importance of variables for XGboost, which would involve examining the weights of each case.`
+
+`There should also be a discussion on important variables. Particularly how there is no overlap in the top 10 for random forests and penalizedLDA. Because it is such a high-dimensional problem, it is likely that variables substitute for each other, that similar separation can be obtained with different subsets of variables.`
+
