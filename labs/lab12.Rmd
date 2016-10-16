@@ -20,7 +20,7 @@ This lab is about diagnosing the results of cluster analysis. We will run differ
 
 The crime dataset (crimes.2008.csv) contains FBI crime rate statistics. These are the indices for 9 different types of crimes reported by the states of the USA, for 2008: violent, property, murder, rape, robbery, assault, burglary, ltheft (larceny theft), vtheft (vehicle theft). The values have been population adjusted so that the numers are per million people.
 
-```{r echo=FALSE, results='hide'}
+```{r echo=TRUE, results='hide'}
 crime <- read.csv("crimes.2008.csv")
 dim(crime)
 crime <- crime[,-c(1,2,4)]
