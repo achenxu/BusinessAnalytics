@@ -1,0 +1,55 @@
+---
+title: "ETC3250 Lab 12"
+author: "Di Cook"
+date: "Week 12"
+output: pdf_document
+---
+
+```{r echo=FALSE, message=FALSE, warning = FALSE}
+library(ggplot2)
+library(GGally)
+library(fpc)
+library(plyr)
+library(reshape)
+#library(vegan)
+```
+
+This lab is about diagnosing the results of cluster analysis. We will run different algorithms, and compare the results to determine which is better.
+
+# Data 
+
+The crime dataset (crimes.2008.csv) contains FBI crime rate statistics. These are the indices for 9 different types of crimes reported by the states of the USA, for 2008: violent, property, murder, rape, robbery, assault, burglary, ltheft (larceny theft), vtheft (vehicle theft). The values have been population adjusted so that the numers are per million people.
+
+```{r echo=FALSE, results='hide'}
+crime <- read.csv("crimes.2008.csv")
+dim(crime)
+crime <- crime[,-c(1,2,4)]
+head(crime)
+crime[,-1] <- scale(crime[,-1])
+rownames(crime) <- crime[,1]
+```
+
+
+
+# Question 1
+
+Make a scatterplot matrix of the crime indices, with and without Washingto DC. Write a paragraph describing the relationships between the statistics, and about any observations about cluster patterns in the data.
+
+# Question 2
+
+Cluster the states using hierarchical clustering, with Euclidean distance and wards linkage. Plot the dendrogram. How many clusters would be suggested by the dendrogram?
+
+# Question 3
+
+Use k-means clustering with *k* set to several different values, say 2-8. Calculate the ratio of between Sum of Squares (SS) to total SS for each value of k. Tabulate this. What is between SS? total SS? What happens to this value as $k$ ranges from 2 to 8? Why is this? Also, what happens if you change the random seed, which changes the initialization of k-means?
+
+# Question 4
+
+Use the *fpc* package in R, and the function *cluster.stats* to produce the statistic *wb.ratio* to examine the within group distances to the between group distances for each cluster solution. How many clusters would be chosen by this approach? (The *wb.ratio* statistic reports the ratio between two quantities comparing within to between distances. The average of the distances between points that are in the same cluster, ie within. And the distances between points that are not in the same cluster, ie between. The smaller the value of this the better the result describes clustering as explaining the variation in the data.)
+
+
+# Question 5
+
+Decide on an appropriate number of clusters, and report the results. Tabulate the cluster means, standard deviation, and number of points in each cluster. Plot the cluster means using a parallel coordinate plot. List the states in each cluster. Write a paragraph describing the characteristics of each cluster, e.g. cluster 3 is characterized by low larceny and vehicle theft.
+
+
