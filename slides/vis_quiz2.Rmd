@@ -1,0 +1,72 @@
+---
+title: "Wrangling Quiz"
+date: "September 6, 2016"
+output: pdf_document
+---
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  echo=FALSE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(knitr)
+```
+
+```{r}
+library(ggplot2)
+library(tidyr)
+library(stringr)
+library(dplyr)
+library(lubridate)
+library(scales)
+library(readr)
+library(ggmap)
+library(HLMdiag)
+library(RColorBrewer)
+library(gridExtra)
+library(dichromat)
+library(xkcd)
+library(maps)
+library(ggmap)
+library(htmltools)
+library(rworldmap)
+library(boot)
+```
+
+## Question 1
+
+a. `Getting your data into tidy form allows for analysing it in many different ways, as opposed to messy data which may be structured to tackle a single purpose.`  TRUE or FALSE
+
+b. `Tidy data is like Lego, Messy data is like playmobile.`  TRUE or FALSE
+
+## Question 2
+
+Match the dplyr verb to the action
+
+```{r}
+x <- data.frame(verb=c("Arrange", "Summarise", "Filter", "Select", "Mutate", "Ungroup"), action=c("Produce subsets", "Reorder the rows", "Create new variables", "Removing existing grouping", "Choose columns","Make summaries of subsets"))
+kable(x)
+```
+
+## Question 3
+
+In the plot below we are looking at the relationship between humidity and air temperature as measured by Pacific Ocen buoys monitoring El Nino. There are missing values coded as 10% below the minimum on both variables. Circle the cases that are missing on humidity but not on air temperature.
+
+```{r fig.width=3, fig.height=3}
+library(MissingDataGUI)
+data(tao)
+tao_nomiss <- tao 
+tao_nomiss$humidity[is.na(tao_nomiss$humidity)] <-
+  min(tao_nomiss$humidity, na.rm=T) - 0.1*diff(range(tao$humidity, na.rm=T))
+tao_nomiss$air.temp[is.na(tao_nomiss$air.temp)] <-
+  min(tao_nomiss$air.temp, na.rm=T) - 0.1*diff(range(tao$air.temp, na.rm=T))
+ggplot(tao_nomiss, aes(x=humidity, y=air.temp)) + geom_point() + theme(aspect.ratio=1)
+```

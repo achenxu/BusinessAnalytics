@@ -1,0 +1,72 @@
+---
+title: "Supervised Classification Quiz 1"
+date: "SOLUTION"
+output: pdf_document
+---
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+options(digits=1)
+library(knitr)
+```
+
+```{r cache=FALSE, echo=FALSE, warning=FALSE, message=FALSE, fig.show='hold', fig.height=2.5, fig.width=2.5}
+library(ggplot2)
+library(tourr)
+library(dplyr)
+library(MASS)
+```
+
+## Question 1
+
+Below are the summary statistics for linoleic acid, in the olive oils data (m=mean, s=sd).
+
+```{r echo=FALSE, fig.align='center', fig.width=3, fig.height=3}
+data(olive)
+olive$region <- factor(olive$region, labels=c("South", "Sardinia", "North"))
+olive.sub <- subset(olive, region != "South")
+olive.sub$region <- factor(olive.sub$region)
+olive.lda <- lda(region~linoleic, data=olive.sub, 
+                 prior=c(0.5, 0.5))
+#olive.lda$means
+olive_s <- olive.sub %>% group_by(region) %>%
+  summarise(m=mean(linoleic), s=sd(linoleic))
+kable(olive_s)
+ggplot(data=olive.sub, aes(x=linoleic, fill=region,
+                           color=region)) + 
+      geom_density(alpha=I(0.5)) +
+  geom_vline(xintercept=961.78) +
+  theme_bw() + theme(legend.position="none", aspect.ratio=1)
+```
+
+a. Sketch the LDA boundary on the plot.
+b. A new observation with linoleic acid equal to 1000 would be classified into which region? `North`
+
+## Question 2
+
+The pooled variance is the same as the variance across all groups. `FALSE`
+
+## Question 3
+
+If the prior probability for group 1 is higher than group 2, the LDA boundary is actually shifted towards group 1? `NO`
+
+## Question 4
+
+Compute the classification error from the tabulation of true class vs predicted class below. `Error rate is` `r 15/(15+98+136)`
+
+```{r echo=FALSE}
+x <- table(olive.sub$region, predict(olive.lda, olive.sub)$class)
+colnames(x) <- c("Pred Sard", "Pred North")
+kable(x)
+```
+

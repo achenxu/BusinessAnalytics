@@ -50,6 +50,9 @@ c. Summarise the coefficients of the LDA classifier.
 ```{r eval=FALSE}
 library(MASS)
 tr_lda <- lda(class~., data=tr[,-c(1,2)], prior=c(0.5,0.5))
+table(ts$class, predict(tr_lda, ts)$class)
+df <- data.frame(num=1:1200, dc=sort(tr_lda$scaling, decreasing=TRUE))
+ggplot(df, aes(num, dc)) + geom_point()
 ```
 
 `You cannot run lda because it is not possible to estimate the covariance matrix. The function throws an error if you try to run it.`
@@ -65,13 +68,16 @@ d. Discuss how these differ fomr the LDA coefficients.`Can't do this becase the 
 ```{r fig.width=3, fig.height=3, fig.align='center'}
 library(penalizedLDA)
 cls <- ifelse(tr[,3]=="flowers", 2, 1)
+cv.out <- PenalizedLDA.cv(as.matrix(tr[,-c(1:3)]), cls, 
+                        as.matrix(ts[,-c(1:3)]))
 set.seed(1)
 tr_plda <- PenalizedLDA(as.matrix(tr[,-c(1:3)]), cls, 
-                        as.matrix(ts[,-c(1:3)]), lambda=0.001, K=1)
+                        as.matrix(ts[,-c(1:3)]), lambda=0.0106, K=1)
 table(ts$class, tr_plda$ypred)
 length(tr_plda$discrim[tr_plda$discrim>0.05])
-df <- data.frame(num=1:1200, dc=sort(tr_plda$discrim, decreasing=TRUE))
-ggplot(df, aes(x=num, y=dc)) + geom_point() + ylim(c(-0.11, 0.11))
+df <- data.frame(num=1:1200, dc_lda=scale(sort(tr_lda$scaling, decreasing=TRUE)), dc_plda=scale(sort(tr_plda$discrim, decreasing=TRUE)))
+ggplot(df, aes(x=num, y=dc_lda)) + geom_point()  + 
+  geom_point(aes(y=dc_plda), colour="red")
 ```
 
 ## Question 3
