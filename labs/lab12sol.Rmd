@@ -1,0 +1,129 @@
+---
+title: "ETC3250 Lab 12 solution"
+author: "Di Cook"
+date: "Week 12"
+output: pdf_document
+---
+
+```{r echo=FALSE, message=FALSE, warning = FALSE}
+library(ggplot2)
+library(GGally)
+library(fpc)
+library(plyr)
+library(reshape)
+#library(vegan)
+```
+
+This lab is about diagnosing the results of cluster analysis. We will run different algorithms, and compare the results to determine which is better.
+
+# Data 
+
+The crime dataset (crimes.2008.csv) contains FBI crime rate statistics. These are the indices for 9 different types of crimes reported by the states of the USA, for 2008: violent, property, murder, rape, robbery, assault, burglary, ltheft (larceny theft), vtheft (vehicle theft). The values have been population adjusted so that the numers are per million people.
+
+```{r echo=FALSE, results='hide'}
+crime <- read.csv("crimes.2008.csv")
+dim(crime)
+crime <- crime[,-c(1,2,4)]
+head(crime)
+crime[,-1] <- scale(crime[,-1])
+rownames(crime) <- crime[,1]
+```
+
+
+
+# Question 1
+
+Make a scatterplot matrix of the crime indices, with and without Washingto DC. Write a paragraph describing the relationships between the statistics, and about any observations about cluster patterns in the data.
+
+```{r fig.width=8, fig.height=8}
+pairs(crime[,2:10])
+```
+
+***The pairwise relationships between the crime statistics reveal some outliers, and some positive association. One state has a very high rate of violent crimes, murder, robbery, larceny theft and vehicle theft. It also has the highest, albeit not by much, rate of property crime. (This  is Washington, DC.) Removing this case makes it easier to read the associations. Most crime statistics show a positive association. The strongest relationships are between property and larceny theft, assault and violent crime. Rape has a different relationship with other crime rates. It has no association with murder, burglary and theft crimes, and a slightly negative association with robbery!  There area few states that have high vehicle theft but relatively other types of crimes.***
+
+# Question 2
+
+Cluster the states using hierarchical clustering, with Euclidean distance and wards linkage. Plot the dendrogram. How many clusters would be suggested by the dendrogram?
+
+```{r fig.height=8, fig.width=8}
+crime.dist <- dist(crime[,-1])
+crime.hc <- hclust(crime.dist, method="ward.D")
+plot(crime.hc, hang=-1)
+```
+
+***2 or 3, mostly. It might be interesting to look at 4, 5, 6 or more clusters, too.***
+
+
+# Question 3
+
+Use k-means clustering with *k* set to several different values, say 2-8. Calculate the ratio of between Sum of Squares (SS) to total SS for each value of k. Tabulate this. What is between SS? total SS? What happens to this value as $k$ ranges from 2 to 8? Why is this? Also, what happens if you change the random seed, which changes the initialization of k-means?
+
+```{r}
+set.seed(407)
+crime.km2 <- kmeans(crime[,-1], 2)
+crime.km2$betweenss/crime.km2$totss
+crime.km3 <- kmeans(crime[,-1], 3)
+crime.km3$betweenss/crime.km3$totss
+crime.km4 <- kmeans(crime[,-1], 4)
+crime.km4$betweenss/crime.km4$totss
+crime.km5 <- kmeans(crime[,-1], 5)
+crime.km5$betweenss/crime.km5$totss
+crime.km6 <- kmeans(crime[,-1], 6)
+crime.km6$betweenss/crime.km6$totss
+crime.km7 <- kmeans(crime[,-1], 7)
+crime.km7$betweenss/crime.km7$totss
+crime.km8 <- kmeans(crime[,-1], 8)
+crime.km8$betweenss/crime.km8$totss
+df <- data.frame(ncl=2:8, bss.tss = c(crime.km2$betweenss/crime.km2$totss, crime.km3$betweenss/crime.km3$totss, crime.km4$betweenss/crime.km4$totss, crime.km5$betweenss/crime.km5$totss, crime.km6$betweenss/crime.km6$totss, crime.km7$betweenss/crime.km7$totss, crime.km8$betweenss/crime.km8$totss))
+qplot(ncl, bss.tss, data=df, geom="line")
+```
+
+***It should increase. As more clusters are added the between cluster SS will be closer and closer to the total SS. Changing the initialization will change the results of the clustering.***
+
+# Question 4
+
+Use the *fpc* package in R, and the function *cluster.stats* to produce the statistic {\tt wb.ratio} to examine the within group distances to the between group distances for each cluster solution. How many clusters would be chosen by this approach? (The *wb.ratio* statistic reports the ratio between two quantities comparing within to between distances. The average of the distances between points that are in the same cluster, ie within. And the distances between points that are not in the same cluster, ie between. The smaller the value of this the better the result describes clustering as explaining the variation in the data.)
+
+```{r}
+cluster.stats(crime.dist, clustering=cutree(crime.hc, 3))$wb.ratio
+cluster.stats(crime.dist, clustering=cutree(crime.hc, 4))$wb.ratio
+cluster.stats(crime.dist, clustering=cutree(crime.hc, 5))$wb.ratio
+cluster.stats(crime.dist, clustering=cutree(crime.hc, 6))$wb.ratio
+cluster.stats(crime.dist, clustering=cutree(crime.hc, 7))$wb.ratio
+cluster.stats(crime.dist, clustering=cutree(crime.hc, 8))$wb.ratio
+cluster.stats(crime.dist, clustering=cutree(crime.hc, 9))$wb.ratio
+cluster.stats(crime.dist, clustering=crime.km5$cluster)$wb.ratio
+```
+
+***The result using 3 clusters is better than 4, but 5, 6, 7, 8, 9 get sequentially lower values. 6, 7, 8 are all very similar so probably 5 is best from this group. The k-means with 5 clusters beats the hierarchical with 5 clusters.***
+
+# Question 5
+
+Decide on an appropriate number of clusters, and report the results. Tabulate the cluster means, standard deviation, and number of points in each cluster. Plot the cluster means using a parallel coordinate plot. List the states in each cluster. Write a paragraph describing the characteristics of each cluster, eg cluster 3 is characterized by low larceny and vehicle theft.
+
+```{r fig.width=10, fig.height=6}
+crime.km5$centers
+# ddply(crime[,-1], .(crime.km3$cluster), colMeans)
+# ddply(crime[,-1], .(crime.km3$cluster), function(x) sapply(x, sd))
+crime.km.centers <- ddply(crime[,-1], .(crime.km5$cluster), colMeans)
+crime.km.centers
+colnames(crime.km.centers)[1] <- "cl"
+crime.km.centers$cl <- factor(crime.km.centers$cl)
+ggparcoord(crime.km.centers, columns=2:10, groupColumn=1, scale="globalminmax")
+```
+
+```{r fig.width=10, fig.height=16}
+crime$cl <- crime.km5$cluster
+crime$cl <- factor(crime$cl)
+crime.m <- melt(crime, id.vars=c("State","cl"))
+ggplot(crime.m, aes(x=variable, y=value, group=State, colour=cl)) + geom_line() + facet_wrap(~cl, ncol=1)
+crime[crime$cl==1,1]
+crime[crime$cl==2,1]
+crime[crime$cl==3,1]
+crime[crime$cl==4,1]
+crime[crime$cl==5,1]
+```
+
+***Five clusters is really enough to summarize the cities. If you look at the 7 cluster solution it is hard to characterize all the clusters as different from each other. Clusters 1, 2, 3 are generally consistent across all variables, and are lowest, medium, highest crime, respectively. Cluster 4 is Washingto DC, and it has high crime on all factors except rape and burglary. Cluster 5 (Alaska and South Dakota) is distinguished by having abnormally high rape statistics. The clusters we get reflects, to a large extent that we used overall counts, so large states will appear together, and small states together. If we had first calculated crime per 1000 people, the results would change.***
+
+
