@@ -73,7 +73,7 @@ ridge.norms <- lasso.norms <- numeric(nalpha)
 
 for(ialpha in seq(nalpha)){
   ridge.norms[ialpha] <- sum(ridge.model$beta[, ialpha]^2)
-  lasso.norms[ialpha] <- sum(lasso.model$beta[, ialpha]^2)
+  lasso.norms[ialpha] <- sum(abs(lasso.model$beta[, ialpha]))
 }
 plot(grid, ridge.norms, type = 'l', log="xy")
 plot(grid, lasso.norms, type = 'l', log="xy")
